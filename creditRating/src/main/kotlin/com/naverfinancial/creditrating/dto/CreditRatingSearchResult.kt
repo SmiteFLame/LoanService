@@ -2,8 +2,8 @@ package com.naverfinancial.creditrating.dto
 
 import javax.persistence.*
 
-//@Table(name="credit_rating_search_results")
-//@Entity
+@Table(name="credit_rating_search_results")
+@Entity
 data class CreditRatingSearchResult (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,7 +12,10 @@ data class CreditRatingSearchResult (
         @Column(nullable = false)
         var grade : Int,
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name="history_id")
-        var history_id: CreditRatingSearchHistory
+        @Column(nullable = false)
+        var history_id : Int
+
+//        @ManyToOne(fetch = FetchType.LAZY)
+//        @JoinColumn(name="history_id", referencedColumnName = "history_id")
+//        var creditRatingSearchHistory: CreditRatingSearchHistory
 )
