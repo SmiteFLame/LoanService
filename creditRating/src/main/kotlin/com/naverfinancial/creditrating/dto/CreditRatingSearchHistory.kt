@@ -9,14 +9,18 @@ import javax.persistence.*
 data class CreditRatingSearchHistory (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var history_id : Int,
+        private var history_id : Int,
 
         @Column(nullable = false)
-        var NDI : String,
+        private var NDI : String,
 
         @Column(nullable = false)
-        var grade : Int,
+        private var grade : Int,
 
         @Column(nullable = false)
-        var created_date : Timestamp
-        )
+        private var created_date : Timestamp
+        ){
+        fun getHistoryId() : Int{
+                return history_id
+        }
+}

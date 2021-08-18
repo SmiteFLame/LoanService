@@ -6,16 +6,17 @@ import javax.persistence.*
 @Entity
 data class CreditRatingSearchResult (
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var NDI : String,
+        private var NDI : String,
 
         @Column(nullable = false)
-        var grade : Int,
+        private var grade : Int,
 
         @Column(nullable = false)
-        var history_id : Int
+        private var history_id : Int
 
 //        @ManyToOne(fetch = FetchType.LAZY)
 //        @JoinColumn(name="history_id", referencedColumnName = "history_id")
 //        var creditRatingSearchHistory: CreditRatingSearchHistory
-)
+){
+
+}
