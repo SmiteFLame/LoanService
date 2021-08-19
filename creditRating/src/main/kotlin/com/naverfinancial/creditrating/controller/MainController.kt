@@ -18,10 +18,14 @@ class MainController {
 
     @PostMapping("")
     fun selectGrade(@RequestBody map : Map<String,String>): ResponseEntity<CreditResult>{
-        if(!map.containsKey("NDI")){
-            return ResponseEntity(HttpStatus.BAD_REQUEST)
+        try {
+            if (!map.containsKey("NDI")) {
+                return ResponseEntity(HttpStatus.BAD_REQUEST)
+            }
+            return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("NDI")), HttpStatus.OK)
+        } catch (err : Exception){
+            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }
-        return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("NDI")), HttpStatus.OK)
 
     }
 }

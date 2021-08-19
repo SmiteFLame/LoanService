@@ -2,7 +2,6 @@ package com.naverfinancial.loanservice.controller
 
 import com.naverfinancial.loanservice.dto.Account
 import com.naverfinancial.loanservice.wrapper.Detail
-import com.naverfinancial.loanservice.dto.User
 import com.naverfinancial.loanservice.service.AccountService
 import com.naverfinancial.loanservice.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,50 +22,67 @@ class AccountController{
 
     @GetMapping()
     fun searchAll(@RequestParam("NDI") NDI: String) : ResponseEntity<List<Account>>{
-        if(NDI.equals("")){
-            return ResponseEntity<List<Account>>(accountService.searchByNDI(NDI), HttpStatus.OK)
+        try{
+            if(NDI.equals("")){
+                return ResponseEntity<List<Account>>(accountService.searchByNDI(NDI), HttpStatus.OK)
+            }
+            return ResponseEntity<List<Account>>(accountService.searchAll(), HttpStatus.OK)
+        } catch (err : Exception){
+            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }
-        return ResponseEntity<List<Account>>(accountService.searchAll(), HttpStatus.OK)
     }
 
     @GetMapping("{account-numbers}")
     fun serarchByAccountNumber(@PathVariable("account-numbers") accountNumbers : String): ResponseEntity<Optional<Account>>{
-        return ResponseEntity<Optional<Account>>(accountService.searchByAccountNumbers(accountNumbers), HttpStatus.OK)
+        try{
+            return ResponseEntity<Optional<Account>>(accountService.searchByAccountNumbers(accountNumbers), HttpStatus.OK)
+        } catch (err : Exception){
+            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+        }
     }
 
     @PostMapping()
     fun openAccount(@RequestBody map : Map<String, String>) : ResponseEntity<Account>{
-        if(!map.containsKey("NDI") || userService.searchUserByNDI(map.getValue("NDI")).isEmpty()){
-            // 존재하지 않는 NDI
-            return ResponseEntity(HttpStatus.BAD_REQUEST)
-        }
+        try{
+            if(!map.containsKey("NDI") || userService.searchUserByNDI(map.getValue("NDI")).isEmpty){
+                // 존재하지 않는 NDI
+                return ResponseEntity(HttpStatus.BAD_REQUEST)
+            }
 
-        var creditResult = accountService.searchGrade(map.getValue("NDI"))
-        if(creditResult.getIsPermit()){
-            // 신용등급 미달 (Status상태 수정 예정)
-            return ResponseEntity(HttpStatus.METHOD_NOT_ALLOWED)
-        }
+            var creditResult = accountService.searchGrade(map.getValue("NDI"))
+            if(creditResult.getIsPermit()){
+                // 신용등급 미달 (Status상태 수정 예정)
+                return ResponseEntity(HttpStatus.NOT_ACCEPTABLE)
+            }
 
-        return ResponseEntity<Account>(accountService.openAccount(map.getValue("NDI"), creditResult), HttpStatus.OK)
+            return ResponseEntity<Account>(accountService.openAccount(map.getValue("NDI"), creditResult), HttpStatus.OK)
+        }catch (err : Exception){
+            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+        }
     }
 
     @PutMapping("{account-numbers}/balance")
     fun applicationLoan(@PathVariable("account-numbers") accountNumbers: String, @RequestBody detail : Detail) : ResponseEntity<Optional<Account>>{
-        if(detail.getType().equals("desposit")){
-            return ResponseEntity<Optional<Account>>(accountService.depositLoan(accountNumbers, detail.getAmount()), HttpStatus.OK)
-        } else if(detail.getType().equals("withdraw")){
-            return ResponseEntity<Optional<Account>>(accountService.withdrawLoan(accountNumbers, detail.getAmount()), HttpStatus.OK)
-        } else{
-            return ResponseEntity(HttpStatus.BAD_REQUEST)
+        try{
+            if(detail.getType().equals("desposit")){
+                return ResponseEntity<Optional<Account>>(accountService.depositLoan(accountNumbers, detail.getAmount()), HttpStatus.OK)
+            } else if(detail.getType().equals("withdraw")){
+                return ResponseEntity<Optional<Account>>(accountService.withdrawLoan(accountNumbers, detail.getAmount()), HttpStatus.OK)
+            } else{
+                return ResponseEntity(HttpStatus.BAD_REQUEST)
+            }
+        }catch (err : Exception){
+            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }
     }
 
     @DeleteMapping("{account-numbers}")
     fun cancelAccount(@PathVariable("account-numbers") accountNumbers: String) : ResponseEntity<Boolean>{
-        cancelAccount(accountNumbers)
-
-        // 잔액이 남아 있다면
-        return ResponseEntity(HttpStatus.METHOD_NOT_ALLOWED)
+        try{
+            return cancelAccount(accountNumbers)
+        }catch (err : Exception){
+            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+        }
     }
 
 }
