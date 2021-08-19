@@ -12,4 +12,8 @@ class Register {
         this.age = age
         this.salary = salary
     }
+    fun getEmails() = emails
+    fun getUserName() = user_name
+    fun getAge() = age
+    fun getSalary() = salary
 }

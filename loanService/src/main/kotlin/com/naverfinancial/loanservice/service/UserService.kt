@@ -6,6 +6,6 @@ import java.util.*
 
 interface UserService {
     fun searchUserByEmails(emails : String) : Optional<User>
-    fun searchUserByNDI(NDI : String) : User
+    fun searchUserByNDI(NDI : String) : Optional<User>
     fun saveUser(register : Register) : User
 }

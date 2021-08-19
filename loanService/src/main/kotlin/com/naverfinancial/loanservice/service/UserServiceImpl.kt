@@ -17,7 +17,7 @@ class UserServiceImpl : UserService {
         return userRespository.findUserByEmail(email)
     }
 
-    override fun searchUserByNDI(NDI: String): User {
+    override fun searchUserByNDI(NDI: String): Optional<User> {
         return userRespository.findUserByNDI(NDI)
     }
 

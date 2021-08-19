@@ -24,8 +24,9 @@ data class User (
     @Column(nullable = false)
     private val salary : Int
 ){
-
-    fun getNDI() : String{
-        return NDI
-    }
+    fun getNDI() = NDI
+    fun getEmail() = email
+    fun getUserName() = user_name
+    fun getAge() = age
+    fun getSalary() = salary
 }
