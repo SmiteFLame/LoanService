@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
 @RestController
@@ -36,7 +37,9 @@ class AccountController{
     fun serarchByAccountNumber(@PathVariable("account-numbers") accountNumbers : String): ResponseEntity<Optional<Account>>{
         try{
             return ResponseEntity<Optional<Account>>(accountService.searchByAccountNumbers(accountNumbers), HttpStatus.OK)
-        } catch (err : Exception){
+        }catch (err : ResponseStatusException){
+            return ResponseEntity(err.status)
+        }catch (err : Exception){
             return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }
     }
@@ -62,15 +65,17 @@ class AccountController{
     }
 
     @PutMapping("{account-numbers}/balance")
-    fun applicationLoan(@PathVariable("account-numbers") accountNumbers: String, @RequestBody detail : Detail) : ResponseEntity<Optional<Account>>{
+    fun applicationLoan(@PathVariable("account-numbers") accountNumbers: String, @RequestBody detail : Detail) : ResponseEntity<Account>{
         try{
-            if(detail.getType().equals("desposit")){
-                return ResponseEntity<Optional<Account>>(accountService.depositLoan(accountNumbers, detail.getAmount()), HttpStatus.CREATED)
+            if(detail.getType().equals("deposit")){
+                return ResponseEntity<Account>(accountService.depositLoan(accountNumbers, detail.getAmount()), HttpStatus.CREATED)
             } else if(detail.getType().equals("withdraw")){
-                return ResponseEntity<Optional<Account>>(accountService.withdrawLoan(accountNumbers, detail.getAmount()), HttpStatus.CREATED)
+                return ResponseEntity<Account>(accountService.withdrawLoan(accountNumbers, detail.getAmount()), HttpStatus.CREATED)
             } else{
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
+        }catch (err : ResponseStatusException){
+            return ResponseEntity(err.status)
         }catch (err : Exception){
             return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }
@@ -80,6 +85,8 @@ class AccountController{
     fun cancelAccount(@PathVariable("account-numbers") accountNumbers: String) : ResponseEntity<Boolean>{
         try{
             return ResponseEntity<Boolean>(accountService.cancelAccount(accountNumbers), HttpStatus.CREATED)
+        }catch (err : ResponseStatusException){
+            return ResponseEntity(err.status)
         }catch (err : Exception){
             return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }

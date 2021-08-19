@@ -1,6 +1,7 @@
 package com.naverfinancial.loanservice.service
 
 import com.naverfinancial.loanservice.dto.Account
+import com.naverfinancial.loanservice.dto.AccountTransactionHistory
 import com.naverfinancial.loanservice.repository.AccountRespository
 import com.naverfinancial.loanservice.repository.AccountTransactionHistoryRespository
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
@@ -32,7 +33,11 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun searchByAccountNumbers(accountNumbers: String): Optional<Account> {
-        return accountRespository.findAccountbyAccountNumbers(accountNumbers)
+        var account = searchByAccountNumbers(accountNumbers)
+        if(account.isEmpty){
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
+        return account
     }
 
     override fun searchByNDI(NDI: String): List<Account> {
@@ -63,7 +68,7 @@ class AccountServiceImpl : AccountService {
             accountId = -1, // AUTO_INCREASED
             accountNumbers = newAccountNumbers,
             NDI = NDI,
-            loanLimit = 5000,
+            loanLimit = -5000,
             balance = 0,
             grade = creditResult.getGrade(),
             status = "normal",
@@ -73,40 +78,65 @@ class AccountServiceImpl : AccountService {
         return accountRespository.save(newAccount)
     }
 
-    override fun depositLoan(accountNumbers: String, amount: Int): Optional<Account> {
+    override fun withdrawLoan(accountNumbers: String, amount: Int): Account {
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
-        if(account.isEmpty){
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
-        }
 
+        // 대출 가능 조사하기
         // 잔고 + 대출을 한 후에 현재 한도 금액보다 작아진다면
         if(account.get().getBalance() + amount < account.get().getLoanLimit()){
             throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
         }
 
-        // 대출 가능 조사하기
-
+        var historyTime = Timestamp(System.currentTimeMillis())
         // 대출 기록 남기기
+        var newAccountTransactionHistory = AccountTransactionHistory(
+            historyId = -1, // AUTO_INCREASED
+            amount = amount,
+            type = "deposit",
+            createdDate = historyTime,
+            accountId = account.get().getAccountID(),
+            accountNumbers = account.get().getAccountNumbers()
+        )
+
+        accountTransactionHistoryRespository.save(newAccountTransactionHistory)
 
         // 계좌 수정하기
-        TODO("Not yet implemented")
+        account.get().withdraw(amount, historyTime)
 
-        // 나중에 오류 감지용
-//
+        return accountRespository.save(account.get())
     }
 
-    override fun withdrawLoan(accountNumbers: String, amount: Int): Optional<Account> {
+    override fun depositLoan(accountNumbers: String, amount: Int): Account {
         // 계좌 가져오기
+        var account = searchByAccountNumbers(accountNumbers)
 
         // 반납 기록 남기기
+        var newAccountTransactionHistory = AccountTransactionHistory(
+            historyId = -1, // AUTO_INCREASED
+            amount = amount,
+            type = "deposit",
+            createdDate = Timestamp(System.currentTimeMillis()),
+            accountId = account.get().getAccountID(),
+            accountNumbers = account.get().getAccountNumbers()
+        )
+
+        accountTransactionHistoryRespository.save(newAccountTransactionHistory)
 
         // 계좌 수정하기
-        TODO("Not yet implemented")
+        account.get().deposit(amount)
+
+        return accountRespository.save(account.get())
     }
 
-    override fun cancelAccount(account_numbers: String): Boolean {
-        // 조건
+    override fun cancelAccount(accountNumbers: String): Boolean {
+        // 계좌 가져오기
+        var account = searchByAccountNumbers(accountNumbers)
+
+        if(account.get().getBalance() < 0){
+            throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
+        }
+
         TODO("Not yet implemented")
     }
 

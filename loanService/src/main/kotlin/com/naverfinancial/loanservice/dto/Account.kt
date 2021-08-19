@@ -45,4 +45,21 @@ data class Account (
         fun getStatus() = status
         fun getCreatedDate() = createdDate
         fun getLoanStartDate() = loanStartDate
+
+        fun withdraw(amount : Int, historyTime : Timestamp){
+                this.balance += amount
+
+                // 마이너스 통장이 처음 되었다면
+                if(this.balance < 0 && this.loanStartDate == null){
+                        this.loanStartDate = historyTime
+                }
+        }
+        fun deposit(amount: Int){
+                this.balance += amount
+
+                // 더이상 마이너스 통장이 아니라면
+                if(this.balance >= 0 && this.loanStartDate != null){
+                        this.loanStartDate = null
+                }
+        }
 }

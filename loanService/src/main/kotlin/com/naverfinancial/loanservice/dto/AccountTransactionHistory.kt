@@ -24,7 +24,7 @@ data class AccountTransactionHistory (
     var accountId : Int,
 
     @Column(name="account_numbers", nullable = false)
-    var accountNumber : String,
+    var accountNumbers : String,
 
 /*    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="account_id")

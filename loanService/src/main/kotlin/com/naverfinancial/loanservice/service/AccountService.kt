@@ -19,10 +19,10 @@ interface AccountService {
     fun openAccount(NDI : String, creditResult: CreditResult) : Account
 
     // 대출 신청
-    fun depositLoan(accountNumbers: String, amount : Int) : Optional<Account>
+    fun depositLoan(accountNumbers: String, amount : Int) : Account
 
     // 대출 반환
-    fun withdrawLoan(accountNumbers: String, amount : Int) : Optional<Account>
+    fun withdrawLoan(accountNumbers: String, amount : Int) : Account
 
     // 통장 해지
     fun cancelAccount(accountNumbers: String) : Boolean
