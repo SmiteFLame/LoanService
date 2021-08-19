@@ -22,7 +22,7 @@ class MainController {
             if (!map.containsKey("NDI")) {
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
-            return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("NDI")), HttpStatus.OK)
+            return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("NDI")), HttpStatus.CREATED)
         } catch (err : Exception){
             return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }

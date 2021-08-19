@@ -46,7 +46,7 @@ class UserController{
     fun saveUser(@RequestBody register: Register) : ResponseEntity<User>{
         try {
             // register 오류 1차 검사 진행하기
-            return ResponseEntity<User>(userService.saveUser(register), HttpStatus.OK)
+            return ResponseEntity<User>(userService.saveUser(register), HttpStatus.CREATED)
         } catch (err : Exception){
             return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }

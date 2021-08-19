@@ -55,7 +55,7 @@ class AccountController{
                 return ResponseEntity(HttpStatus.NOT_ACCEPTABLE)
             }
 
-            return ResponseEntity<Account>(accountService.openAccount(map.getValue("NDI"), creditResult), HttpStatus.OK)
+            return ResponseEntity<Account>(accountService.openAccount(map.getValue("NDI"), creditResult), HttpStatus.CREATED)
         }catch (err : Exception){
             return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }
@@ -65,9 +65,9 @@ class AccountController{
     fun applicationLoan(@PathVariable("account-numbers") accountNumbers: String, @RequestBody detail : Detail) : ResponseEntity<Optional<Account>>{
         try{
             if(detail.getType().equals("desposit")){
-                return ResponseEntity<Optional<Account>>(accountService.depositLoan(accountNumbers, detail.getAmount()), HttpStatus.OK)
+                return ResponseEntity<Optional<Account>>(accountService.depositLoan(accountNumbers, detail.getAmount()), HttpStatus.CREATED)
             } else if(detail.getType().equals("withdraw")){
-                return ResponseEntity<Optional<Account>>(accountService.withdrawLoan(accountNumbers, detail.getAmount()), HttpStatus.OK)
+                return ResponseEntity<Optional<Account>>(accountService.withdrawLoan(accountNumbers, detail.getAmount()), HttpStatus.CREATED)
             } else{
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
@@ -79,7 +79,7 @@ class AccountController{
     @DeleteMapping("{account-numbers}")
     fun cancelAccount(@PathVariable("account-numbers") accountNumbers: String) : ResponseEntity<Boolean>{
         try{
-            return cancelAccount(accountNumbers)
+            return ResponseEntity<Boolean>(accountService.cancelAccount(accountNumbers), HttpStatus.CREATED)
         }catch (err : Exception){
             return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }
