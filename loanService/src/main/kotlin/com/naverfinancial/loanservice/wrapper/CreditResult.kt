@@ -1,4 +1,4 @@
-package com.naverfinancial.creditrating.wrapper
+package com.naverfinancial.loanservice.wrapper
 
 data class CreditResult (
     private var grade : Int,
