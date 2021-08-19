@@ -31,8 +31,8 @@ class AccountController{
     }
 
     @GetMapping("{account-numbers}")
-    fun serarchByAccountNumber(@PathVariable("account_numbers") account_numbers : String): ResponseEntity<Optional<Account>>{
-        return ResponseEntity<Optional<Account>>(accountService.searchByAccountNumbers(account_numbers), HttpStatus.OK)
+    fun serarchByAccountNumber(@PathVariable("account-numbers") accountNumbers : String): ResponseEntity<Optional<Account>>{
+        return ResponseEntity<Optional<Account>>(accountService.searchByAccountNumbers(accountNumbers), HttpStatus.OK)
     }
 
     @GetMapping("{NDI}/NDI")
@@ -50,26 +50,29 @@ class AccountController{
         var creditResult = accountService.searchGrade(map.getValue("NDI"))
         if(creditResult.getIsPermit()){
             // 신용등급 미달 (Status상태 수정 예정)
-            return ResponseEntity(HttpStatus.BAD_REQUEST)
+            return ResponseEntity(HttpStatus.METHOD_NOT_ALLOWED)
         }
 
         return ResponseEntity<Account>(accountService.openAccount(map.getValue("NDI"), creditResult), HttpStatus.OK)
     }
 
-    @PutMapping("{account_numbers}/balance")
-    fun applicationLoan(@PathVariable account_numbers: String, @RequestBody detail : Detail) : ResponseEntity<Optional<Account>>{
+    @PutMapping("{account-numbers}/balance")
+    fun applicationLoan(@PathVariable("account-numbers") accountNumbers: String, @RequestBody detail : Detail) : ResponseEntity<Optional<Account>>{
         if(detail.getType().equals("desposit")){
-            return ResponseEntity<Optional<Account>>(accountService.depositLoan(account_numbers, detail.getAmount()), HttpStatus.OK)
+            return ResponseEntity<Optional<Account>>(accountService.depositLoan(accountNumbers, detail.getAmount()), HttpStatus.OK)
         } else if(detail.getType().equals("withdraw")){
-            return ResponseEntity<Optional<Account>>(accountService.withdrawLoan(account_numbers, detail.getAmount()), HttpStatus.OK)
+            return ResponseEntity<Optional<Account>>(accountService.withdrawLoan(accountNumbers, detail.getAmount()), HttpStatus.OK)
         } else{
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
     }
 
     @DeleteMapping("{account-numbers}")
-    fun cancelAccount(@PathVariable("account-numbers") account_numbers: String){
+    fun cancelAccount(@PathVariable("account-numbers") accountNumbers: String) : ResponseEntity<Boolean>{
+        cancelAccount(accountNumbers)
 
+        // 잔액이 남아 있다면
+        return ResponseEntity(HttpStatus.METHOD_NOT_ALLOWED)
     }
 
 }
