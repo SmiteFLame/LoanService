@@ -24,20 +24,14 @@ class AccountController{
     @GetMapping()
     fun searchAll(@RequestParam("NDI") NDI: String) : ResponseEntity<List<Account>>{
         if(NDI.equals("")){
-            return ResponseEntity<List<Account>>(accountService.searchAll(), HttpStatus.OK)
+            return ResponseEntity<List<Account>>(accountService.searchByNDI(NDI), HttpStatus.OK)
         }
-        // 만약 조건이 있다면 전체 조회
         return ResponseEntity<List<Account>>(accountService.searchAll(), HttpStatus.OK)
     }
 
     @GetMapping("{account-numbers}")
     fun serarchByAccountNumber(@PathVariable("account-numbers") accountNumbers : String): ResponseEntity<Optional<Account>>{
         return ResponseEntity<Optional<Account>>(accountService.searchByAccountNumbers(accountNumbers), HttpStatus.OK)
-    }
-
-    @GetMapping("{NDI}/NDI")
-    fun serarchByNDI(@PathVariable NDI : String): ResponseEntity<List<Account>>{
-        return ResponseEntity<List<Account>>(accountService.searchByNDI(NDI), HttpStatus.OK)
     }
 
     @PostMapping()
