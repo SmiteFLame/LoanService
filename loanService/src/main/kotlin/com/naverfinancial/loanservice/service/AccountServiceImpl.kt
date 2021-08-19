@@ -8,7 +8,9 @@ import com.naverfinancial.loanservice.utils.JsonFormData
 import com.naverfinancial.loanservice.wrapper.CreditResult
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -38,24 +40,25 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun openAccount(NDI: String, creditResult: CreditResult): Account {
+        // 마이너스 통장 중복 검사
         var accounts = searchByNDI(NDI)
         for(account in accounts){
             if(account.getStatus() == "normal"){
-                // 마이너스 통장이 이미 존재하면 존재하는 통장 Return
                 return account
             }
         }
 
-        // 톶장번호 랜덤 검사
+        // 통장번호 랜덤 생성
         var newAccountNumbers : String
-        while(true){
+        while(true) {
             newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
             var check = searchByAccountNumbers(newAccountNumbers)
-            if(check.isEmpty()){
+            if (check.isEmpty) {
                 break
             }
         }
 
+        // 새로운 통장 개설
         var newAccount = Account(
             accountId = -1, // AUTO_INCREASED
             accountNumbers = newAccountNumbers,
@@ -72,6 +75,15 @@ class AccountServiceImpl : AccountService {
 
     override fun depositLoan(accountNumbers: String, amount: Int): Optional<Account> {
         // 계좌 가져오기
+        var account = searchByAccountNumbers(accountNumbers)
+        if(account.isEmpty){
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
+
+        // 잔고 + 대출을 한 후에 현재 한도 금액보다 작아진다면
+        if(account.get().getBalance() + amount < account.get().getLoanLimit()){
+            throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
+        }
 
         // 대출 가능 조사하기
 
@@ -79,6 +91,9 @@ class AccountServiceImpl : AccountService {
 
         // 계좌 수정하기
         TODO("Not yet implemented")
+
+        // 나중에 오류 감지용
+//
     }
 
     override fun withdrawLoan(accountNumbers: String, amount: Int): Optional<Account> {

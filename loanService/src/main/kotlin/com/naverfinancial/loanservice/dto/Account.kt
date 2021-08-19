@@ -40,6 +40,7 @@ data class Account (
         fun getAccountNumbers() = accountNumbers
         fun getNDI() = NDI
         fun getLoanLimit() = loanLimit
+        fun getBalance() = balance
         fun getGrade() = grade
         fun getStatus() = status
         fun getCreatedDate() = createdDate
