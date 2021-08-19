@@ -1,7 +1,9 @@
 package com.naverfinancial.loanservice.service
 
 import com.naverfinancial.loanservice.dto.Account
+import com.naverfinancial.loanservice.dto.AccountCancellationHistory
 import com.naverfinancial.loanservice.dto.AccountTransactionHistory
+import com.naverfinancial.loanservice.repository.AccountCancellationHistoryRespository
 import com.naverfinancial.loanservice.repository.AccountRespository
 import com.naverfinancial.loanservice.repository.AccountTransactionHistoryRespository
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
@@ -28,12 +30,15 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountTransactionHistoryRespository: AccountTransactionHistoryRespository
 
+    @Autowired
+    lateinit var accountCancellationHistoryRespository: AccountCancellationHistoryRespository
+
     override fun searchAll()  : List<Account> {
         return accountRespository.findAll();
     }
 
     override fun searchByAccountNumbers(accountNumbers: String): Optional<Account> {
-        var account = searchByAccountNumbers(accountNumbers)
+        var account = accountRespository.findAccountbyAccountNumbers(accountNumbers)
         if(account.isEmpty){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
@@ -137,7 +142,19 @@ class AccountServiceImpl : AccountService {
             throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
         }
 
-        TODO("Not yet implemented")
+        // 계좌 상태 변경
+        account.get().cancel()
+        accountRespository.save(account.get())
+
+        // 취소 기록 저장
+        var accountCancellationHistory = AccountCancellationHistory(
+            accountId = account.get().getAccountID(),
+            cancellationDate = Timestamp(System.currentTimeMillis())
+        )
+
+        accountCancellationHistoryRespository.save(accountCancellationHistory)
+
+        return true
     }
 
     override fun searchGrade(NDI: String): CreditResult {

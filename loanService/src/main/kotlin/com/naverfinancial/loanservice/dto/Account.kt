@@ -62,4 +62,8 @@ data class Account (
                         this.loanStartDate = null
                 }
         }
+
+        fun cancel(){
+                this.status = "cancellation"
+        }
 }
