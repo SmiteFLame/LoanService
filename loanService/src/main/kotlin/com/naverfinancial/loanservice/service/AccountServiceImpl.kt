@@ -1,7 +1,6 @@
 package com.naverfinancial.loanservice.service
 
 import com.naverfinancial.loanservice.dto.Account
-import com.naverfinancial.loanservice.dto.User
 import com.naverfinancial.loanservice.repository.AccountRespository
 import com.naverfinancial.loanservice.repository.AccountTransactionHistoryRespository
 import com.naverfinancial.loanservice.repository.UserRespository
@@ -17,7 +16,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.sql.Timestamp
 import java.util.*
-import javax.swing.text.html.Option
 
 @Service
 class AccountServiceImpl : AccountService {
@@ -52,14 +50,14 @@ class AccountServiceImpl : AccountService {
                 return account
             }
         }
-
-        while(true){
-            var newAccountNumbers : String = AccountNumberGenerators.generatorAccountNumbers()
-            var check = searchByAccountNumbers(newAccountNumbers)
-            if(check.isEmpty()){
-                break
-            }
-        }
+        var newAccountNumbers : String = AccountNumberGenerators.generatorAccountNumbers()
+//        while(true){
+//            newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
+//            var check = searchByAccountNumbers(newAccountNumbers)
+//            if(check.isEmpty()){
+//                break
+//            }
+//        }
 
         var newAccount = Account(
             accountId = -1, // AUTO_INCREASED
@@ -93,7 +91,7 @@ class AccountServiceImpl : AccountService {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("http://localhost:8081/credits"))
             .POST(JsonFormData.formData(values))
-            .header("Content-Type", "application/x-www-form-urlencoded")
+            .header("Content-Type", "application/json")
             .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString());
         val grade = JSONObject(response.body()).getInt("grade")

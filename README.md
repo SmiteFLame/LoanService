@@ -12,8 +12,8 @@ CREATE TABLE credit_rating_search_historys(
 CREATE TABLE credit_rating_search_results(
     NDI VARCHAR(30) PRIMARY KEY,
     grade INT NOT NULL,
-    history_id INT NOT NULL,
-    FOREIGN KEY(history_id) references credit_rating_search_historys(history_id)
+    historys_id INT NOT NULL,
+    FOREIGN KEY(historys_id) references credit_rating_search_historys(historys_id)
 );
 
 CREATE TABLE accounts(
@@ -31,8 +31,9 @@ CREATE TABLE accounts(
 ALTER TABLE accounts ADD INDEX (account_numbers);
 
 CREATE TABLE account_transaction_historys(
-    historys_id INT PRIMARY KEY AUTO_INCREMENT,
+    history_id INT PRIMARY KEY AUTO_INCREMENT,
     account_id INT NOT NULL,
+    amcount INT NOT NULL,
     account_numbers VARCHAR(30) NOT NULL,
     type VARCHAR(15) NOT NULL,
     created_date DATE NOT NULL default(NOW()),

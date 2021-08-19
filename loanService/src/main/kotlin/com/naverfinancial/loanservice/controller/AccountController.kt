@@ -41,19 +41,19 @@ class AccountController{
     }
 
     @PostMapping()
-    fun openAccount(@RequestBody NDI : String) : ResponseEntity<Account>{
-        if(userService.searchUserByNDI(NDI).isEmpty()){
+    fun openAccount(@RequestBody map : Map<String, String>) : ResponseEntity<Account>{
+        if(!map.containsKey("NDI") || userService.searchUserByNDI(map.getValue("NDI")).isEmpty()){
             // 존재하지 않는 NDI
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 
-        var creditResult = accountService.searchGrade(NDI)
+        var creditResult = accountService.searchGrade(map.getValue("NDI"))
         if(creditResult.getIsPermit()){
             // 신용등급 미달 (Status상태 수정 예정)
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 
-        return ResponseEntity<Account>(accountService.openAccount(NDI, creditResult), HttpStatus.OK)
+        return ResponseEntity<Account>(accountService.openAccount(map.getValue("NDI"), creditResult), HttpStatus.OK)
     }
 
     @PutMapping("{account_numbers}/balance")

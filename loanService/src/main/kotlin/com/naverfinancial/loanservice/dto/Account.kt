@@ -34,7 +34,7 @@ data class Account (
 
 ){
         @Column(name="loan_start_date")
-        private lateinit var loanStartDate : Timestamp
+        private var loanStartDate : Timestamp? = null
 
         fun getAccountID() = accountId
         fun getAccountNumbers() = accountNumbers
