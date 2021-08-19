@@ -5,7 +5,7 @@ import javax.persistence.*
 
 @Table(name="account_transaction_historys")
 @Entity
-data class AccountTransactionHistorys (
+data class AccountTransactionHistory (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private var account_transaction_historys_id : Int = 0,
