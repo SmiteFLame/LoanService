@@ -9,29 +9,39 @@ data class Account (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name="account_id")
-        var accountId : Int,
+        private var accountId : Int,
 
         @Column(name="account_numbers", nullable = false, unique = true)
-        var accountNumbers : String,
+        private var accountNumbers : String,
 
         @Column(nullable = false)
-        var NDI : String,
+        private var NDI : String,
+
+        @Column(name="loan_limit", nullable = false)
+        private var loanLimit :Int,
 
         @Column(nullable = false)
-        var loan_limit :Int,
+        private var balance :Int,
 
         @Column(nullable = false)
-        var balance :Int,
+        private var grade :Int,
 
         @Column(nullable = false)
-        var grade :Int,
-
-        @Column(nullable = false)
-        var status : String,
+        private var status : String,
 
         @Column(name="created_date", nullable = false)
-        var createdDate : Timestamp,
+        private var createdDate : Timestamp,
 
+){
         @Column(name="loan_start_date")
-        var loanStartDate : Timestamp,
-)
+        private lateinit var loanStartDate : Timestamp
+
+        fun getAccountID() = accountId
+        fun getAccountNumbers() = accountNumbers
+        fun getNDI() = NDI
+        fun getLoanLimit() = loanLimit
+        fun getGrade() = grade
+        fun getStatus() = status
+        fun getCreatedDate() = createdDate
+        fun getLoanStartDate() = loanStartDate
+}
