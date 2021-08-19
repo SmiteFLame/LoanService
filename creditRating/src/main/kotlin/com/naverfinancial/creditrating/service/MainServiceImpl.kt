@@ -56,10 +56,10 @@ class MainServiceImpl : MainService {
         // CreaditRatingSearchHistory 기록하기
         var newCreditRatingSearchHistory =
             CreditRatingSearchHistory(
-                history_id = -1, // AUTO_INCREASED
+                historyId = -1, // AUTO_INCREASED
                 NDI = user.getNDI(),
                 grade = grade,
-                created_date = Timestamp(System.currentTimeMillis())
+                createdDate = Timestamp(System.currentTimeMillis())
             )
         var resultOfCreditRatingSearchHistory = creditRatingSearchHistoryRepository.save(newCreditRatingSearchHistory)
 
@@ -69,7 +69,7 @@ class MainServiceImpl : MainService {
             CreditRatingSearchResult(
                 NDI = user.getNDI(),
                 grade = grade,
-                history_id = resultOfCreditRatingSearchHistory.getHistoryId()
+                historyId = resultOfCreditRatingSearchHistory.getHistoryId()
             )
         creditRatingSearchResultRepository.save(newCreditRatingSearchResult)
 
