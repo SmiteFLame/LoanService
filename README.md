@@ -6,7 +6,7 @@ CREATE TABLE credit_rating_search_historys(
     history_id INT PRIMARY KEY AUTO_INCREMENT,
     NDI VARCHAR(30) NOT NULL,
     grade INT NOT NULL,
-    created_date DATE NOT NULL default(NOW())
+    created_date DATETIME NOT NULL default(NOW())
 );
 
 CREATE TABLE credit_rating_search_results(
@@ -24,8 +24,8 @@ CREATE TABLE accounts(
     balance INT NOT NULL,
     grade INT NOT NULL,
     status VARCHAR(15) NOT NULL default("normal"),
-    created_date DATE NOT NULL default(NOW()),
-    loan_start_date DATE
+    created_date DATETIME NOT NULL default(NOW()),
+    loan_start_date DATETIME
 );
 
 ALTER TABLE accounts ADD INDEX (account_numbers);
@@ -36,8 +36,15 @@ CREATE TABLE account_transaction_historys(
     amcount INT NOT NULL,
     account_numbers VARCHAR(30) NOT NULL,
     type VARCHAR(15) NOT NULL,
-    created_date DATE NOT NULL default(NOW()),
+    created_date DATETIME NOT NULL default(NOW()),
     FOREIGN KEY(account_id) REFERENCES accounts(account_id),
     FOREIGN KEY(account_numbers) REFERENCES accounts(account_numbers)
 );
+
+CREATE TABLE account_cancellation_historys(
+    account_id INT NOT NULL,
+    cancellation_date DATETIME
+    FOREIGN KEY(account_id) REFERENCES accounts(account_id),
+)
+
 ```
