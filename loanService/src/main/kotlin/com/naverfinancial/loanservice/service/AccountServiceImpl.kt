@@ -3,7 +3,6 @@ package com.naverfinancial.loanservice.service
 import com.naverfinancial.loanservice.dto.Account
 import com.naverfinancial.loanservice.repository.AccountRespository
 import com.naverfinancial.loanservice.repository.AccountTransactionHistoryRespository
-import com.naverfinancial.loanservice.repository.UserRespository
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
 import com.naverfinancial.loanservice.utils.JsonFormData
 import com.naverfinancial.loanservice.wrapper.CreditResult
@@ -22,9 +21,6 @@ class AccountServiceImpl : AccountService {
 
     @Autowired
     lateinit var accountRespository : AccountRespository
-
-    @Autowired
-    lateinit var userRespository: UserRespository
 
     @Autowired
     lateinit var accountTransactionHistoryRespository: AccountTransactionHistoryRespository
@@ -49,14 +45,16 @@ class AccountServiceImpl : AccountService {
                 return account
             }
         }
-        var newAccountNumbers : String = AccountNumberGenerators.generatorAccountNumbers()
-//        while(true){
-//            newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
-//            var check = searchByAccountNumbers(newAccountNumbers)
-//            if(check.isEmpty()){
-//                break
-//            }
-//        }
+
+        // 톶장번호 랜덤 검사
+        var newAccountNumbers : String
+        while(true){
+            newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
+            var check = searchByAccountNumbers(newAccountNumbers)
+            if(check.isEmpty()){
+                break
+            }
+        }
 
         var newAccount = Account(
             accountId = -1, // AUTO_INCREASED
