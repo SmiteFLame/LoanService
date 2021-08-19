@@ -8,6 +8,7 @@ import java.util.*
 
 @Repository
 interface AccountRespository : JpaRepository<Account, Integer> {
-//    fun findAccountbyAccountNumbers(accountNumbers : String) : Optional<Account>
+    @Query("select acc from Account acc where acc.accountNumbers = ?1")
+    fun findAccountbyAccountNumbers(accountNumbers : String) : Optional<Account>
     fun findAccountsByNDI(NDI : String) : List<Account>
 }

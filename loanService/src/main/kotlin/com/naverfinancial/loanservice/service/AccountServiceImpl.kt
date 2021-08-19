@@ -33,9 +33,8 @@ class AccountServiceImpl : AccountService {
         return accountRespository.findAll();
     }
 
-    override fun searchByAccountNumbers(account_numbers: String): Optional<Account> {
-        TODO("Not yet implemented")
-        //return accountRespository.findAccountbyAccount_number(account_numbers)
+    override fun searchByAccountNumbers(accountNumbers: String): Optional<Account> {
+        return accountRespository.findAccountbyAccountNumbers(accountNumbers)
     }
 
     override fun searchByNDI(NDI: String): List<Account> {
@@ -73,15 +72,28 @@ class AccountServiceImpl : AccountService {
         return accountRespository.save(newAccount)
     }
 
-    override fun depositLoan(account_numbers: String, amount: Int): Optional<Account> {
+    override fun depositLoan(accountNumbers: String, amount: Int): Optional<Account> {
+        // 계좌 가져오기
+
+        // 대출 가능 조사하기
+
+        // 대출 기록 남기기
+
+        // 계좌 수정하기
         TODO("Not yet implemented")
     }
 
-    override fun withdrawLoan(account_numbers: String, amount: Int): Optional<Account> {
+    override fun withdrawLoan(accountNumbers: String, amount: Int): Optional<Account> {
+        // 계좌 가져오기
+
+        // 반납 기록 남기기
+
+        // 계좌 수정하기
         TODO("Not yet implemented")
     }
 
-    override fun cancelAccount(account_numbers: String) {
+    override fun cancelAccount(account_numbers: String): Boolean {
+        // 조건
         TODO("Not yet implemented")
     }
 
