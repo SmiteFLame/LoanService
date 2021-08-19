@@ -15,8 +15,8 @@ data class User (
     @Column(unique = true, nullable = false)
     private val email : String,
 
-    @Column(nullable = false)
-    private val user_name : String,
+    @Column(name="user_name", nullable = false)
+    private val userName : String,
 
     @Column(nullable = false)
     private val age : Int,
@@ -26,7 +26,7 @@ data class User (
 ){
     fun getNDI() = NDI
     fun getEmail() = email
-    fun getUserName() = user_name
+    fun getUserName() = userName
     fun getAge() = age
     fun getSalary() = salary
 }

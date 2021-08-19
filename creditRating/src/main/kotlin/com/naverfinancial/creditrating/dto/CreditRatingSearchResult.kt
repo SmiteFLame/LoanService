@@ -11,8 +11,8 @@ data class CreditRatingSearchResult (
         @Column(nullable = false)
         private var grade : Int,
 
-        @Column(nullable = false)
-        private var history_id : Int
+        @Column(name="history_id", nullable = false)
+        private var historyId : Int
 
 //        @ManyToOne(fetch = FetchType.LAZY)
 //        @JoinColumn(name="history_id", referencedColumnName = "history_id")

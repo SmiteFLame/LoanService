@@ -8,22 +8,23 @@ import javax.persistence.*
 data class AccountTransactionHistory (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private var account_transaction_historys_id : Int = 0,
+    @Column(name="history_id")
+    private var historyId : Int = 0,
 
     @Column(nullable = false)
     private var amount : Int,
 
     @Column(nullable = false)
-    private var deal_request_date : Timestamp,
-
-    @Column(nullable = false)
     private var type : String,
 
-    @Column(nullable = false)
-    var account_id : Int,
+    @Column(name="created_date",nullable = false)
+    private var createdDate : Timestamp,
 
-    @Column(nullable = false)
-    var account_number : String,
+    @Column(name="account_id", nullable = false)
+    var accountId : Int,
+
+    @Column(name="account_numbers", nullable = false)
+    var accountNumber : String,
 
 /*    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="account_id")

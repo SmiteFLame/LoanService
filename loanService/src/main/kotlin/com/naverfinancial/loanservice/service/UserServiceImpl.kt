@@ -26,7 +26,7 @@ class UserServiceImpl : UserService {
         var user = User(
             NDI = uuid,
             email = register.getEmails(),
-            user_name = register.getUserName(),
+            userName = register.getUserName(),
             age = register.getAge(),
             salary = register.getSalary()
         )

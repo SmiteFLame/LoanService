@@ -9,7 +9,8 @@ import javax.persistence.*
 data class CreditRatingSearchHistory (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private var history_id : Int,
+        @Column(name="history_id")
+        private var historyId : Int,
 
         @Column(nullable = false)
         private var NDI : String,
@@ -17,10 +18,8 @@ data class CreditRatingSearchHistory (
         @Column(nullable = false)
         private var grade : Int,
 
-        @Column(nullable = false)
-        private var created_date : Timestamp
+        @Column(name="created_date",nullable = false)
+        private var createdDate : Timestamp
         ){
-        fun getHistoryId() : Int{
-                return history_id
-        }
+        fun getHistoryId() = historyId
 }

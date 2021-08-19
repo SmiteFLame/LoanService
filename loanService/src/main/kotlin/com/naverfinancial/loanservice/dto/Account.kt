@@ -8,10 +8,11 @@ import javax.persistence.*
 data class Account (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var account_id : Int,
+        @Column(name="account_id")
+        var accountId : Int,
 
-        @Column(nullable = false, unique = true)
-        var account_number : String,
+        @Column(name="account_numbers", nullable = false, unique = true)
+        var accountNumbers : String,
 
         @Column(nullable = false)
         var NDI : String,
@@ -28,8 +29,9 @@ data class Account (
         @Column(nullable = false)
         var status : String,
 
-        @Column(nullable = false)
-        var created_date : Timestamp,
+        @Column(name="created_date", nullable = false)
+        var createdDate : Timestamp,
 
-        var lona_start_date : Timestamp,
+        @Column(name="loan_start_date")
+        var loanStartDate : Timestamp,
 )
