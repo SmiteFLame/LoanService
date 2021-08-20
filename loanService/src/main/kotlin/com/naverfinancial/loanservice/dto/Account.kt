@@ -36,7 +36,7 @@ data class Account (
         @Column(name="loan_start_date")
         private var loanStartDate : Timestamp? = null
 
-        fun getAccountID() = accountId
+        fun getAccountId() = accountId
         fun getAccountNumbers() = accountNumbers
         fun getNDI() = NDI
         fun getLoanLimit() = loanLimit

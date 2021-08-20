@@ -8,8 +8,8 @@ import javax.persistence.*
 data class AccountCancellationHistory (
     @Id
     @Column(name="account_id")
-    private var accountId : Int,
+    val accountId : Int,
 
     @Column(name="cancellation_date", nullable = false)
-    private var cancellationDate : Timestamp
+    val cancellationDate : Timestamp
 )

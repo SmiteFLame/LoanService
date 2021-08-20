@@ -10,23 +10,18 @@ import javax.persistence.Table
 @Entity
 data class User (
     @Id
-    private val NDI : String,
+    val NDI : String,
 
     @Column(unique = true, nullable = false)
-    private val email : String,
+    val email : String,
 
-    @Column(name="user_name", nullable = false)
-    private val userName : String,
-
-    @Column(nullable = false)
-    private val age : Int,
+    @Column(name = "user_name", nullable = false)
+    val userName : String,
 
     @Column(nullable = false)
-    private val salary : Int
+    val age : Int,
+
+    @Column(nullable = false)
+    val salary : Int
 ){
-    fun getNDI() = NDI
-    fun getEmail() = email
-    fun getUserName() = userName
-    fun getAge() = age
-    fun getSalary() = salary
 }

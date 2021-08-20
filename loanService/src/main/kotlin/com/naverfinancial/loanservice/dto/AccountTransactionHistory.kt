@@ -9,24 +9,20 @@ data class AccountTransactionHistory (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="history_id")
-    private var historyId : Int = 0,
+    val historyId : Int = 0,
 
     @Column(nullable = false)
-    private var amount : Int,
+    val amount : Int,
 
     @Column(nullable = false)
-    private var type : String,
+    val type : String,
 
     @Column(name="created_date",nullable = false)
-    private var createdDate : Timestamp,
+    val createdDate : Timestamp,
 
     @Column(name="account_id", nullable = false)
-    var accountId : Int,
+    val accountId : Int,
 
     @Column(name="account_numbers", nullable = false)
-    var accountNumbers : String,
-
-/*    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="account_id")
-    private var account: Account*/
+    val accountNumbers : String,
 )
