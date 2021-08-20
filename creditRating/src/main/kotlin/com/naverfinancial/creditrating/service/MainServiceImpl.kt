@@ -1,10 +1,10 @@
-package com.naverfinancial.creditrating.creditRatingSearch.service
+package com.naverfinancial.creditrating.service
 
-import com.naverfinancial.creditrating.creditRatingSearch.dto.CreditRatingSearchHistory
-import com.naverfinancial.creditrating.creditRatingSearch.dto.CreditRatingSearchResult
-import com.naverfinancial.creditrating.creditRatingSearch.repository.CreditRatingSearchHistoryRepository
-import com.naverfinancial.creditrating.creditRatingSearch.repository.CreditRatingSearchResultRepository
-import com.naverfinancial.creditrating.creditRatingSearch.repository.UserRespository
+import com.naverfinancial.creditrating.dto.CreditRatingSearchHistory
+import com.naverfinancial.creditrating.dto.CreditRatingSearchResult
+import com.naverfinancial.creditrating.repository.CreditRatingSearchHistoryRepository
+import com.naverfinancial.creditrating.repository.CreditRatingSearchResultRepository
+import com.naverfinancial.creditrating.repository.UserRespository
 import com.naverfinancial.creditrating.utils.JsonFormData
 import com.naverfinancial.creditrating.wrapper.CreditResult
 import org.json.JSONObject

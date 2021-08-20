@@ -1,6 +1,6 @@
-package com.naverfinancial.creditrating.creditRatingSearch.controller
+package com.naverfinancial.creditrating.controller
 
-import com.naverfinancial.creditrating.creditRatingSearch.service.MainService
+import com.naverfinancial.creditrating.service.MainService
 import com.naverfinancial.creditrating.wrapper.CreditResult
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus

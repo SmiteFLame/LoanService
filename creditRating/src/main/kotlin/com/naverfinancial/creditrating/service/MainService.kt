@@ -1,4 +1,4 @@
-package com.naverfinancial.creditrating.creditRatingSearch.service
+package com.naverfinancial.creditrating.service
 
 import com.naverfinancial.creditrating.wrapper.CreditResult
 

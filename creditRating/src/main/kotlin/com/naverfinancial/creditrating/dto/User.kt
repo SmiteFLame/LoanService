@@ -1,4 +1,4 @@
-package com.naverfinancial.creditrating.user.dto
+package com.naverfinancial.creditrating.dto
 
 import javax.persistence.Column
 import javax.persistence.Entity

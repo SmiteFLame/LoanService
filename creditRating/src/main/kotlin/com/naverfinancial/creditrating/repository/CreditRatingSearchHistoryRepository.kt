@@ -1,6 +1,6 @@
-package com.naverfinancial.creditrating.creditRatingSearch.repository
+package com.naverfinancial.creditrating.repository
 
-import com.naverfinancial.creditrating.creditRatingSearch.dto.CreditRatingSearchHistory
+import com.naverfinancial.creditrating.dto.CreditRatingSearchHistory
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
