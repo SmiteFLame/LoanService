@@ -2,24 +2,33 @@
 
 
 ```SQL
+CREATE TABLE users(
+    NDI VARCHAR(36) PRIMARY KEY,
+    email VARCHAR(50) not null unique,
+    user_name VARCHAR(10) not null,
+    age INT NOT NULL,
+    salary INT NOT NULL
+);
+
+
 CREATE TABLE credit_rating_search_historys(
     history_id INT PRIMARY KEY AUTO_INCREMENT,
-    NDI VARCHAR(30) NOT NULL,
+    NDI VARCHAR(36) NOT NULL,
     grade INT NOT NULL,
     created_date DATETIME NOT NULL default(NOW())
 );
 
 CREATE TABLE credit_rating_search_results(
-    NDI VARCHAR(30) PRIMARY KEY,
+    NDI VARCHAR(36) PRIMARY KEY,
     grade INT NOT NULL,
-    historys_id INT NOT NULL,
-    FOREIGN KEY(historys_id) references credit_rating_search_historys(historys_id)
+    history_id INT NOT NULL,
+    FOREIGN KEY(history_id) references credit_rating_search_historys(history_id)
 );
 
 CREATE TABLE accounts(
     account_id INT PRIMARY KEY AUTO_INCREMENT,
     account_numbers VARCHAR(50) NOT NULL UNIQUE,
-    NDI VARCHAR(30) NOT NULL,
+    NDI VARCHAR(36) NOT NULL,
     loan_limit INT NOT NULL,
     balance INT NOT NULL,
     grade INT NOT NULL,
@@ -33,7 +42,7 @@ ALTER TABLE accounts ADD INDEX (account_numbers);
 CREATE TABLE account_transaction_historys(
     history_id INT PRIMARY KEY AUTO_INCREMENT,
     account_id INT NOT NULL,
-    amcount INT NOT NULL,
+    amount INT NOT NULL,
     account_numbers VARCHAR(30) NOT NULL,
     type VARCHAR(15) NOT NULL,
     created_date DATETIME NOT NULL default(NOW()),
@@ -42,9 +51,9 @@ CREATE TABLE account_transaction_historys(
 );
 
 CREATE TABLE account_cancellation_historys(
-    account_id INT NOT NULL,
-    cancellation_date DATETIME
-    FOREIGN KEY(account_id) REFERENCES accounts(account_id),
-)
+    account_id INT PRIMARY KEY,
+    cancellation_date DATETIME NOT NULL,
+    FOREIGN KEY(account_id) REFERENCES accounts(account_id)
+);
 
 ```

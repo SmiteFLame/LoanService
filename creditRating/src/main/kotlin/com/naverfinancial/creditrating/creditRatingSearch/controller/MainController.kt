@@ -1,6 +1,6 @@
-package com.naverfinancial.creditrating.controller
+package com.naverfinancial.creditrating.creditRatingSearch.controller
 
-import com.naverfinancial.creditrating.service.MainService
+import com.naverfinancial.creditrating.creditRatingSearch.service.MainService
 import com.naverfinancial.creditrating.wrapper.CreditResult
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -16,7 +16,7 @@ class MainController {
     @Autowired
     lateinit var mService : MainService
 
-    @PostMapping("")
+    @PostMapping
     fun selectGrade(@RequestBody map : Map<String,String>): ResponseEntity<CreditResult>{
         try {
             if (!map.containsKey("NDI")) {

@@ -1,4 +1,4 @@
-package com.naverfinancial.creditrating.dto
+package com.naverfinancial.creditrating.creditRatingSearch.dto
 
 import java.sql.Timestamp
 import javax.persistence.*
