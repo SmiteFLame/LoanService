@@ -25,7 +25,7 @@ interface AccountService {
     fun withdrawLoan(accountNumbers: String, amount : Int) : Account
 
     // 통장 해지
-    fun cancelAccount(accountNumbers: String) : Boolean
+    fun cancelAccount(accountNumbers: String) : Integer
 
     // 등급 조회하기
     fun searchGrade(NDI: String) : CreditResult

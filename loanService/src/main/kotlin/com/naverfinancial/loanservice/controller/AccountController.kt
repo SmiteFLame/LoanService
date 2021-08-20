@@ -51,9 +51,9 @@ class AccountController{
                 // 존재하지 않는 NDI
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
-
             var creditResult = accountService.searchGrade(map.getValue("NDI"))
-            if(creditResult.getIsPermit()){
+
+            if(!creditResult.getIsPermit()){
                 // 신용등급 미달 (Status상태 수정 예정)
                 return ResponseEntity(HttpStatus.NOT_ACCEPTABLE)
             }
@@ -82,9 +82,9 @@ class AccountController{
     }
 
     @DeleteMapping("{account-numbers}")
-    fun cancelAccount(@PathVariable("account-numbers") accountNumbers: String) : ResponseEntity<Boolean>{
+    fun cancelAccount(@PathVariable("account-numbers") accountNumbers: String) : ResponseEntity<Integer>{
         try{
-            return ResponseEntity<Boolean>(accountService.cancelAccount(accountNumbers), HttpStatus.CREATED)
+            return ResponseEntity<Integer>(accountService.cancelAccount(accountNumbers), HttpStatus.CREATED)
         }catch (err : ResponseStatusException){
             return ResponseEntity(err.status)
         }catch (err : Exception){
