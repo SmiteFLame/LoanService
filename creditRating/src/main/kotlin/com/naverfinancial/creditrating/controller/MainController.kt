@@ -24,6 +24,7 @@ class MainController {
             }
             return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("NDI")), HttpStatus.CREATED)
         } catch (err : Exception){
+            println(err.message)
             return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }
 

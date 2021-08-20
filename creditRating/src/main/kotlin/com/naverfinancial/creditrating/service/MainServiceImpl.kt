@@ -1,10 +1,10 @@
 package com.naverfinancial.creditrating.service
 
-import com.naverfinancial.creditrating.dto.CreditRatingSearchHistory
-import com.naverfinancial.creditrating.dto.CreditRatingSearchResult
-import com.naverfinancial.creditrating.repository.CreditRatingSearchHistoryRepository
-import com.naverfinancial.creditrating.repository.CreditRatingSearchResultRepository
-import com.naverfinancial.creditrating.repository.UserRespository
+import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchHistory
+import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchResult
+import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchHistoryRepository
+import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchResultRepository
+import com.naverfinancial.creditrating.entity.user.repository.UserRespository
 import com.naverfinancial.creditrating.utils.JsonFormData
 import com.naverfinancial.creditrating.wrapper.CreditResult
 import org.json.JSONObject
@@ -21,6 +21,7 @@ class MainServiceImpl : MainService {
 
     @Autowired
     lateinit var userRespository: UserRespository
+
     @Autowired
     lateinit var creditRatingSearchHistoryRepository: CreditRatingSearchHistoryRepository
 
@@ -61,6 +62,7 @@ class MainServiceImpl : MainService {
                 grade = grade,
                 createdDate = Timestamp(System.currentTimeMillis())
             )
+
         var resultOfCreditRatingSearchHistory = creditRatingSearchHistoryRepository.save(newCreditRatingSearchHistory)
 
         println(resultOfCreditRatingSearchHistory.getHistoryId())
