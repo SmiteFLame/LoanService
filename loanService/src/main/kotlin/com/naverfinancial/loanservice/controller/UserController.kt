@@ -25,7 +25,7 @@ class UserController{
             }
             return ResponseEntity<Optional<User>>(user, HttpStatus.OK)
         } catch (err : Exception){
-            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -38,7 +38,7 @@ class UserController{
             }
             return ResponseEntity<Optional<User>>(user, HttpStatus.OK)
         } catch (err : Exception){
-            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -48,7 +48,7 @@ class UserController{
             // register 오류 1차 검사 진행하기
             return ResponseEntity<User>(userService.saveUser(register), HttpStatus.CREATED)
         } catch (err : Exception){
-            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 }

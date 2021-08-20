@@ -29,7 +29,7 @@ class AccountController{
             }
             return ResponseEntity<List<Account>>(accountService.searchAll(), HttpStatus.OK)
         } catch (err : Exception){
-            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -40,7 +40,7 @@ class AccountController{
         }catch (err : ResponseStatusException){
             return ResponseEntity(err.status)
         }catch (err : Exception){
-            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -55,12 +55,13 @@ class AccountController{
 
             if(!creditResult.getIsPermit()){
                 // 신용등급 미달 (Status상태 수정 예정)
-                return ResponseEntity(HttpStatus.NOT_ACCEPTABLE)
+                return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
             }
 
             return ResponseEntity<Account>(accountService.openAccount(map.getValue("NDI"), creditResult), HttpStatus.CREATED)
         }catch (err : Exception){
-            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+            // 클라이언트가 오류가 아니라면 서버 오류로 보내야 된다.
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -77,7 +78,7 @@ class AccountController{
         }catch (err : ResponseStatusException){
             return ResponseEntity(err.status)
         }catch (err : Exception){
-            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -88,7 +89,7 @@ class AccountController{
         }catch (err : ResponseStatusException){
             return ResponseEntity(err.status)
         }catch (err : Exception){
-            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
