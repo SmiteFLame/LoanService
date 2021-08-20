@@ -8,7 +8,7 @@ class AccountNumberGenerators {
         fun generatorAccountNumbers() : String{
             // 000 – 0000 – 0000 - 0
             var accountNumbers : String = ""
-            for(i in 0..15){
+            for(i in 0..14){
                 if(i == 3 || i == 8 || i ==13){
                     accountNumbers += "-"
                 } else{
