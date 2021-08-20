@@ -65,5 +65,6 @@ data class Account (
 
         fun cancel(){
                 this.status = "cancellation"
+                this.balance = 0
         }
 }

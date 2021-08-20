@@ -38,11 +38,7 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun searchByAccountNumbers(accountNumbers: String): Optional<Account> {
-        var account = accountRespository.findAccountbyAccountNumbers(accountNumbers)
-        if(account.isEmpty){
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
-        }
-        return account
+        return accountRespository.findAccountbyAccountNumbers(accountNumbers)
     }
 
     override fun searchByNDI(NDI: String): List<Account> {
@@ -57,7 +53,6 @@ class AccountServiceImpl : AccountService {
                 return account
             }
         }
-
         // 통장번호 랜덤 생성
         var newAccountNumbers : String
         while(true) {
@@ -79,13 +74,15 @@ class AccountServiceImpl : AccountService {
             status = "normal",
             createdDate = Timestamp(System.currentTimeMillis()),
         )
-
         return accountRespository.save(newAccount)
     }
 
     override fun withdrawLoan(accountNumbers: String, amount: Int): Account {
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
+        if(account.isEmpty || !account.get().getStatus().equals("normal")){
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
 
         // 대출 가능 조사하기
         // 잔고 + 대출을 한 후에 현재 한도 금액보다 작아진다면
@@ -103,7 +100,6 @@ class AccountServiceImpl : AccountService {
             accountId = account.get().getAccountID(),
             accountNumbers = account.get().getAccountNumbers()
         )
-
         accountTransactionHistoryRespository.save(newAccountTransactionHistory)
 
         // 계좌 수정하기
@@ -115,6 +111,9 @@ class AccountServiceImpl : AccountService {
     override fun depositLoan(accountNumbers: String, amount: Int): Account {
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
+        if(account.isEmpty || !account.get().getStatus().equals("normal")){
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
 
         // 반납 기록 남기기
         var newAccountTransactionHistory = AccountTransactionHistory(
@@ -134,14 +133,18 @@ class AccountServiceImpl : AccountService {
         return accountRespository.save(account.get())
     }
 
-    override fun cancelAccount(accountNumbers: String): Boolean {
+    override fun cancelAccount(accountNumbers: String): Integer {
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
+        if(account.isEmpty || !account.get().getStatus().equals("normal")){
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
 
         if(account.get().getBalance() < 0){
             throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
         }
 
+        var balance = account.get().getBalance()
         // 계좌 상태 변경
         account.get().cancel()
         accountRespository.save(account.get())
@@ -154,7 +157,7 @@ class AccountServiceImpl : AccountService {
 
         accountCancellationHistoryRespository.save(accountCancellationHistory)
 
-        return true
+        return Integer(balance)
     }
 
     override fun searchGrade(NDI: String): CreditResult {
