@@ -24,6 +24,7 @@ class CreditRatingSearchConfiguration {
     fun creditRatingSearchDataSource(): DataSource = DataSourceBuilder.create().build()
 
     @Primary
+    @Qualifier("creditRatingSearchEntityManager")
     @Bean
     fun creditRatingSearchEntityManager(): LocalContainerEntityManagerFactoryBean =
         (LocalContainerEntityManagerFactoryBean()).apply {

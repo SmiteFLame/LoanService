@@ -23,6 +23,7 @@ class UserConfiguration {
     @ConfigurationProperties(prefix = "spring.datasource-user")
     fun userDataSource(): DataSource = DataSourceBuilder.create().build()
 
+    @Qualifier("userEntityManager")
     @Bean
     fun userEntityManager(): LocalContainerEntityManagerFactoryBean =
         (LocalContainerEntityManagerFactoryBean()).apply {

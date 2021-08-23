@@ -16,6 +16,7 @@ import javax.sql.DataSource
 @EnableTransactionManagement
 class JdbcTemplateConfiguration {
 
+    @Qualifier("user")
     @Bean
     fun userTransactionManager(userDataSource: DataSource?): PlatformTransactionManager? {
         val dataSourceTransactionManager = JpaTransactionManager()
@@ -23,6 +24,7 @@ class JdbcTemplateConfiguration {
         return dataSourceTransactionManager
     }
 
+    @Qualifier("account")
     @Bean
     fun creditRatingSearchTransactionManager(creditRatingSearchDataSource: DataSource?): PlatformTransactionManager? {
         val dataSourceTransactionManager = JpaTransactionManager()
