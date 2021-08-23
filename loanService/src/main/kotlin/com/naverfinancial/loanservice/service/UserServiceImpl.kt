@@ -35,10 +35,10 @@ class UserServiceImpl : UserService {
         val uuid = UUID.randomUUID().toString()
         val user = User(
             NDI = uuid,
-            email = register.getEmails(),
-            userName = register.getUserName(),
-            age = register.getAge(),
-            salary = register.getSalary()
+            email = register.emails,
+            userName = register.user_name,
+            age = register.age,
+            salary = register.salary
         )
 
         var newUser = userRespository.save(user)
