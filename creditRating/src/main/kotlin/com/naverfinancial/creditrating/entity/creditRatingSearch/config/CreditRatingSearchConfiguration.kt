@@ -1,9 +1,11 @@
 package com.naverfinancial.creditrating.entity.creditRatingSearch.config
 
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
@@ -21,6 +23,7 @@ class CreditRatingSearchConfiguration {
     @ConfigurationProperties(prefix = "spring.datasource-credit-rating-search")
     fun creditRatingSearchDataSource(): DataSource = DataSourceBuilder.create().build()
 
+    @Primary
     @Bean
     fun creditRatingSearchEntityManager(): LocalContainerEntityManagerFactoryBean =
         (LocalContainerEntityManagerFactoryBean()).apply {
@@ -29,6 +32,4 @@ class CreditRatingSearchConfiguration {
             jpaVendorAdapter = HibernateJpaVendorAdapter()
         }
 
-    @Bean
-    fun creditRatingSearchManager() = JpaTransactionManager(creditRatingSearchEntityManager().`object`!!)
 }
