@@ -9,42 +9,32 @@ data class Account (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name="account_id")
-        private var accountId : Int,
+        val accountId : Int,
 
         @Column(name="account_numbers", nullable = false, unique = true)
-        private var accountNumbers : String,
+        val accountNumbers : String,
 
         @Column(nullable = false)
-        private var NDI : String,
+        val NDI : String,
 
         @Column(name="loan_limit", nullable = false)
-        private var loanLimit :Int,
+        val loanLimit :Int,
 
         @Column(nullable = false)
-        private var balance :Int,
+        var balance :Int,
 
         @Column(nullable = false)
-        private var grade :Int,
+        val grade :Int,
 
         @Column(nullable = false)
-        private var status : String,
+        var status : String,
 
         @Column(name="created_date", nullable = false)
-        private var createdDate : Timestamp,
+        var createdDate : Timestamp,
 
 ){
         @Column(name="loan_start_date")
-        private var loanStartDate : Timestamp? = null
-
-        fun getAccountId() = accountId
-        fun getAccountNumbers() = accountNumbers
-        fun getNDI() = NDI
-        fun getLoanLimit() = loanLimit
-        fun getBalance() = balance
-        fun getGrade() = grade
-        fun getStatus() = status
-        fun getCreatedDate() = createdDate
-        fun getLoanStartDate() = loanStartDate
+       var loanStartDate : Timestamp? = null
 
         fun withdraw(amount : Int, historyTime : Timestamp){
                 this.balance += amount
