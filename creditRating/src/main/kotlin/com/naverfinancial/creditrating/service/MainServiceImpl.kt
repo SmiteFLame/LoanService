@@ -9,7 +9,13 @@ import com.naverfinancial.creditrating.utils.JsonFormData
 import com.naverfinancial.creditrating.wrapper.CreditResult
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.TransactionStatus
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.DefaultTransactionDefinition
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -29,21 +35,19 @@ class MainServiceImpl : MainService {
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
 
-
     override fun selectGrade(NDI: String): CreditResult {
         var user = userRespository.findUserByNDI(NDI)
 
         if (user == null) {
             // 에러 처리
         }
-
         // 이미 검색된 결과가 존재하면 가져오기
         //if(creditRatingSearchResultRepository.findCreditRatingSearchResultByNDI(user.getNDI()) != null){
 
         //}
 
         // CB 모듈에서 가져오는 기능은 다른 utils으로 옮기기
-        val values = mapOf("age" to user.getAge().toString(), "salary" to user.getSalary().toString())
+        val values = mapOf("age" to user.age.toString(), "salary" to user.salary.toString())
         val client = HttpClient.newBuilder().build();
         val request = HttpRequest.newBuilder()
             .uri(URI.create("http://localhost:8888/api/cb/grade"))
@@ -55,23 +59,22 @@ class MainServiceImpl : MainService {
         val isPermit = evaluateLoanAvailability(grade)
 
         // CreaditRatingSearchHistory 기록하기
-        var newCreditRatingSearchHistory =
+        val newCreditRatingSearchHistory =
             CreditRatingSearchHistory(
                 historyId = -1, // AUTO_INCREASED
-                NDI = user.getNDI(),
+                NDI = user.NDI,
                 grade = grade,
                 createdDate = Timestamp(System.currentTimeMillis())
             )
 
-        var resultOfCreditRatingSearchHistory = creditRatingSearchHistoryRepository.save(newCreditRatingSearchHistory)
+        val resultOfCreditRatingSearchHistory = creditRatingSearchHistoryRepository.save(newCreditRatingSearchHistory)
 
-        println(resultOfCreditRatingSearchHistory.getHistoryId())
         // CreaditRatingSearchResult 기록하기
-        var newCreditRatingSearchResult =
+        val newCreditRatingSearchResult =
             CreditRatingSearchResult(
-                NDI = user.getNDI(),
+                NDI = user.NDI,
                 grade = grade,
-                historyId = resultOfCreditRatingSearchHistory.getHistoryId()
+                historyId = resultOfCreditRatingSearchHistory.historyId
             )
         creditRatingSearchResultRepository.save(newCreditRatingSearchResult)
 
