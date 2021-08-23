@@ -67,14 +67,12 @@ class AccountController{
     fun openAccount(@RequestBody map : Map<String, String>) : ResponseEntity<Account>{
         try{
             if(!map.containsKey("ndi") || userService.searchUserByNDI(map.getValue("ndi")) == null){
-                // 존재하지 않는 NDI
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
             var creditResult = accountService.searchGrade(map.getValue("ndi"))
 
             if(!creditResult.isPermit){
-                // 신용등급 미달 (Status상태 수정 예정)
-                return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+                return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
 
             return ResponseEntity<Account>(accountService.openAccount(map.getValue("ndi"), creditResult), HttpStatus.CREATED)

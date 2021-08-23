@@ -36,6 +36,7 @@ class MainController {
         } catch (err : HttpTimeoutException){
             return ResponseEntity(HttpStatus.GATEWAY_TIMEOUT)
         } catch (err : Exception){
+            println(err.message)
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
 

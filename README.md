@@ -14,7 +14,7 @@
 ```SQL
 
 -- UserDB
-CREATE TABLE users(
+CREATE TABLE user(
     NDI VARCHAR(36) PRIMARY KEY,
     email VARCHAR(50) not null unique,
     user_name VARCHAR(10) not null,
@@ -23,14 +23,14 @@ CREATE TABLE users(
 );
 
 -- CreditDB
-CREATE TABLE credit_rating_search_historys(
+CREATE TABLE credit_rating_search_history(
     history_id INT PRIMARY KEY AUTO_INCREMENT,
     NDI VARCHAR(36) NOT NULL,
     grade INT NOT NULL,
     created_date DATETIME NOT NULL default(NOW())
 );
 
-CREATE TABLE credit_rating_search_results(
+CREATE TABLE credit_rating_search_result(
     NDI VARCHAR(36) PRIMARY KEY,
     grade INT NOT NULL,
     history_id INT NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE credit_rating_search_results(
 );
 
 -- AccountDB
-CREATE TABLE accounts(
+CREATE TABLE account(
     account_id INT PRIMARY KEY AUTO_INCREMENT,
     account_numbers VARCHAR(50) NOT NULL UNIQUE,
     NDI VARCHAR(36) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE accounts(
 
 ALTER TABLE accounts ADD INDEX (account_numbers);
 
-CREATE TABLE account_transaction_historys(
+CREATE TABLE account_transaction_history(
     history_id INT PRIMARY KEY AUTO_INCREMENT,
     account_id INT NOT NULL,
     amount INT NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE account_transaction_historys(
     FOREIGN KEY(account_numbers) REFERENCES accounts(account_numbers)
 );
 
-CREATE TABLE account_cancellation_historys(
+CREATE TABLE account_cancellation_history(
     account_id INT PRIMARY KEY,
     cancellation_date DATETIME NOT NULL,
     FOREIGN KEY(account_id) REFERENCES accounts(account_id)

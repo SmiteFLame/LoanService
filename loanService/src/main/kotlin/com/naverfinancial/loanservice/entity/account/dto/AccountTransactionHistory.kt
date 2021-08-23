@@ -3,7 +3,7 @@ package com.naverfinancial.loanservice.entity.account.dto
 import java.sql.Timestamp
 import javax.persistence.*
 
-@Table(name="account_transaction_historys")
+@Table(name="account_transaction_history")
 @Entity
 data class AccountTransactionHistory (
     @Id

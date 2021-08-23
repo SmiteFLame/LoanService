@@ -4,7 +4,7 @@ import java.sql.Timestamp
 import javax.persistence.*
 
 
-@Table(name="credit_rating_search_historys")
+@Table(name="credit_rating_search_history")
 @Entity
 data class CreditRatingSearchHistory (
         @Id

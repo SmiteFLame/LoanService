@@ -2,7 +2,7 @@ package com.naverfinancial.creditrating.entity.creditRatingSearch.dto
 
 import javax.persistence.*
 
-@Table(name="credit_rating_search_results")
+@Table(name="credit_rating_search_result")
 @Entity
 data class CreditRatingSearchResult (
         @Id
