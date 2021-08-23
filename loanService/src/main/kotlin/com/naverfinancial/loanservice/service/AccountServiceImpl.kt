@@ -48,7 +48,7 @@ class AccountServiceImpl : AccountService {
         return accountRespository.findAll();
     }
 
-    override fun searchByAccountNumbers(accountNumbers: String): Optional<Account> {
+    override fun searchByAccountNumbers(accountNumbers: String): Account? {
         return accountRespository.findAccountbyAccountNumbers(accountNumbers)
     }
 
@@ -62,7 +62,7 @@ class AccountServiceImpl : AccountService {
         // 마이너스 통장 중복 검사
         var accounts = searchByNDI(NDI)
         for(account in accounts){
-            if(account.getStatus() == "normal"){
+            if(account.status == "normal"){
                 return account
             }
         }
@@ -71,7 +71,7 @@ class AccountServiceImpl : AccountService {
         while(true) {
             newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
             var check = searchByAccountNumbers(newAccountNumbers)
-            if (check.isEmpty) {
+            if (check == null) {
                 break
             }
         }
@@ -83,7 +83,7 @@ class AccountServiceImpl : AccountService {
             NDI = NDI,
             loanLimit = -5000,
             balance = 0,
-            grade = creditResult.getGrade(),
+            grade = creditResult.grade,
             status = "normal",
             createdDate = Timestamp(System.currentTimeMillis()),
         )
@@ -100,13 +100,13 @@ class AccountServiceImpl : AccountService {
 
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
-        if(account.isEmpty || !account.get().getStatus().equals("normal")){
+        if(account == null || !account.status.equals("normal")){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
 
         // 대출 가능 조사하기
         // 잔고 + 대출을 한 후에 현재 한도 금액보다 작아진다면
-        if(account.get().getBalance() + amount < account.get().getLoanLimit()){
+        if(account.balance + amount < account.loanLimit){
             throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
         }
 
@@ -117,14 +117,14 @@ class AccountServiceImpl : AccountService {
             amount = amount,
             type = "deposit",
             createdDate = historyTime,
-            accountId = account.get().getAccountId(),
-            accountNumbers = account.get().getAccountNumbers()
+            accountId = account.accountId,
+            accountNumbers = account.accountNumbers
         )
         accountTransactionHistoryRespository.save(newAccountTransactionHistory)
 
         // 계좌 수정하기
-        account.get().withdraw(amount, historyTime)
-        var newAccount = accountRespository.save(account.get())
+        account.withdraw(amount, historyTime)
+        var newAccount = accountRespository.save(account)
 
         accountTransactionManager.commit(status)
 
@@ -136,7 +136,7 @@ class AccountServiceImpl : AccountService {
 
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
-        if(account.isEmpty || !account.get().getStatus().equals("normal")){
+        if(account == null || !account.status.equals("normal")){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
 
@@ -146,15 +146,15 @@ class AccountServiceImpl : AccountService {
             amount = amount,
             type = "deposit",
             createdDate = Timestamp(System.currentTimeMillis()),
-            accountId = account.get().getAccountId(),
-            accountNumbers = account.get().getAccountNumbers()
+            accountId = account.accountId,
+            accountNumbers = account.accountNumbers
         )
 
         accountTransactionHistoryRespository.save(newAccountTransactionHistory)
 
         // 계좌 수정하기
-        account.get().deposit(amount)
-        var newAccount = accountRespository.save(account.get())
+        account.deposit(amount)
+        var newAccount = accountRespository.save(account)
 
         accountTransactionManager.commit(status)
 
@@ -166,22 +166,22 @@ class AccountServiceImpl : AccountService {
 
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
-        if(account.isEmpty || !account.get().getStatus().equals("normal")){
+        if(account == null || !account.status.equals("normal")){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
 
-        if(account.get().getBalance() < 0){
+        if(account.balance < 0){
             throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
         }
 
-        var balance = account.get().getBalance()
+        var balance = account.balance
         // 계좌 상태 변경
-        account.get().cancel()
-        accountRespository.save(account.get())
+        account.cancel()
+        accountRespository.save(account)
 
         // 취소 기록 저장
         var accountCancellationHistory = AccountCancellationHistory(
-            accountId = account.get().getAccountId(),
+            accountId = account.accountId,
             cancellationDate = Timestamp(System.currentTimeMillis())
         )
 
