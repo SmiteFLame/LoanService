@@ -33,7 +33,7 @@ class MainController {
             if (!map.containsKey("ndi")) {
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
-            return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("NDI")), HttpStatus.CREATED)
+            return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("ndi")), HttpStatus.CREATED)
         } catch (err : HttpTimeoutException){
             return ResponseEntity(HttpStatus.GATEWAY_TIMEOUT)
         } catch (err : Exception){

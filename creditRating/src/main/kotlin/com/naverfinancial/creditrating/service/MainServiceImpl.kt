@@ -44,7 +44,7 @@ class MainServiceImpl : MainService {
     lateinit var creditRatingSearchTransactionManager: PlatformTransactionManager
 
     override fun selectGrade(ndi: String): CreditResult {
-        var user = userRespository.findUserByNDI(ndi) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        var user = userRespository.findUserByNdi(ndi) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
 
         val grade = getGrade(user)
         val isPermit = evaluateLoanAvailability(grade)
