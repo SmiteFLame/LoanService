@@ -9,7 +9,7 @@ interface AccountService {
     fun searchAll() : List<Account>
 
     // 마이너스 통장 계좌 번호 통장 조회
-    fun searchByAccountNumbers(accountNumbers : String) : Optional<Account>
+    fun searchByAccountNumbers(accountNumbers : String) : Account?
 
     // 마이너스 통장 유효아이디 통장 조회
     fun searchByNDI(NDI:String) : List<Account>
