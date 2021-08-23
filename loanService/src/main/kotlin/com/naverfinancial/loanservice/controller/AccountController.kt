@@ -21,10 +21,16 @@ class AccountController{
     @Autowired
     lateinit var userService : UserService
 
+    /**
+     * 전체 계좌 정보, NDI에 해당되는 계좌 정보들을 조회한다
+     *
+     * RequestParam : ndi : String
+     * ResponseEntity : List<Account>
+     */
     @GetMapping()
     fun searchAll(@RequestParam("ndi") ndi: String) : ResponseEntity<List<Account>>{
         try{
-            if(ndi == ""){
+            if(ndi != ""){
                 return ResponseEntity<List<Account>>(accountService.searchByNdi(ndi), HttpStatus.OK)
             }
             return ResponseEntity<List<Account>>(accountService.searchAll(), HttpStatus.OK)
@@ -33,17 +39,30 @@ class AccountController{
         }
     }
 
+    /**
+     * 계좌 번호을 입력받아서 계좌 정보를 조회한다
+     *
+     * PathVariable : ndi : String
+     * ResponseEntity : Account
+     * BAD_REQUEST -
+     * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
+     */
     @GetMapping("{account-numbers}")
     fun searchByAccountNumber(@PathVariable("account-numbers") accountNumbers : String): ResponseEntity<Account>{
         try{
             return ResponseEntity<Account>(accountService.searchByAccountNumbers(accountNumbers), HttpStatus.OK)
-        }catch (err : ResponseStatusException){
-            return ResponseEntity(err.status)
         }catch (err : Exception){
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
+    /**
+     * NDI을 입력받아서 마이너스 계좌를 개설한다, 이미 계좌가 존재하는 경우 그 계좌를 반환한다
+     *
+     * RequestBody : ndi : String
+     * ResponseEntity : Account
+     * BAD_REQUEST - ndi가 RequestBody에 없을 경우, User에 해당되는 ndi가 없는 경우
+     */
     @PostMapping()
     fun openAccount(@RequestBody map : Map<String, String>) : ResponseEntity<Account>{
         try{
@@ -60,11 +79,18 @@ class AccountController{
 
             return ResponseEntity<Account>(accountService.openAccount(map.getValue("ndi"), creditResult), HttpStatus.CREATED)
         }catch (err : Exception){
-            // 클라이언트가 오류가 아니라면 서버 오류로 보내야 된다.
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
+    /**
+     * 계좌번호를 입력받아서 대출을 신청 및 반환한다.
+     *
+     * PathVariable : account-numbers : String
+     * RequestBody : type(대출 신청/반환 종류), amount(신청 금액)
+     * ResponseEntity : Account
+     * BAD_REQUEST - type이 잘못 된 경우, 계좌가 존재하지 않는 경우, 통장이 정지된 경우, 한도보다 더 많은 금액을 대출 신청 한 경우
+     */
     @PutMapping("{account-numbers}/balance")
     fun applicationLoan(@PathVariable("account-numbers") accountNumbers: String, @RequestBody detail : Detail) : ResponseEntity<Account>{
         try{
@@ -82,6 +108,13 @@ class AccountController{
         }
     }
 
+    /**
+     * 계좌정보를 입력 받아서 계좌를 해지한다.
+     *
+     * PathVariable : account-numbers : String
+     * ResponseEntity : balance : Int, 잔액을 전달
+     * BAD_REQUEST - 계좌 정보가 없는 경우, 계좌가 이미 해지된 경우, 계좌에 잔고가 마이너스 인 경우
+     */
     @DeleteMapping("{account-numbers}")
     fun cancelAccount(@PathVariable("account-numbers") accountNumbers: String) : ResponseEntity<Integer>{
         try{
