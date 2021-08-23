@@ -34,9 +34,9 @@ class AccountController{
     }
 
     @GetMapping("{account-numbers}")
-    fun serarchByAccountNumber(@PathVariable("account-numbers") accountNumbers : String): ResponseEntity<Optional<Account>>{
+    fun serarchByAccountNumber(@PathVariable("account-numbers") accountNumbers : String): ResponseEntity<Account>{
         try{
-            return ResponseEntity<Optional<Account>>(accountService.searchByAccountNumbers(accountNumbers), HttpStatus.OK)
+            return ResponseEntity<Account>(accountService.searchByAccountNumbers(accountNumbers), HttpStatus.OK)
         }catch (err : ResponseStatusException){
             return ResponseEntity(err.status)
         }catch (err : Exception){
@@ -53,7 +53,7 @@ class AccountController{
             }
             var creditResult = accountService.searchGrade(map.getValue("NDI"))
 
-            if(!creditResult.getIsPermit()){
+            if(!creditResult.isPermit){
                 // 신용등급 미달 (Status상태 수정 예정)
                 return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
             }
@@ -68,10 +68,10 @@ class AccountController{
     @PutMapping("{account-numbers}/balance")
     fun applicationLoan(@PathVariable("account-numbers") accountNumbers: String, @RequestBody detail : Detail) : ResponseEntity<Account>{
         try{
-            if(detail.getType().equals("deposit")){
-                return ResponseEntity<Account>(accountService.depositLoan(accountNumbers, detail.getAmount()), HttpStatus.CREATED)
-            } else if(detail.getType().equals("withdraw")){
-                return ResponseEntity<Account>(accountService.withdrawLoan(accountNumbers, detail.getAmount()), HttpStatus.CREATED)
+            if(detail.type.equals("deposit")){
+                return ResponseEntity<Account>(accountService.depositLoan(accountNumbers, detail.amount), HttpStatus.CREATED)
+            } else if(detail.type.equals("withdraw")){
+                return ResponseEntity<Account>(accountService.withdrawLoan(accountNumbers, detail.amount), HttpStatus.CREATED)
             } else{
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
