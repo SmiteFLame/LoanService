@@ -1,7 +1,19 @@
 # 202108-internship-loan-system
 
+## REST 명세서
+![REST명세서](./image/REST명세서.png)
+
+## 데이터베이스
+
+### E-R 다이어그램
+![REST명세서](./image/ERD.png)
+
+
+### 데이터베이스 Create 생성문
 
 ```SQL
+
+-- UserDB
 CREATE TABLE users(
     NDI VARCHAR(36) PRIMARY KEY,
     email VARCHAR(50) not null unique,
@@ -10,7 +22,7 @@ CREATE TABLE users(
     salary INT NOT NULL
 );
 
-
+-- CreditDB
 CREATE TABLE credit_rating_search_historys(
     history_id INT PRIMARY KEY AUTO_INCREMENT,
     NDI VARCHAR(36) NOT NULL,
@@ -25,6 +37,7 @@ CREATE TABLE credit_rating_search_results(
     FOREIGN KEY(history_id) references credit_rating_search_historys(history_id)
 );
 
+-- AccountDB
 CREATE TABLE accounts(
     account_id INT PRIMARY KEY AUTO_INCREMENT,
     account_numbers VARCHAR(50) NOT NULL UNIQUE,
