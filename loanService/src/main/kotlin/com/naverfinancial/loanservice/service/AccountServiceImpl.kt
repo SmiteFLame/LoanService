@@ -11,6 +11,7 @@ import com.naverfinancial.loanservice.utils.JsonFormData
 import com.naverfinancial.loanservice.wrapper.CreditResult
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
@@ -35,8 +36,13 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountCancellationHistoryRespository: AccountCancellationHistoryRespository
 
+    @Qualifier("user")
     @Autowired
     lateinit var userTransactionManager: PlatformTransactionManager
+
+    @Qualifier("account")
+    @Autowired
+    lateinit var accountTransactionManager: PlatformTransactionManager
 
     override fun searchAll()  : List<Account> {
         return accountRespository.findAll();
@@ -51,6 +57,8 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun openAccount(NDI: String, creditResult: CreditResult): Account {
+        var status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+
         // 마이너스 통장 중복 검사
         var accounts = searchByNDI(NDI)
         for(account in accounts){
@@ -79,10 +87,17 @@ class AccountServiceImpl : AccountService {
             status = "normal",
             createdDate = Timestamp(System.currentTimeMillis()),
         )
-        return accountRespository.save(newAccount)
+
+        newAccount = accountRespository.save(newAccount)
+
+        accountTransactionManager.commit(status)
+
+        return newAccount
     }
 
     override fun withdrawLoan(accountNumbers: String, amount: Int): Account {
+        var status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
         if(account.isEmpty || !account.get().getStatus().equals("normal")){
@@ -109,11 +124,16 @@ class AccountServiceImpl : AccountService {
 
         // 계좌 수정하기
         account.get().withdraw(amount, historyTime)
+        var newAccount = accountRespository.save(account.get())
 
-        return accountRespository.save(account.get())
+        accountTransactionManager.commit(status)
+
+        return newAccount
     }
 
     override fun depositLoan(accountNumbers: String, amount: Int): Account {
+        var status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
         if(account.isEmpty || !account.get().getStatus().equals("normal")){
@@ -134,11 +154,16 @@ class AccountServiceImpl : AccountService {
 
         // 계좌 수정하기
         account.get().deposit(amount)
+        var newAccount = accountRespository.save(account.get())
 
-        return accountRespository.save(account.get())
+        accountTransactionManager.commit(status)
+
+        return newAccount
     }
 
     override fun cancelAccount(accountNumbers: String): Integer {
+        var status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
         if(account.isEmpty || !account.get().getStatus().equals("normal")){
@@ -161,6 +186,8 @@ class AccountServiceImpl : AccountService {
         )
 
         accountCancellationHistoryRespository.save(accountCancellationHistory)
+
+        accountTransactionManager.commit(status)
 
         return Integer(balance)
     }
