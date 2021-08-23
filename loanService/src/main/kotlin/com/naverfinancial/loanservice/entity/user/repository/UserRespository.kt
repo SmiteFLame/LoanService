@@ -1,6 +1,6 @@
-package com.naverfinancial.loanservice.repository
+package com.naverfinancial.loanservice.entity.user.repository
 
-import com.naverfinancial.loanservice.dto.User
+import com.naverfinancial.loanservice.entity.user.dto.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*

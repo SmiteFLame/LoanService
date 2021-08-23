@@ -1,7 +1,6 @@
 package com.naverfinancial.loanservice.service
 
-import com.naverfinancial.loanservice.dto.Account
-import com.naverfinancial.loanservice.dto.User
+import com.naverfinancial.loanservice.entity.account.dto.Account
 import com.naverfinancial.loanservice.wrapper.CreditResult
 import java.util.*
 

@@ -1,4 +1,4 @@
-package com.naverfinancial.loanservice.dto
+package com.naverfinancial.loanservice.entity.account.dto
 
 import java.sql.Timestamp
 import javax.persistence.*

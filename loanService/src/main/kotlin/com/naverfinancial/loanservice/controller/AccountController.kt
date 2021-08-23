@@ -1,6 +1,6 @@
 package com.naverfinancial.loanservice.controller
 
-import com.naverfinancial.loanservice.dto.Account
+import com.naverfinancial.loanservice.entity.account.dto.Account
 import com.naverfinancial.loanservice.wrapper.Detail
 import com.naverfinancial.loanservice.service.AccountService
 import com.naverfinancial.loanservice.service.UserService

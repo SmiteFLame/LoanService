@@ -1,4 +1,4 @@
-package com.naverfinancial.loanservice.dto
+package com.naverfinancial.loanservice.entity.user.dto
 
 import javax.persistence.Column
 import javax.persistence.Entity

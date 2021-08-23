@@ -1,6 +1,6 @@
 package com.naverfinancial.loanservice.controller
 
-import com.naverfinancial.loanservice.dto.User
+import com.naverfinancial.loanservice.entity.user.dto.User
 import com.naverfinancial.loanservice.service.UserService
 import com.naverfinancial.loanservice.wrapper.Register
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,9 +45,10 @@ class UserController{
     @PostMapping()
     fun saveUser(@RequestBody register: Register) : ResponseEntity<User>{
         try {
-            // register 오류 1차 검사 진행하기
+            // register 오류 1차 검사 진행하기 -> BAD_REQUEST
             return ResponseEntity<User>(userService.saveUser(register), HttpStatus.CREATED)
         } catch (err : Exception){
+            println(err.message)
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }

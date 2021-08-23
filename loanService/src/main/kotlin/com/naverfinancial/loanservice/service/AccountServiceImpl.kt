@@ -1,11 +1,11 @@
 package com.naverfinancial.loanservice.service
 
-import com.naverfinancial.loanservice.dto.Account
-import com.naverfinancial.loanservice.dto.AccountCancellationHistory
-import com.naverfinancial.loanservice.dto.AccountTransactionHistory
-import com.naverfinancial.loanservice.repository.AccountCancellationHistoryRespository
-import com.naverfinancial.loanservice.repository.AccountRespository
-import com.naverfinancial.loanservice.repository.AccountTransactionHistoryRespository
+import com.naverfinancial.loanservice.entity.account.dto.Account
+import com.naverfinancial.loanservice.entity.account.dto.AccountCancellationHistory
+import com.naverfinancial.loanservice.entity.account.dto.AccountTransactionHistory
+import com.naverfinancial.loanservice.entity.account.repository.AccountCancellationHistoryRespository
+import com.naverfinancial.loanservice.entity.account.repository.AccountRespository
+import com.naverfinancial.loanservice.entity.account.repository.AccountTransactionHistoryRespository
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
 import com.naverfinancial.loanservice.utils.JsonFormData
 import com.naverfinancial.loanservice.wrapper.CreditResult
@@ -13,6 +13,8 @@ import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.support.DefaultTransactionDefinition
 import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 import java.net.http.HttpClient
@@ -32,6 +34,9 @@ class AccountServiceImpl : AccountService {
 
     @Autowired
     lateinit var accountCancellationHistoryRespository: AccountCancellationHistoryRespository
+
+    @Autowired
+    lateinit var userTransactionManager: PlatformTransactionManager
 
     override fun searchAll()  : List<Account> {
         return accountRespository.findAll();
@@ -97,7 +102,7 @@ class AccountServiceImpl : AccountService {
             amount = amount,
             type = "deposit",
             createdDate = historyTime,
-            accountId = account.get().getAccountID(),
+            accountId = account.get().getAccountId(),
             accountNumbers = account.get().getAccountNumbers()
         )
         accountTransactionHistoryRespository.save(newAccountTransactionHistory)
@@ -121,7 +126,7 @@ class AccountServiceImpl : AccountService {
             amount = amount,
             type = "deposit",
             createdDate = Timestamp(System.currentTimeMillis()),
-            accountId = account.get().getAccountID(),
+            accountId = account.get().getAccountId(),
             accountNumbers = account.get().getAccountNumbers()
         )
 
@@ -151,7 +156,7 @@ class AccountServiceImpl : AccountService {
 
         // 취소 기록 저장
         var accountCancellationHistory = AccountCancellationHistory(
-            accountId = account.get().getAccountID(),
+            accountId = account.get().getAccountId(),
             cancellationDate = Timestamp(System.currentTimeMillis())
         )
 
