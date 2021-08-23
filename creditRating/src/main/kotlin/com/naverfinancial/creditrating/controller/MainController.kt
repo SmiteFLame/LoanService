@@ -23,9 +23,8 @@ class MainController {
      *
      * RequestBody : ndi : String
      * ResponseEntity : creditResult(신용등급, 대출 가능 여부)
-     * BAD_REQUEST - ndi가 RequestBody에 없을 경우
+     * BAD_REQUEST - ndi가 RequestBody에 없을 경우, User에 해당되는 ndi가 없는 경우
      * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
-     * INTERNAL_SERVER_ERROR -
      */
     @PostMapping
     fun selectGrade(@RequestBody map : Map<String,String>): ResponseEntity<CreditResult>{
@@ -37,7 +36,6 @@ class MainController {
         } catch (err : HttpTimeoutException){
             return ResponseEntity(HttpStatus.GATEWAY_TIMEOUT)
         } catch (err : Exception){
-            println(err.message)
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
