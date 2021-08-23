@@ -18,15 +18,24 @@ class MainController {
     @Autowired
     lateinit var mService : MainService
 
+    /**
+     * NDI을 입력받아서 유저 정보를 가져온 후 신용등급 및 대출 가능 여부 파악한다
+     *
+     * RequestBody : ndi : String
+     * ResponseEntity : creditResult(신용등급, 대출 가능 여부)
+     * BAD_REQUEST - ndi가 RequestBody에 없을 경우
+     * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
+     * INTERNAL_SERVER_ERROR -
+     */
     @PostMapping
     fun selectGrade(@RequestBody map : Map<String,String>): ResponseEntity<CreditResult>{
         try {
-            if (!map.containsKey("NDI")) {
+            if (!map.containsKey("ndi")) {
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
             return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("NDI")), HttpStatus.CREATED)
         } catch (err : HttpTimeoutException){
-            return ResponseEntity(HttpStatus.REQUEST_TIMEOUT)
+            return ResponseEntity(HttpStatus.GATEWAY_TIMEOUT)
         } catch (err : Exception){
             println(err.message)
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)

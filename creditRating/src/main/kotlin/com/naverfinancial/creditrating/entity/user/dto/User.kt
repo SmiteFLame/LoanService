@@ -10,7 +10,7 @@ import javax.persistence.Table
 @Entity
 data class User (
         @Id
-        val NDI : String,
+        val ndi : String,
 
         @Column(unique = true, nullable = false)
         val email : String,

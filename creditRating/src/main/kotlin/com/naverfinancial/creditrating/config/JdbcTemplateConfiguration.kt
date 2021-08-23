@@ -19,17 +19,17 @@ class JdbcTemplateConfiguration {
     @Qualifier("user")
     @Bean
     fun userTransactionManager(userDataSource: DataSource?): PlatformTransactionManager? {
-        val dataSourceTransactionManager = JpaTransactionManager()
-        dataSourceTransactionManager.dataSource = userDataSource
-        return dataSourceTransactionManager
+        val jpaTransactionManager = JpaTransactionManager()
+        jpaTransactionManager.dataSource = userDataSource
+        return jpaTransactionManager
     }
 
     @Qualifier("account")
     @Bean
     fun creditRatingSearchTransactionManager(creditRatingSearchDataSource: DataSource?): PlatformTransactionManager? {
-        val dataSourceTransactionManager = JpaTransactionManager()
-        dataSourceTransactionManager.dataSource = creditRatingSearchDataSource
-        return dataSourceTransactionManager
+        val jpaTransactionManager = JpaTransactionManager()
+        jpaTransactionManager.dataSource = creditRatingSearchDataSource
+        return jpaTransactionManager
     }
 
 }

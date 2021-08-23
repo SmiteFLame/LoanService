@@ -21,20 +21,20 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var userTransactionManager : PlatformTransactionManager
 
-    override fun searchUserByEmails(email: String): Optional<User> {
+    override fun searchUserByEmails(email: String): User? {
         return userRespository.findUserByEmail(email)
     }
 
-    override fun searchUserByNDI(NDI: String): Optional<User> {
-        return userRespository.findUserByNDI(NDI)
+    override fun searchUserByNDI(ndi: String): User? {
+        return userRespository.findUserByNdi(ndi)
     }
 
     override fun saveUser(register: Register): User {
-        var status = userTransactionManager.getTransaction(DefaultTransactionDefinition())
+        val status = userTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         val uuid = UUID.randomUUID().toString()
         val user = User(
-            NDI = uuid,
+            ndi = uuid,
             email = register.emails,
             userName = register.user_name,
             age = register.age,

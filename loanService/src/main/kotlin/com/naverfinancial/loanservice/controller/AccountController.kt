@@ -22,10 +22,10 @@ class AccountController{
     lateinit var userService : UserService
 
     @GetMapping()
-    fun searchAll(@RequestParam("NDI") NDI: String) : ResponseEntity<List<Account>>{
+    fun searchAll(@RequestParam("ndi") ndi: String) : ResponseEntity<List<Account>>{
         try{
-            if(NDI.equals("")){
-                return ResponseEntity<List<Account>>(accountService.searchByNDI(NDI), HttpStatus.OK)
+            if(ndi == ""){
+                return ResponseEntity<List<Account>>(accountService.searchByNdi(ndi), HttpStatus.OK)
             }
             return ResponseEntity<List<Account>>(accountService.searchAll(), HttpStatus.OK)
         } catch (err : Exception){
@@ -34,7 +34,7 @@ class AccountController{
     }
 
     @GetMapping("{account-numbers}")
-    fun serarchByAccountNumber(@PathVariable("account-numbers") accountNumbers : String): ResponseEntity<Account>{
+    fun searchByAccountNumber(@PathVariable("account-numbers") accountNumbers : String): ResponseEntity<Account>{
         try{
             return ResponseEntity<Account>(accountService.searchByAccountNumbers(accountNumbers), HttpStatus.OK)
         }catch (err : ResponseStatusException){
@@ -47,18 +47,18 @@ class AccountController{
     @PostMapping()
     fun openAccount(@RequestBody map : Map<String, String>) : ResponseEntity<Account>{
         try{
-            if(!map.containsKey("NDI") || userService.searchUserByNDI(map.getValue("NDI")).isEmpty){
+            if(!map.containsKey("ndi") || userService.searchUserByNDI(map.getValue("ndi")) == null){
                 // 존재하지 않는 NDI
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
-            var creditResult = accountService.searchGrade(map.getValue("NDI"))
+            var creditResult = accountService.searchGrade(map.getValue("ndi"))
 
             if(!creditResult.isPermit){
                 // 신용등급 미달 (Status상태 수정 예정)
                 return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
             }
 
-            return ResponseEntity<Account>(accountService.openAccount(map.getValue("NDI"), creditResult), HttpStatus.CREATED)
+            return ResponseEntity<Account>(accountService.openAccount(map.getValue("ndi"), creditResult), HttpStatus.CREATED)
         }catch (err : Exception){
             // 클라이언트가 오류가 아니라면 서버 오류로 보내야 된다.
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)

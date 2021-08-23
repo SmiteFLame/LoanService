@@ -36,10 +36,6 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountCancellationHistoryRespository: AccountCancellationHistoryRespository
 
-    @Qualifier("user")
-    @Autowired
-    lateinit var userTransactionManager: PlatformTransactionManager
-
     @Qualifier("account")
     @Autowired
     lateinit var accountTransactionManager: PlatformTransactionManager
@@ -52,15 +48,15 @@ class AccountServiceImpl : AccountService {
         return accountRespository.findAccountbyAccountNumbers(accountNumbers)
     }
 
-    override fun searchByNDI(NDI: String): List<Account> {
-        return accountRespository.findAccountsByNDI(NDI)
+    override fun searchByNdi(ndi: String): List<Account> {
+        return accountRespository.findAccountsByNdi(ndi)
     }
 
-    override fun openAccount(NDI: String, creditResult: CreditResult): Account {
-        var status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+    override fun openAccount(ndi: String, creditResult: CreditResult): Account {
+        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // 마이너스 통장 중복 검사
-        var accounts = searchByNDI(NDI)
+        var accounts = searchByNdi(ndi)
         for(account in accounts){
             if(account.status == "normal"){
                 return account
@@ -70,17 +66,14 @@ class AccountServiceImpl : AccountService {
         var newAccountNumbers : String
         while(true) {
             newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
-            var check = searchByAccountNumbers(newAccountNumbers)
-            if (check == null) {
-                break
-            }
+            searchByAccountNumbers(newAccountNumbers) ?: break
         }
 
         // 새로운 통장 개설
         var newAccount = Account(
             accountId = -1, // AUTO_INCREASED
             accountNumbers = newAccountNumbers,
-            NDI = NDI,
+            ndi = ndi,
             loanLimit = -5000,
             balance = 0,
             grade = creditResult.grade,
@@ -96,11 +89,11 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun withdrawLoan(accountNumbers: String, amount: Int): Account {
-        var status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // 계좌 가져오기
-        var account = searchByAccountNumbers(accountNumbers)
-        if(account == null || !account.status.equals("normal")){
+        val account = searchByAccountNumbers(accountNumbers)
+        if(account == null || account.status != "normal"){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
 
@@ -110,9 +103,9 @@ class AccountServiceImpl : AccountService {
             throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
         }
 
-        var historyTime = Timestamp(System.currentTimeMillis())
+        val historyTime = Timestamp(System.currentTimeMillis())
         // 대출 기록 남기기
-        var newAccountTransactionHistory = AccountTransactionHistory(
+        val newAccountTransactionHistory = AccountTransactionHistory(
             historyId = -1, // AUTO_INCREASED
             amount = amount,
             type = "deposit",
@@ -124,7 +117,7 @@ class AccountServiceImpl : AccountService {
 
         // 계좌 수정하기
         account.withdraw(amount, historyTime)
-        var newAccount = accountRespository.save(account)
+        val newAccount = accountRespository.save(account)
 
         accountTransactionManager.commit(status)
 
@@ -132,16 +125,16 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun depositLoan(accountNumbers: String, amount: Int): Account {
-        var status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // 계좌 가져오기
-        var account = searchByAccountNumbers(accountNumbers)
-        if(account == null || !account.status.equals("normal")){
+        val account = searchByAccountNumbers(accountNumbers)
+        if(account == null || account.status != "normal"){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
 
         // 반납 기록 남기기
-        var newAccountTransactionHistory = AccountTransactionHistory(
+        val newAccountTransactionHistory = AccountTransactionHistory(
             historyId = -1, // AUTO_INCREASED
             amount = amount,
             type = "deposit",
@@ -154,7 +147,7 @@ class AccountServiceImpl : AccountService {
 
         // 계좌 수정하기
         account.deposit(amount)
-        var newAccount = accountRespository.save(account)
+        val newAccount = accountRespository.save(account)
 
         accountTransactionManager.commit(status)
 
@@ -162,11 +155,11 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun cancelAccount(accountNumbers: String): Integer {
-        var status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
-        if(account == null || !account.status.equals("normal")){
+        if(account == null || account.status != "normal"){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
 
@@ -174,13 +167,13 @@ class AccountServiceImpl : AccountService {
             throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
         }
 
-        var balance = account.balance
+        val balance = account.balance
         // 계좌 상태 변경
         account.cancel()
         accountRespository.save(account)
 
         // 취소 기록 저장
-        var accountCancellationHistory = AccountCancellationHistory(
+        val accountCancellationHistory = AccountCancellationHistory(
             accountId = account.accountId,
             cancellationDate = Timestamp(System.currentTimeMillis())
         )
@@ -192,8 +185,8 @@ class AccountServiceImpl : AccountService {
         return Integer(balance)
     }
 
-    override fun searchGrade(NDI: String): CreditResult {
-        val values = mapOf("NDI" to NDI)
+    override fun searchGrade(ndi: String): CreditResult {
+        val values = mapOf("ndi" to ndi)
         val client = HttpClient.newBuilder().build();
         val request = HttpRequest.newBuilder()
             .uri(URI.create("http://localhost:8081/credits"))

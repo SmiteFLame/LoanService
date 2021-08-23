@@ -17,17 +17,17 @@ class JdbcTemplateConfiguration {
     @Qualifier("user")
     @Bean
     fun userTransactionManager(userDataSource: DataSource?): PlatformTransactionManager? {
-        val dataSourceTransactionManager = UserJpaTransactionManager()
-        dataSourceTransactionManager.dataSource = userDataSource
-        return dataSourceTransactionManager
+        val jpaTransactionManager = UserJpaTransactionManager()
+        jpaTransactionManager.dataSource = userDataSource
+        return jpaTransactionManager
     }
 
     @Qualifier("account")
     @Bean
     fun accountTransactionManager(accountDataSource: DataSource?): PlatformTransactionManager? {
-        val dataSourceTransactionManager = JpaTransactionManager()
-        dataSourceTransactionManager.dataSource = accountDataSource
-        return dataSourceTransactionManager
+        val jpaTransactionManager = JpaTransactionManager()
+        jpaTransactionManager.dataSource = accountDataSource
+        return jpaTransactionManager
     }
 
 }

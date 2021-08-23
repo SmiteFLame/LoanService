@@ -15,7 +15,7 @@ data class Account (
         val accountNumbers : String,
 
         @Column(nullable = false)
-        val NDI : String,
+        val ndi : String,
 
         @Column(name="loan_limit", nullable = false)
         val loanLimit :Int,

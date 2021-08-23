@@ -10,5 +10,5 @@ import java.util.*
 interface AccountRespository : JpaRepository<Account, Integer> {
     @Query("select acc from Account acc where acc.accountNumbers = ?1")
     fun findAccountbyAccountNumbers(accountNumbers : String) : Account?
-    fun findAccountsByNDI(NDI : String) : List<Account>
+    fun findAccountsByNdi(ndi : String) : List<Account>
 }

@@ -17,26 +17,26 @@ class UserController{
     lateinit var userService : UserService
 
     @GetMapping("{email}/email")
-    fun searchUserByEmail(@PathVariable email : String) : ResponseEntity<Optional<User>>{
+    fun searchUserByEmail(@PathVariable email : String) : ResponseEntity<User>{
         try{
             val user = userService.searchUserByEmails(email)
-            if(user.isEmpty){
+            if(user == null){
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
-            return ResponseEntity<Optional<User>>(user, HttpStatus.OK)
+            return ResponseEntity<User>(user, HttpStatus.OK)
         } catch (err : Exception){
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
-    @GetMapping("{NDI}")
-    fun searchUserByNDI(@PathVariable NDI : String) : ResponseEntity<Optional<User>> {
+    @GetMapping("{ndi}")
+    fun searchUserByNdi(@PathVariable ndi : String) : ResponseEntity<User> {
         try {
-            var user = userService.searchUserByNDI(NDI)
-            if (user.isEmpty) {
+            var user = userService.searchUserByNDI(ndi)
+            if (user == null) {
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
-            return ResponseEntity<Optional<User>>(user, HttpStatus.OK)
+            return ResponseEntity<User>(user, HttpStatus.OK)
         } catch (err : Exception){
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
@@ -48,7 +48,6 @@ class UserController{
             // register 오류 1차 검사 진행하기 -> BAD_REQUEST
             return ResponseEntity<User>(userService.saveUser(register), HttpStatus.CREATED)
         } catch (err : Exception){
-            println(err.message)
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }

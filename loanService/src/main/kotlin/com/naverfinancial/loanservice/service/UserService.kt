@@ -5,7 +5,7 @@ import com.naverfinancial.loanservice.wrapper.Register
 import java.util.*
 
 interface UserService {
-    fun searchUserByEmails(emails : String) : Optional<User>
-    fun searchUserByNDI(NDI : String) : Optional<User>
+    fun searchUserByEmails(emails : String) : User?
+    fun searchUserByNDI(ndi : String) : User?
     fun saveUser(register : Register) : User
 }
