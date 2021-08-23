@@ -3,9 +3,9 @@ package com.naverfinancial.loanservice.service
 import com.naverfinancial.loanservice.entity.account.dto.Account
 import com.naverfinancial.loanservice.entity.account.dto.AccountCancellationHistory
 import com.naverfinancial.loanservice.entity.account.dto.AccountTransactionHistory
-import com.naverfinancial.loanservice.entity.account.repository.AccountCancellationHistoryRespository
-import com.naverfinancial.loanservice.entity.account.repository.AccountRespository
-import com.naverfinancial.loanservice.entity.account.repository.AccountTransactionHistoryRespository
+import com.naverfinancial.loanservice.entity.account.repository.AccountCancellationHistoryRepository
+import com.naverfinancial.loanservice.entity.account.repository.AccountRepository
+import com.naverfinancial.loanservice.entity.account.repository.AccountTransactionHistoryRepository
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
 import com.naverfinancial.loanservice.utils.JsonFormData
 import com.naverfinancial.loanservice.wrapper.CreditResult
@@ -22,46 +22,46 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.sql.Timestamp
-import java.util.*
 
 @Service
 class AccountServiceImpl : AccountService {
 
     @Autowired
-    lateinit var accountRespository : AccountRespository
+    lateinit var accountRepository : AccountRepository
 
     @Autowired
-    lateinit var accountTransactionHistoryRespository: AccountTransactionHistoryRespository
+    lateinit var accountTransactionHistoryRepository: AccountTransactionHistoryRepository
 
     @Autowired
-    lateinit var accountCancellationHistoryRespository: AccountCancellationHistoryRespository
+    lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
 
     @Qualifier("account")
     @Autowired
     lateinit var accountTransactionManager: PlatformTransactionManager
 
     override fun searchAll()  : List<Account> {
-        return accountRespository.findAll();
+        return accountRepository.findAll();
     }
 
     override fun searchByAccountNumbers(accountNumbers: String): Account? {
-        return accountRespository.findAccountbyAccountNumbers(accountNumbers)
+        return accountRepository.findAccountbyAccountNumbers(accountNumbers)
     }
 
     override fun searchByNdi(ndi: String): List<Account> {
-        return accountRespository.findAccountsByNdi(ndi)
+        return accountRepository.findAccountsByNdi(ndi)
     }
 
     override fun openAccount(ndi: String, creditResult: CreditResult): Account {
-        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
-
         // 마이너스 통장 중복 검사
-        var accounts = searchByNdi(ndi)
+        val accounts = searchByNdi(ndi)
         for(account in accounts){
             if(account.status == "normal"){
                 return account
             }
         }
+
+        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+
         // 통장번호 랜덤 생성
         var newAccountNumbers : String
         while(true) {
@@ -81,7 +81,7 @@ class AccountServiceImpl : AccountService {
             createdDate = Timestamp(System.currentTimeMillis()),
         )
 
-        newAccount = accountRespository.save(newAccount)
+        newAccount = accountRepository.save(newAccount)
 
         accountTransactionManager.commit(status)
 
@@ -89,8 +89,6 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun withdrawLoan(accountNumbers: String, amount: Int): Account {
-        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
-
         // 계좌 가져오기
         val account = searchByAccountNumbers(accountNumbers)
         if(account == null || account.status != "normal"){
@@ -98,12 +96,14 @@ class AccountServiceImpl : AccountService {
         }
 
         // 대출 가능 조사하기
-        // 잔고 + 대출을 한 후에 현재 한도 금액보다 작아진다면
         if(account.balance + amount < account.loanLimit){
-            throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
 
+        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+
         val historyTime = Timestamp(System.currentTimeMillis())
+
         // 대출 기록 남기기
         val newAccountTransactionHistory = AccountTransactionHistory(
             historyId = -1, // AUTO_INCREASED
@@ -113,11 +113,11 @@ class AccountServiceImpl : AccountService {
             accountId = account.accountId,
             accountNumbers = account.accountNumbers
         )
-        accountTransactionHistoryRespository.save(newAccountTransactionHistory)
+        accountTransactionHistoryRepository.save(newAccountTransactionHistory)
 
         // 계좌 수정하기
         account.withdraw(amount, historyTime)
-        val newAccount = accountRespository.save(account)
+        val newAccount = accountRepository.save(account)
 
         accountTransactionManager.commit(status)
 
@@ -125,13 +125,13 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun depositLoan(accountNumbers: String, amount: Int): Account {
-        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
-
-        // 계좌 가져오기
+       // 계좌 가져오기
         val account = searchByAccountNumbers(accountNumbers)
         if(account == null || account.status != "normal"){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
+
+        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // 반납 기록 남기기
         val newAccountTransactionHistory = AccountTransactionHistory(
@@ -143,11 +143,11 @@ class AccountServiceImpl : AccountService {
             accountNumbers = account.accountNumbers
         )
 
-        accountTransactionHistoryRespository.save(newAccountTransactionHistory)
+        accountTransactionHistoryRepository.save(newAccountTransactionHistory)
 
         // 계좌 수정하기
         account.deposit(amount)
-        val newAccount = accountRespository.save(account)
+        val newAccount = accountRepository.save(account)
 
         accountTransactionManager.commit(status)
 
@@ -155,8 +155,6 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun cancelAccount(accountNumbers: String): Integer {
-        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
-
         // 계좌 가져오기
         var account = searchByAccountNumbers(accountNumbers)
         if(account == null || account.status != "normal"){
@@ -164,13 +162,16 @@ class AccountServiceImpl : AccountService {
         }
 
         if(account.balance < 0){
-            throw ResponseStatusException(HttpStatus.NOT_ACCEPTABLE)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
 
+        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+
         val balance = account.balance
+
         // 계좌 상태 변경
         account.cancel()
-        accountRespository.save(account)
+        accountRepository.save(account)
 
         // 취소 기록 저장
         val accountCancellationHistory = AccountCancellationHistory(
@@ -178,7 +179,7 @@ class AccountServiceImpl : AccountService {
             cancellationDate = Timestamp(System.currentTimeMillis())
         )
 
-        accountCancellationHistoryRespository.save(accountCancellationHistory)
+        accountCancellationHistoryRepository.save(accountCancellationHistory)
 
         accountTransactionManager.commit(status)
 

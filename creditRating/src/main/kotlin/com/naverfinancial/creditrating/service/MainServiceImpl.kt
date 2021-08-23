@@ -6,7 +6,7 @@ import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatin
 import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchHistoryRepository
 import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchResultRepository
 import com.naverfinancial.creditrating.entity.user.dto.User
-import com.naverfinancial.creditrating.entity.user.repository.UserRespository
+import com.naverfinancial.creditrating.entity.user.repository.UserRepository
 import com.naverfinancial.creditrating.utils.JsonFormData
 import com.naverfinancial.creditrating.wrapper.CreditResult
 import org.json.JSONObject
@@ -32,7 +32,7 @@ import java.time.Duration
 class MainServiceImpl : MainService {
 
     @Autowired
-    lateinit var userRespository: UserRespository
+    lateinit var userRepository: UserRepository
 
     @Autowired
     lateinit var creditRatingSearchHistoryRepository: CreditRatingSearchHistoryRepository
@@ -44,14 +44,14 @@ class MainServiceImpl : MainService {
     lateinit var creditRatingSearchTransactionManager: PlatformTransactionManager
 
     override fun selectGrade(ndi: String): CreditResult {
-        var user = userRespository.findUserByNdi(ndi) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        var user = userRepository.findUserByNdi(ndi) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
 
         val grade = getGrade(user)
         val isPermit = evaluateLoanAvailability(grade)
 
         val status = creditRatingSearchTransactionManager.getTransaction(DefaultTransactionDefinition())
 
-        // CreaditRatingSearchHistory 기록하기
+        // CreditRatingSearchHistory 기록하기
         val newCreditRatingSearchHistory =
             CreditRatingSearchHistory(
                 historyId = -1, // AUTO_INCREASED
