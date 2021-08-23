@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.http.HttpTimeoutException
+import java.util.concurrent.TimeoutException
 
 @RestController
 @CrossOrigin("*")
@@ -23,7 +25,10 @@ class MainController {
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
             return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("NDI")), HttpStatus.CREATED)
+        } catch (err : HttpTimeoutException){
+            return ResponseEntity(HttpStatus.REQUEST_TIMEOUT)
         } catch (err : Exception){
+            println(err.message)
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
