@@ -72,6 +72,11 @@ class AccountController{
             if(!map.containsKey("ndi") || userService.searchUserByNDI(map.getValue("ndi")) == null){
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
+            var account = accountService.searchByNdiStatusNormal(map.getValue("ndi"))
+            if(account != null){
+                return ResponseEntity<Account>(account, HttpStatus.OK)
+            }
+
             var creditResult = accountService.searchGrade(map.getValue("ndi"))
 
             if(!creditResult.isPermit){

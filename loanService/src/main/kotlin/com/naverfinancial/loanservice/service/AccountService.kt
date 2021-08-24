@@ -14,6 +14,9 @@ interface AccountService {
     // 마이너스 통장 유효아이디 통장 조회
     fun searchByNdi(ndi: String): List<Account>
 
+    // 노멀 마이너스 통장 유효아이디 통장 조회
+    fun searchByNdiStatusNormal(ndi: String) : Account?
+
     // 마이너스 통장 신청
     fun openAccount(ndi: String, creditResult: CreditResult): Account
 

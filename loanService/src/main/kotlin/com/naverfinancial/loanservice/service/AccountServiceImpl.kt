@@ -51,7 +51,7 @@ class AccountServiceImpl : AccountService {
         return accountRepository.findAccountsByNdi(ndi)
     }
 
-    override fun openAccount(ndi: String, creditResult: CreditResult): Account {
+    override fun searchByNdiStatusNormal(ndi: String) : Account?{
         // 마이너스 통장 중복 검사
         val accounts = searchByNdi(ndi)
         for(account in accounts){
@@ -59,7 +59,10 @@ class AccountServiceImpl : AccountService {
                 return account
             }
         }
+        return null
+    }
 
+    override fun openAccount(ndi: String, creditResult: CreditResult): Account {
         val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // 통장번호 랜덤 생성
