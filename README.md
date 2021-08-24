@@ -3,11 +3,35 @@
 ## REST 명세서
 ![REST명세서](./image/REST명세서.png)
 
+## 플로우 차트
+
+### 유저 및 계좌 번호 검색
+![유저및계좌번호검색](./image/유저및계좌번호검색.png)
+
+### 마이너스 통장 신청
+![마이너스통장신청](./image/마이너스통장신청.png)
+
+### 대출 신청 및 반환, 해지
+![대출신청및반환해지](./image/대출신청및반환해지.png)
+
+## 흐름도
+### 유저 검색
+![유저검색흐름도](./image/유저검색흐름도.png)
+
+### 계좌 번호 검색
+![계좌번호검색흐름도](./image/계좌번호검색흐름도.png)
+
+### 마이너스 통장 신청
+![마이너스통장신청흐름도](./image/마이너스통장신청흐름도.png)
+
+### 대출 신청 및 반환, 해지
+![대출신청및반환해지흐름도](./image/대출신청및반환해지흐름도.png)
+
+
 ## 데이터베이스
 
 ### E-R 다이어그램
 ![REST명세서](./image/ERD.png)
-
 
 ### 데이터베이스 Create 생성문
 
@@ -34,7 +58,7 @@ CREATE TABLE credit_rating_search_result(
     NDI VARCHAR(36) PRIMARY KEY,
     grade INT NOT NULL,
     history_id INT NOT NULL,
-    FOREIGN KEY(history_id) references credit_rating_search_historys(history_id)
+    FOREIGN KEY(history_id) references credit_rating_search_history(history_id)
 );
 
 -- AccountDB
@@ -59,14 +83,14 @@ CREATE TABLE account_transaction_history(
     account_numbers VARCHAR(30) NOT NULL,
     type VARCHAR(15) NOT NULL,
     created_date DATETIME NOT NULL default(NOW()),
-    FOREIGN KEY(account_id) REFERENCES accounts(account_id),
-    FOREIGN KEY(account_numbers) REFERENCES accounts(account_numbers)
+    FOREIGN KEY(account_id) REFERENCES account(account_id),
+    FOREIGN KEY(account_numbers) REFERENCES account(account_numbers)
 );
 
 CREATE TABLE account_cancellation_history(
     account_id INT PRIMARY KEY,
     cancellation_date DATETIME NOT NULL,
-    FOREIGN KEY(account_id) REFERENCES accounts(account_id)
+    FOREIGN KEY(account_id) REFERENCES account(account_id)
 );
 
 ```
