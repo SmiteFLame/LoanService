@@ -6,14 +6,13 @@ import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.Cred
 import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchResultRepository
 import com.naverfinancial.creditrating.entity.user.dto.User
 import com.naverfinancial.creditrating.entity.user.repository.UserRepository
+import com.naverfinancial.creditrating.enumClass.ExceptionEnum
 import com.naverfinancial.creditrating.utils.JsonFormData
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.DefaultTransactionDefinition
-import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -22,7 +21,7 @@ import java.sql.Timestamp
 import java.time.Duration
 
 @Service
-class MainServiceImpl : MainService {
+class CreditRatingServiceImpl : CreditRatingService {
 
     @Autowired
     lateinit var userRepository: UserRepository
@@ -36,15 +35,10 @@ class MainServiceImpl : MainService {
     @Autowired
     lateinit var creditRatingSearchTransactionManager: PlatformTransactionManager
 
-    override fun selectGrade(ndi: String): CreditRatingSearchResult {
-        var user = userRepository.findUserByNdi(ndi) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+    override fun selectGrade(user : User): CreditRatingSearchResult {
         var grade : Int = 0
-        var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(ndi)
-        if(creditRatingSearchResult == null){
-            grade = getGrade(user)
-        } else{
-            grade = creditRatingSearchResult.grade
-        }
+        var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
+        grade = creditRatingSearchResult?.grade ?: getGrade(user)
 
         val isPermit = evaluateLoanAvailability(grade)
 
