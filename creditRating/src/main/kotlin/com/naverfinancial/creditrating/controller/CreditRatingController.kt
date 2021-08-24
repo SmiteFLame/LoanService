@@ -2,6 +2,8 @@ package com.naverfinancial.creditrating.controller
 
 import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchResult
 import com.naverfinancial.creditrating.enumClass.ExceptionEnum
+import com.naverfinancial.creditrating.exception.NullNdiException
+import com.naverfinancial.creditrating.exception.NullUserException
 import com.naverfinancial.creditrating.service.CreditRatingService
 import com.naverfinancial.creditrating.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,20 +25,28 @@ class CreditRatingController {
     lateinit var userService: UserService
 
     @ExceptionHandler
-    fun exceptionHandler(error : Exception): ResponseEntity<ExceptionEnum> {
-        when(error){
-            is NullPointerException -> {
-                when(error.message){
-                    "ndi" -> return ResponseEntity<ExceptionEnum>(ExceptionEnum.NOT_FOUND_NDI,  HttpStatus.BAD_REQUEST)
-                    "user" -> return ResponseEntity<ExceptionEnum>(ExceptionEnum.NOT_FOUND_USER,  HttpStatus.BAD_REQUEST)
-                }
-            }
-            is HttpTimeoutException -> return ResponseEntity<ExceptionEnum>(ExceptionEnum.TIMEOUT, HttpStatus.GATEWAY_TIMEOUT)
-            is HttpMessageNotReadableException -> return ResponseEntity<ExceptionEnum>(ExceptionEnum.NOT_FOUNT_JSON, HttpStatus.BAD_REQUEST)
+    fun exceptionHandler(error: Exception): ResponseEntity<Exception> {
+        when (error) {
+            is NullNdiException -> return ResponseEntity<Exception>(
+                error,
+                HttpStatus.BAD_REQUEST
+            )
+            is NullUserException -> return ResponseEntity<Exception>(
+                error,
+                HttpStatus.BAD_REQUEST
+            )
+            is HttpTimeoutException -> return ResponseEntity<Exception>(
+                error,
+                HttpStatus.GATEWAY_TIMEOUT
+            )
+            is HttpMessageNotReadableException -> return ResponseEntity<Exception>(
+                error,
+                HttpStatus.BAD_REQUEST
+            )
         }
 
         // 그외 에러들
-        return ResponseEntity<ExceptionEnum>(ExceptionEnum.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity<Exception>(error, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     /**
@@ -54,7 +64,7 @@ class CreditRatingController {
         }
 
         var user = userService.selectUserByNDI(map.getValue("ndi"))
-        if(user == null){
+        if (user == null) {
             throw NullPointerException("user")
         }
         return ResponseEntity<CreditRatingSearchResult>(creditRatingService.selectGrade(user), HttpStatus.OK)
