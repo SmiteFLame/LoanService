@@ -60,12 +60,12 @@ class CreditRatingController {
     @PostMapping
     fun selectGrade(@RequestBody map: Map<String, String>): ResponseEntity<CreditRatingSearchResult> {
         if (!map.containsKey("ndi")) {
-            throw NullPointerException("ndi")
+            throw NullNdiException()
         }
 
         var user = userService.selectUserByNDI(map.getValue("ndi"))
         if (user == null) {
-            throw NullPointerException("user")
+            throw NullUserException()
         }
         return ResponseEntity<CreditRatingSearchResult>(creditRatingService.selectGrade(user), HttpStatus.OK)
     }
