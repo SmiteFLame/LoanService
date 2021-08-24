@@ -4,5 +4,5 @@ import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatin
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface CreditRatingSearchResultRepository : JpaRepository<CreditRatingSearchResult, String>{
-    fun findCreditRatingSearchResultByNdi(ndi : String) : CreditRatingSearchResult
+    fun findCreditRatingSearchResultByNdi(ndi : String) : CreditRatingSearchResult?
 }
