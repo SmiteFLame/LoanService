@@ -25,12 +25,16 @@ class AccountController{
      * 전체 계좌 정보, NDI에 해당되는 계좌 정보들을 조회한다
      *
      * RequestParam : ndi : String
+     * Bad Request : NDI가 없는 경우
      * ResponseEntity : List<Account>
      */
     @GetMapping()
     fun searchAll(@RequestParam("ndi") ndi: String) : ResponseEntity<List<Account>>{
         try{
             if(ndi != ""){
+                if(userService.searchUserByNDI(ndi) == null){
+                    return ResponseEntity(HttpStatus.BAD_REQUEST)
+                }
                 return ResponseEntity<List<Account>>(accountService.searchByNdi(ndi), HttpStatus.OK)
             }
             return ResponseEntity<List<Account>>(accountService.searchAll(), HttpStatus.OK)
@@ -44,7 +48,6 @@ class AccountController{
      *
      * PathVariable : ndi : String
      * ResponseEntity : Account
-     * BAD_REQUEST -
      * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
      */
     @GetMapping("{account-numbers}")
@@ -92,9 +95,9 @@ class AccountController{
     @PutMapping("{account-numbers}/balance")
     fun applicationLoan(@PathVariable("account-numbers") accountNumbers: String, @RequestBody detail : Detail) : ResponseEntity<Account>{
         try{
-            if(detail.type.equals("deposit")){
+            if(detail.type.equals("deposit") && detail.amount < 0){
                 return ResponseEntity<Account>(accountService.depositLoan(accountNumbers, detail.amount), HttpStatus.CREATED)
-            } else if(detail.type.equals("withdraw")){
+            } else if(detail.type.equals("withdraw") && detail.amount > 0){
                 return ResponseEntity<Account>(accountService.withdrawLoan(accountNumbers, detail.amount), HttpStatus.CREATED)
             } else{
                 return ResponseEntity(HttpStatus.BAD_REQUEST)

@@ -13,7 +13,7 @@ data class CreditRatingSearchHistory (
         val historyId : Int,
 
         @Column(nullable = false)
-        val NDI : String,
+        val ndi : String,
 
         @Column(nullable = false)
         val grade : Int,

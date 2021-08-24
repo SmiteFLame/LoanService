@@ -6,7 +6,7 @@ import javax.persistence.*
 @Entity
 data class CreditRatingSearchResult (
         @Id
-        val NDI : String,
+        val ndi : String,
 
         @Column(nullable = false)
         val grade : Int,

@@ -45,8 +45,14 @@ class MainServiceImpl : MainService {
 
     override fun selectGrade(ndi: String): CreditResult {
         var user = userRepository.findUserByNdi(ndi) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        var grade : Int = 0
+        var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(ndi)
+        if(creditRatingSearchResult == null){
+            grade = getGrade(user)
+        } else{
+            grade = creditRatingSearchResult.grade
+        }
 
-        val grade = getGrade(user)
         val isPermit = evaluateLoanAvailability(grade)
 
         val status = creditRatingSearchTransactionManager.getTransaction(DefaultTransactionDefinition())
@@ -55,7 +61,7 @@ class MainServiceImpl : MainService {
         val newCreditRatingSearchHistory =
             CreditRatingSearchHistory(
                 historyId = -1, // AUTO_INCREASED
-                NDI = user.ndi,
+                ndi = user.ndi,
                 grade = grade,
                 createdDate = Timestamp(System.currentTimeMillis())
             )
@@ -65,7 +71,7 @@ class MainServiceImpl : MainService {
         // CreditRatingSearchResult 기록하기
         val newCreditRatingSearchResult =
             CreditRatingSearchResult(
-                NDI = user.ndi,
+                ndi = user.ndi,
                 grade = grade,
                 historyId = resultOfCreditRatingSearchHistory.historyId
             )
