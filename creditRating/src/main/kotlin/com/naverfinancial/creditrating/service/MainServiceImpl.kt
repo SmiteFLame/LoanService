@@ -1,6 +1,5 @@
 package com.naverfinancial.creditrating.service
 
-import com.naverfinancial.creditrating.entity.creditRatingSearch.config.CreditRatingSearchJpaTransactionManager
 import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchHistory
 import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchResult
 import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchHistoryRepository
@@ -8,18 +7,12 @@ import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.Cred
 import com.naverfinancial.creditrating.entity.user.dto.User
 import com.naverfinancial.creditrating.entity.user.repository.UserRepository
 import com.naverfinancial.creditrating.utils.JsonFormData
-import com.naverfinancial.creditrating.wrapper.CreditResult
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.TransactionStatus
-import org.springframework.transaction.annotation.Propagation
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.DefaultTransactionDefinition
-import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 import java.net.http.HttpClient
@@ -43,7 +36,7 @@ class MainServiceImpl : MainService {
     @Autowired
     lateinit var creditRatingSearchTransactionManager: PlatformTransactionManager
 
-    override fun selectGrade(ndi: String): CreditResult {
+    override fun selectGrade(ndi: String): CreditRatingSearchResult {
         var user = userRepository.findUserByNdi(ndi) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         var grade : Int = 0
         var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(ndi)
@@ -69,17 +62,18 @@ class MainServiceImpl : MainService {
         val resultOfCreditRatingSearchHistory = creditRatingSearchHistoryRepository.save(newCreditRatingSearchHistory)
 
         // CreditRatingSearchResult 기록하기
-        val newCreditRatingSearchResult =
+        creditRatingSearchResult =
             CreditRatingSearchResult(
                 ndi = user.ndi,
                 grade = grade,
+                isPermit = isPermit,
                 historyId = resultOfCreditRatingSearchHistory.historyId
             )
-        creditRatingSearchResultRepository.save(newCreditRatingSearchResult)
+        creditRatingSearchResultRepository.save(creditRatingSearchResult)
 
         creditRatingSearchTransactionManager.commit(status)
 
-        return CreditResult(grade, isPermit)
+        return creditRatingSearchResult
     }
 
     override fun evaluateLoanAvailability(grade: Int): Boolean {

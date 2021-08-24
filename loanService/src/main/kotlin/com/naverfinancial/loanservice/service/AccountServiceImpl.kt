@@ -39,21 +39,21 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountTransactionManager: PlatformTransactionManager
 
-    override fun searchAll()  : List<Account> {
+    override fun selectAccountList()  : List<Account> {
         return accountRepository.findAll();
     }
 
-    override fun searchByAccountNumbers(accountNumbers: String): Account? {
-        return accountRepository.findAccountbyAccountNumbers(accountNumbers)
+    override fun selectAccountByAccountId(accountId: Int): Account? {
+        return accountRepository.findAccountbyAccountId(accountId)
     }
 
-    override fun searchByNdi(ndi: String): List<Account> {
+    override fun selectAccountListByNdi(ndi: String): List<Account> {
         return accountRepository.findAccountsByNdi(ndi)
     }
 
-    override fun searchByNdiStatusNormal(ndi: String) : Account?{
+    override fun selectAccountByNdiStatusNormal(ndi: String) : Account?{
         // 마이너스 통장 중복 검사
-        val accounts = searchByNdi(ndi)
+        val accounts = selectAccountListByNdi(ndi)
         for(account in accounts){
             if(account.status == "normal"){
                 return account
@@ -69,7 +69,7 @@ class AccountServiceImpl : AccountService {
         var newAccountNumbers : String
         while(true) {
             newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
-            searchByAccountNumbers(newAccountNumbers) ?: break
+            accountRepository.findAccountbyAccountNumbers(newAccountNumbers) ?: break
         }
 
         // 새로운 통장 개설
@@ -91,9 +91,9 @@ class AccountServiceImpl : AccountService {
         return newAccount
     }
 
-    override fun withdrawLoan(accountNumbers: String, amount: Int): Account {
+    override fun withdrawLoan(accountId: Int, amount: Int): Account {
         // 계좌 가져오기
-        val account = searchByAccountNumbers(accountNumbers)
+        val account = selectAccountByAccountId(accountId)
         if(account == null || account.status != "normal"){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
@@ -127,9 +127,9 @@ class AccountServiceImpl : AccountService {
         return newAccount
     }
 
-    override fun depositLoan(accountNumbers: String, amount: Int): Account {
+    override fun depositLoan(accountId : Int, amount: Int): Account {
        // 계좌 가져오기
-        val account = searchByAccountNumbers(accountNumbers)
+        val account = selectAccountByAccountId(accountId)
         if(account == null || account.status != "normal"){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
@@ -157,9 +157,9 @@ class AccountServiceImpl : AccountService {
         return newAccount
     }
 
-    override fun cancelAccount(accountNumbers: String): Integer {
-        // 계좌 가져오기
-        var account = searchByAccountNumbers(accountNumbers)
+    override fun removeAccount(accountId: Int): Integer {
+        // 계좌 가져오기=
+        val account = selectAccountByAccountId(accountId)
         if(account == null || account.status != "normal"){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }

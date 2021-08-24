@@ -1,8 +1,8 @@
 package com.naverfinancial.creditrating.service
 
-import com.naverfinancial.creditrating.wrapper.CreditResult
+import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchResult
 
 interface MainService {
-    fun selectGrade(ndi : String) : CreditResult
+    fun selectGrade(ndi : String) : CreditRatingSearchResult
     fun evaluateLoanAvailability(grade: Int): Boolean
 }

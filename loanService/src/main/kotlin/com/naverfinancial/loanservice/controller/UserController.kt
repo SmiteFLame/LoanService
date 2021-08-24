@@ -2,7 +2,6 @@ package com.naverfinancial.loanservice.controller
 
 import com.naverfinancial.loanservice.entity.user.dto.User
 import com.naverfinancial.loanservice.service.UserService
-import com.naverfinancial.loanservice.wrapper.Register
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -23,11 +22,11 @@ class UserController{
      * BAD_REQUEST - User에 해당되는 email가 없는 경우
      */
     @GetMapping("{email}/email")
-    fun searchUserByEmail(@PathVariable email : String) : ResponseEntity<User>{
+    fun selectUserByEmail(@PathVariable email : String) : ResponseEntity<User>{
         try{
-            val user = userService.searchUserByEmails(email)
+            val user = userService.selectUserByEmails(email)
             if(user == null){
-                return ResponseEntity(HttpStatus.BAD_REQUEST)
+                return ResponseEntity(HttpStatus.NOT_FOUND)
             }
             return ResponseEntity<User>(user, HttpStatus.OK)
         } catch (err : Exception){
@@ -44,11 +43,11 @@ class UserController{
      * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
      */
     @GetMapping("{ndi}")
-    fun searchUserByNdi(@PathVariable ndi : String) : ResponseEntity<User> {
+    fun selectUserByNdi(@PathVariable ndi : String) : ResponseEntity<User> {
         try {
-            var user = userService.searchUserByNDI(ndi)
+            var user = userService.selectUserByNDI(ndi)
             if (user == null) {
-                return ResponseEntity(HttpStatus.BAD_REQUEST)
+                return ResponseEntity(HttpStatus.NOT_FOUND)
             }
             return ResponseEntity<User>(user, HttpStatus.OK)
         } catch (err : Exception){
@@ -64,9 +63,10 @@ class UserController{
      * BAD_REQUEST - 필수 회원 가입 정보가 들어오지 않은 경우, 이메일 형식이 잘못된 경우
      */
     @PostMapping()
-    fun saveUser(@RequestBody register: Register) : ResponseEntity<User>{
+    fun insertUser(@RequestBody user : User) : ResponseEntity<User>{
         try {
-            return ResponseEntity<User>(userService.saveUser(register), HttpStatus.CREATED)
+            // register를 파싱하는 과정에서 오류 -> 400 리턴 추가
+            return ResponseEntity<User>(userService.insertUser(user), HttpStatus.CREATED)
         } catch (err : Exception){
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }

@@ -1,7 +1,7 @@
 package com.naverfinancial.creditrating.controller
 
+import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchResult
 import com.naverfinancial.creditrating.service.MainService
-import com.naverfinancial.creditrating.wrapper.CreditResult
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -27,12 +27,12 @@ class MainController {
      * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
      */
     @PostMapping
-    fun selectGrade(@RequestBody map : Map<String,String>): ResponseEntity<CreditResult>{
+    fun selectGrade(@RequestBody map : Map<String,String>): ResponseEntity<CreditRatingSearchResult>{
         try {
             if (!map.containsKey("ndi")) {
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
-            return ResponseEntity<CreditResult>(mService.selectGrade(map.getValue("ndi")), HttpStatus.CREATED)
+            return ResponseEntity<CreditRatingSearchResult>(mService.selectGrade(map.getValue("ndi")), HttpStatus.CREATED)
         } catch (err : HttpTimeoutException){
             return ResponseEntity(HttpStatus.GATEWAY_TIMEOUT)
         } catch (err : Exception){
