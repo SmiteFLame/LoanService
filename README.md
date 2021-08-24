@@ -58,13 +58,14 @@ CREATE TABLE credit_rating_search_result(
     NDI VARCHAR(36) PRIMARY KEY,
     grade INT NOT NULL,
     history_id INT NOT NULL,
+    isPermit BOOLEAN NOT NULL,
     FOREIGN KEY(history_id) references credit_rating_search_history(history_id)
 );
 
 -- AccountDB
 CREATE TABLE account(
     account_id INT PRIMARY KEY AUTO_INCREMENT,
-    account_numbers VARCHAR(50) NOT NULL UNIQUE,
+    account_number VARCHAR(50) NOT NULL UNIQUE,
     NDI VARCHAR(36) NOT NULL,
     loan_limit INT NOT NULL,
     balance INT NOT NULL,
@@ -74,17 +75,17 @@ CREATE TABLE account(
     loan_start_date DATETIME
 );
 
-ALTER TABLE accounts ADD INDEX (account_numbers);
+ALTER TABLE accounts ADD INDEX (account_number);
 
 CREATE TABLE account_transaction_history(
     history_id INT PRIMARY KEY AUTO_INCREMENT,
     account_id INT NOT NULL,
     amount INT NOT NULL,
-    account_numbers VARCHAR(30) NOT NULL,
+    account_number VARCHAR(30) NOT NULL,
     type VARCHAR(15) NOT NULL,
     created_date DATETIME NOT NULL default(NOW()),
     FOREIGN KEY(account_id) REFERENCES account(account_id),
-    FOREIGN KEY(account_numbers) REFERENCES account(account_numbers)
+    FOREIGN KEY(account_numbers) REFERENCES account(account_number)
 );
 
 CREATE TABLE account_cancellation_history(
