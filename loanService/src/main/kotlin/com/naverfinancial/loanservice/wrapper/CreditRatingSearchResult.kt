@@ -1,4 +1,4 @@
-package com.naverfinancial.creditrating.entity.creditRatingSearch.dto
+package com.naverfinancial.loanservice.wrapper
 
 import javax.persistence.*
 
