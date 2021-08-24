@@ -1,25 +1,48 @@
 package com.naverfinancial.loanservice.controller
 
 import com.naverfinancial.loanservice.entity.account.dto.Account
+import com.naverfinancial.loanservice.enumClass.ExceptionEnum
+import com.naverfinancial.loanservice.exception.*
 import com.naverfinancial.loanservice.wrapper.Detail
 import com.naverfinancial.loanservice.service.AccountService
 import com.naverfinancial.loanservice.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import java.net.http.HttpTimeoutException
 import java.util.*
 
 @RestController
 @RequestMapping("/accounts")
-class AccountController{
+class AccountController {
 
     @Autowired
-    lateinit var accountService : AccountService
+    lateinit var accountService: AccountService
 
     @Autowired
-    lateinit var userService : UserService
+    lateinit var userService: UserService
+
+    @ExceptionHandler
+    fun exceptionHandler(error: Exception): ResponseEntity<String> {
+        var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
+        when (error) {
+            is NullNdiException -> status = HttpStatus.BAD_REQUEST
+            is NullUserException -> status = HttpStatus.BAD_REQUEST
+            is DuplicationAccountException -> status = HttpStatus.BAD_REQUEST
+            is HttpMessageNotReadableException -> status = HttpStatus.BAD_REQUEST
+            is WrongTypeAccountID -> status = HttpStatus.BAD_REQUEST
+            is NullAccountException -> status = HttpStatus.BAD_REQUEST
+
+            is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
+        }
+
+        // 그외 에러들
+        return ResponseEntity<String>(error.message, status)
+    }
+
 
     /**
      * 전체 계좌 정보 리스트조회한다
@@ -29,12 +52,8 @@ class AccountController{
      * ResponseEntity : List<Account>
      */
     @GetMapping()
-    fun selectAccountList() : ResponseEntity<List<Account>>{
-        try{
-            return ResponseEntity<List<Account>>(accountService.selectAccountList(), HttpStatus.OK)
-        } catch (err : Exception){
-            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
-        }
+    fun selectAccountList(): ResponseEntity<List<Account>> {
+        return ResponseEntity<List<Account>>(accountService.selectAccountList(), HttpStatus.OK)
     }
 
     /**
@@ -45,15 +64,14 @@ class AccountController{
      * ResponseEntity : List<Account>
      */
     @GetMapping("ndi/{ndi}")
-    fun selectAccountListByNdi(@PathVariable ndi: String) : ResponseEntity<List<Account>>{
-        try{
-            if(ndi == ""){
-                return ResponseEntity(HttpStatus.BAD_REQUEST)
-            }
-            return ResponseEntity<List<Account>>(accountService.selectAccountListByNdi(ndi), HttpStatus.OK)
-        } catch (err : Exception){
-            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun selectAccountListByNdi(@PathVariable ndi: String): ResponseEntity<List<Account>> {
+        if (ndi == "") {
+            throw NullNdiException()
         }
+        if (userService.selectUserByNDI(ndi) == null) {
+            throw NullUserException()
+        }
+        return ResponseEntity<List<Account>>(accountService.selectAccountListByNdi(ndi), HttpStatus.OK)
     }
 
     /**
@@ -64,12 +82,8 @@ class AccountController{
      * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
      */
     @GetMapping("{account-id}")
-    fun selectAccountByAccountId(@PathVariable("account-id") accountId : Int): ResponseEntity<Account>{
-        try{
-            return ResponseEntity<Account>(accountService.selectAccountByAccountId(accountId), HttpStatus.OK)
-        }catch (err : Exception){
-            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
-        }
+    fun selectAccountByAccountId(@PathVariable("account-id") accountId: Int): ResponseEntity<Account> {
+        return ResponseEntity<Account>(accountService.selectAccountByAccountId(accountId), HttpStatus.OK)
     }
 
     /**
@@ -80,27 +94,33 @@ class AccountController{
      * BAD_REQUEST - ndi가 RequestBody에 없을 경우, User에 해당되는 ndi가 없는 경우
      */
     @PostMapping()
-    fun insertAccount(@RequestBody map : Map<String, String>) : ResponseEntity<Account>{
-        try{
-            if(!map.containsKey("ndi") || userService.selectUserByNDI(map.getValue("ndi")) == null){
-                return ResponseEntity(HttpStatus.BAD_REQUEST)
-            }
-            var account = accountService.selectAccountByNdiStatusNormal(map.getValue("ndi"))
-            if(account != null){
-                return ResponseEntity(HttpStatus.BAD_REQUEST)
-            }
+    fun insertAccount(@RequestBody map: Map<String, String>): ResponseEntity<Account> {
 
-            // 등급 요청은 따로 분리하기
-            var creditResult = accountService.searchGrade(map.getValue("ndi"))
-
-            if(!creditResult.isPermit){
-                return ResponseEntity(HttpStatus.BAD_REQUEST)
-            }
-
-            return ResponseEntity<Account>(accountService.openAccount(map.getValue("ndi"), creditResult), HttpStatus.CREATED)
-        }catch (err : Exception){
-            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+        if (!map.containsKey("ndi")) {
+            throw NullNdiException()
         }
+        if (userService.selectUserByNDI(map.getValue("ndi")) == null) {
+            throw NullUserException()
+        }
+
+        var account = accountService.selectAccountByNdiStatusNormal(map.getValue("ndi"))
+        if (account != null) {
+            throw DuplicationAccountException()
+        }
+
+        // 등급 요청은 따로 분리하기
+        // 계좌에는 등급을 제외하고 추가하기
+        // 한도 계좌 같은 경우는 어떻게 처리할 것인지 고민하기
+        var creditResult = accountService.searchGrade(map.getValue("ndi"))
+
+        if (!creditResult.isPermit) {
+            return ResponseEntity(HttpStatus.BAD_REQUEST)
+        }
+
+        return ResponseEntity<Account>(
+            accountService.openAccount(map.getValue("ndi"), creditResult),
+            HttpStatus.CREATED
+        )
     }
 
     /**
@@ -112,19 +132,26 @@ class AccountController{
      * BAD_REQUEST - type이 잘못 된 경우, 계좌가 존재하지 않는 경우, 통장이 정지된 경우, 한도보다 더 많은 금액을 대출 신청 한 경우
      */
     @PutMapping("{account-id}/balance")
-    fun updateAccount(@PathVariable("account-id") accountId : Int, @RequestBody detail : Detail) : ResponseEntity<Account>{
-        try{
-            if(detail.type == "deposit" && detail.amount < 0){
-                return ResponseEntity<Account>(accountService.depositLoan(accountId, detail.amount), HttpStatus.CREATED)
-            } else if(detail.type == "withdraw" && detail.amount > 0){
-                return ResponseEntity<Account>(accountService.withdrawLoan(accountId, detail.amount), HttpStatus.CREATED)
-            } else{
-                return ResponseEntity(HttpStatus.BAD_REQUEST)
-            }
-        }catch (err : ResponseStatusException){
-            return ResponseEntity(err.status)
-        }catch (err : Exception){
-            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun updateAccount(
+        @PathVariable("account-id") accountId: Int,
+        @RequestBody detail: Detail
+    ): ResponseEntity<Account> {
+        if (accountId < 0) {
+            throw WrongTypeAccountID()
+        }
+        if (accountService.selectAccountByAccountId(accountId) == null) {
+            throw NullAccountException()
+        }
+
+        if (detail.type == "deposit" && detail.amount < 0) {
+            return ResponseEntity<Account>(accountService.depositLoan(accountId, detail.amount), HttpStatus.CREATED)
+        } else if (detail.type == "withdraw" && detail.amount > 0) {
+            return ResponseEntity<Account>(
+                accountService.withdrawLoan(accountId, detail.amount),
+                HttpStatus.CREATED
+            )
+        } else {
+            throw UndefinedTypeException()
         }
     }
 
@@ -136,14 +163,7 @@ class AccountController{
      * BAD_REQUEST - 계좌 정보가 없는 경우, 계좌가 이미 해지된 경우, 계좌에 잔고가 마이너스 인 경우
      */
     @DeleteMapping("{account-id}")
-    fun removeAccount(@PathVariable("account-id") accountId : Int) : ResponseEntity<Integer>{
-        try{
-            return ResponseEntity<Integer>(accountService.removeAccount(accountId), HttpStatus.CREATED)
-        }catch (err : ResponseStatusException){
-            return ResponseEntity(err.status)
-        }catch (err : Exception){
-            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
-        }
+    fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
+        return ResponseEntity<Integer>(accountService.removeAccount(accountId), HttpStatus.CREATED)
     }
-
 }

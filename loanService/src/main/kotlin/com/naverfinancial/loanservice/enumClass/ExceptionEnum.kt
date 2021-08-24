@@ -4,6 +4,8 @@ enum class ExceptionEnum() {
     NOT_FOUND_NDI,
     NOT_FOUND_USER,
     TIMEOUT,
-    NOT_FOUNT_JSON,
+    NOT_FOUND_JSON,
+    DUPLICATION_ACCOUNT,
+    UNDEFINED_TYPE,
     SERVER_ERROR;
 }
