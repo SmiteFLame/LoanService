@@ -1,9 +1,9 @@
 package com.naverfinancial.creditrating.controller
 
 import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchResult
-import com.naverfinancial.creditrating.enumClass.ExceptionEnum
 import com.naverfinancial.creditrating.exception.NullNdiException
 import com.naverfinancial.creditrating.exception.NullUserException
+import com.naverfinancial.creditrating.exception.UserException
 import com.naverfinancial.creditrating.service.CreditRatingService
 import com.naverfinancial.creditrating.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,29 +24,20 @@ class CreditRatingController {
     @Autowired
     lateinit var userService: UserService
 
+    @ExceptionHandler(UserException::class)
+    fun userExceptionHandler(error: UserException): ResponseEntity<String> {
+        return ResponseEntity<String>(error.message, error.status)
+    }
+
     @ExceptionHandler
-    fun exceptionHandler(error: Exception): ResponseEntity<Exception> {
+    fun exceptionHandler(error: Exception): ResponseEntity<String> {
+        var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         when (error) {
-            is NullNdiException -> return ResponseEntity<Exception>(
-                error,
-                HttpStatus.BAD_REQUEST
-            )
-            is NullUserException -> return ResponseEntity<Exception>(
-                error,
-                HttpStatus.BAD_REQUEST
-            )
-            is HttpTimeoutException -> return ResponseEntity<Exception>(
-                error,
-                HttpStatus.GATEWAY_TIMEOUT
-            )
-            is HttpMessageNotReadableException -> return ResponseEntity<Exception>(
-                error,
-                HttpStatus.BAD_REQUEST
-            )
+            is HttpMessageNotReadableException -> status = HttpStatus.BAD_REQUEST
+            is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
         }
 
-        // 그외 에러들
-        return ResponseEntity<Exception>(error, HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity<String>(error.message, status)
     }
 
     /**

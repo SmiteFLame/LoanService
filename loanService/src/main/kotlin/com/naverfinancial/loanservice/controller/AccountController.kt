@@ -24,13 +24,20 @@ class AccountController {
     @Autowired
     lateinit var userService: UserService
 
+    @ExceptionHandler(UserException::class)
+    fun userExceptionHandler(error: UserException): ResponseEntity<String> {
+        return ResponseEntity<String>(error.message, error.status)
+    }
+
+    @ExceptionHandler(AccountException::class)
+    fun accountExceptionHandler(error: AccountException): ResponseEntity<String> {
+        return ResponseEntity<String>(error.message, error.status)
+    }
+
     @ExceptionHandler
     fun exceptionHandler(error: Exception): ResponseEntity<String> {
         var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         when (error) {
-            is AccountException -> return ResponseEntity<String>(error.message, error.status)
-            is UserException -> return ResponseEntity<String>(error.message, error.status)
-
             is HttpMessageNotReadableException -> status = HttpStatus.BAD_REQUEST
             is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
         }
@@ -69,7 +76,7 @@ class AccountController {
         if (page == null || size == null) {
             throw PageableException()
         }
-        if (ndi == "") {
+        if (ndi == null||ndi == "") {
             throw NullNdiException()
         }
         if (userService.selectUserByNDI(ndi) == null) {
@@ -97,7 +104,7 @@ class AccountController {
      * ResponseEntity : Account
      * BAD_REQUEST - ndi가 RequestBody에 없을 경우, User에 해당되는 ndi가 없는 경우
      */
-    @PostMapping()
+    @PostMapping("applyment")
     fun insertAccount(@RequestBody map: Map<String, String>): ResponseEntity<Account> {
 
         if (!map.containsKey("ndi")) {
@@ -112,15 +119,18 @@ class AccountController {
             throw DuplicationAccountException()
         }
 
-        // 등급 요
-        var creditResult = accountService.searchGrade(map.getValue("ndi"))
+        var userCreditRating = userService.selectCreditRating(map.getValue("ndi"))
 
-        if (!creditResult.isPermit) {
+        if(userCreditRating == null){
+            throw NoCreditRating()
+        }
+
+        if (!userCreditRating.isPermit) {
             throw BelowCreditRating()
         }
 
         return ResponseEntity<Account>(
-            accountService.openAccount(map.getValue("ndi"), creditResult),
+            accountService.openAccount(map.getValue("ndi"), userCreditRating),
             HttpStatus.CREATED
         )
     }
@@ -133,7 +143,7 @@ class AccountController {
      * ResponseEntity : Account
      * BAD_REQUEST - type이 잘못 된 경우, 계좌가 존재하지 않는 경우, 통장이 정지된 경우, 한도보다 더 많은 금액을 대출 신청 한 경우
      */
-    @PutMapping("{account-id}/balance")
+    @PutMapping("applyment/{account-id}/balance")
     fun updateAccount(
         @PathVariable("account-id") accountId: Int,
         @RequestBody detail: Detail
@@ -174,7 +184,7 @@ class AccountController {
      * ResponseEntity : balance : Int, 잔액을 전달
      * BAD_REQUEST - 계좌 정보가 없는 경우, 계좌가 이미 해지된 경우, 계좌에 잔고가 마이너스 인 경우
      */
-    @DeleteMapping("{account-id}")
+    @DeleteMapping("applyment/{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
         var account = accountService.selectAccountByAccountId(accountId)
         if(account == null){

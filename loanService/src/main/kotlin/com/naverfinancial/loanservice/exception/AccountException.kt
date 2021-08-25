@@ -23,14 +23,18 @@ class WrongAmountInput : AccountException("잘못된 대출 신청입니다"){
 }
 
 class NullAccountException : AccountException("계좌가 존재하지 않습니다"){
-    override var status: HttpStatus = HttpStatus.BAD_REQUEST
+    override var status: HttpStatus = HttpStatus.NOT_FOUND
 }
 
-class BelowCreditRating : AccountException("신용등급이 미달 되었습니다."){
+class NoCreditRating : AccountException("신용등급이 존재하지 않습니다"){
+    override var status: HttpStatus = HttpStatus.NOT_FOUND
+}
+
+class BelowCreditRating : AccountException("신용등급 미달로 대출 신청이 불가능합니다."){
     override var status: HttpStatus = HttpStatus.OK
 }
 
-class PageableException : AccountException("Page 혹은 Size가 입력되지 않았습니다"){
+class PageableException : AccountException("페이지 번호 혹은 페이지 크기가 입력되지 않았습니다"){
     override var status: HttpStatus = HttpStatus.BAD_REQUEST
 }
 
