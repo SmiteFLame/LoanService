@@ -6,6 +6,7 @@ import com.naverfinancial.loanservice.entity.account.dto.AccountTransactionHisto
 import com.naverfinancial.loanservice.entity.account.repository.AccountCancellationHistoryRepository
 import com.naverfinancial.loanservice.entity.account.repository.AccountRepository
 import com.naverfinancial.loanservice.entity.account.repository.AccountTransactionHistoryRepository
+import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.OverLimitException
@@ -67,7 +68,7 @@ class AccountServiceImpl : AccountService {
         return null
     }
 
-    override fun openAccount(ndi: String, creditResult: CreditResult): Account {
+    override fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account {
         val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // 통장번호 랜덤 생성
@@ -84,7 +85,7 @@ class AccountServiceImpl : AccountService {
             ndi = ndi,
             loanLimit = -5000,
             balance = 0,
-            grade = creditResult.grade,
+            grade = userCreditRating.grade,
             status = AccountTypeStatus.NORMAL,
             createdDate = Timestamp(System.currentTimeMillis()),
         )
@@ -184,19 +185,5 @@ class AccountServiceImpl : AccountService {
         accountTransactionManager.commit(status)
 
         return Integer(balance)
-    }
-
-    override fun searchGrade(ndi: String): CreditResult {
-        val values = mapOf("ndi" to ndi)
-        val client = HttpClient.newBuilder().build();
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:8081/credits"))
-            .POST(JsonFormData.formData(values))
-            .header("Content-Type", "application/json")
-            .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        val grade = JSONObject(response.body()).getInt("grade")
-        val isPermit = JSONObject(response.body()).getBoolean("isPermit")
-        return CreditResult(grade, isPermit)
     }
 }

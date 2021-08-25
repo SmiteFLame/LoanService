@@ -1,6 +1,7 @@
 package com.naverfinancial.loanservice.service
 
 import com.naverfinancial.loanservice.entity.account.dto.Account
+import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.wrapper.CreditResult
 import java.util.*
 
@@ -18,7 +19,7 @@ interface AccountService {
     fun selectAccountByNdiStatusNormal(ndi: String) : Account?
 
     // 마이너스 통장 신청
-    fun openAccount(ndi: String, creditResult: CreditResult): Account
+    fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account
 
     // 대출 신청
     fun depositLoan(account: Account, amount: Int): Account
@@ -29,6 +30,4 @@ interface AccountService {
     // 통장 해지
     fun removeAccount(account : Account): Integer
 
-    // 등급 조회하기
-    fun searchGrade(ndi: String): CreditResult
 }
