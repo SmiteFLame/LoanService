@@ -72,7 +72,7 @@ CREATE TABLE account(
     grade INT NOT NULL,
     status VARCHAR(15) NOT NULL default("normal"),
     created_date DATETIME NOT NULL default(NOW()),
-    cancellation DATETIME
+    cancelled_date DATETIME
 );
 
 ALTER TABLE account ADD INDEX (account_number);
@@ -80,10 +80,11 @@ ALTER TABLE account ADD INDEX (account_number);
 CREATE TABLE account_transaction_history(
     history_id INT PRIMARY KEY AUTO_INCREMENT,
     account_id INT NOT NULL,
-    amount INT NOT NULL,
     account_number VARCHAR(30) NOT NULL,
+    amount INT NOT NULL,
+    balance INT NOT NULL,
     type VARCHAR(15) NOT NULL,
-    transaction_date DATETIME NOT NULL default(NOW()),
+    translated_date DATETIME NOT NULL default(NOW()),
     FOREIGN KEY(account_id) REFERENCES account(account_id),
     FOREIGN KEY(account_number) REFERENCES account(account_number)
 );

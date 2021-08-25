@@ -37,3 +37,11 @@ class PageableException : AccountException("Page 혹은 Size가 입력되지 않
 class CancelledAccountException : AccountException("이미 해지된 계좌입니다"){
     override var status: HttpStatus = HttpStatus.BAD_REQUEST
 }
+
+class OverLimitException : AccountException("대출 한도를 초과하였습니다"){
+    override var status: HttpStatus = HttpStatus.OK
+}
+
+class RestLimitException : AccountException("대출 잔고가 남았습니다"){
+    override var status: HttpStatus = HttpStatus.OK
+}

@@ -38,7 +38,7 @@ data class Account(
     var cancelledDate: Timestamp? = null
 
     fun withdraw(amount: Int) {
-        this.balance += amount
+        this.balance -= amount
     }
 
     fun deposit(amount: Int) {
