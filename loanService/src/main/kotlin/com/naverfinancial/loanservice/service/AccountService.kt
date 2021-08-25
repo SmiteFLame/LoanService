@@ -2,8 +2,6 @@ package com.naverfinancial.loanservice.service
 
 import com.naverfinancial.loanservice.entity.account.dto.Account
 import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
-import com.naverfinancial.loanservice.wrapper.CreditResult
-import java.util.*
 
 interface AccountService {
     // 마이너스 통장 전체 조회

@@ -12,21 +12,12 @@ import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.OverLimitException
 import com.naverfinancial.loanservice.exception.RestLimitException
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
-import com.naverfinancial.loanservice.utils.JsonFormData
-import com.naverfinancial.loanservice.wrapper.CreditResult
-import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.domain.PageRequest
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.DefaultTransactionDefinition
-import org.springframework.web.server.ResponseStatusException
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
 import java.sql.Timestamp
 
 @Service

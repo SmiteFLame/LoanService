@@ -2,8 +2,7 @@ package com.naverfinancial.loanservice.service
 
 import com.naverfinancial.loanservice.entity.user.dto.User
 import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
-import com.naverfinancial.loanservice.wrapper.CreditResult
-import java.util.*
+import com.naverfinancial.loanservice.wrapper.CreditRatingSearchResult
 
 interface UserService {
     // 사용자 이메일 조회
@@ -22,5 +21,5 @@ interface UserService {
     fun insertUser(user : User) : User
 
     // 등급 조회하기
-    fun searchGrade(ndi: String): CreditResult
+    fun searchGrade(ndi: String): CreditRatingSearchResult
 }

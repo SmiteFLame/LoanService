@@ -4,7 +4,7 @@ import com.naverfinancial.loanservice.entity.account.dto.Account
 import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.*
-import com.naverfinancial.loanservice.wrapper.Detail
+import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import com.naverfinancial.loanservice.service.AccountService
 import com.naverfinancial.loanservice.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -146,7 +146,7 @@ class AccountController {
     @PutMapping("applyment/{account-id}/balance")
     fun updateAccount(
         @PathVariable("account-id") accountId: Int,
-        @RequestBody detail: Detail
+        @RequestBody applymentLoanService : ApplymentLoanService
     ): ResponseEntity<Account> {
         if (accountId < 0) {
             throw WrongTypeAccountID()
@@ -154,7 +154,7 @@ class AccountController {
         if (accountService.selectAccountByAccountId(accountId) == null) {
             throw NullAccountException()
         }
-        if (detail.amount < 0) {
+        if (applymentLoanService.amount < 0) {
             throw WrongAmountInput()
         }
         var account = accountService.selectAccountByAccountId(accountId)
@@ -167,11 +167,11 @@ class AccountController {
         }
 
 
-        if (detail.type == AccountRequestTypeStatus.DEPOSIT) {
-            return ResponseEntity<Account>(accountService.depositLoan(account, detail.amount), HttpStatus.OK)
+        if (applymentLoanService.type == AccountRequestTypeStatus.DEPOSIT) {
+            return ResponseEntity<Account>(accountService.depositLoan(account, applymentLoanService.amount), HttpStatus.OK)
         }
-        if (detail.type == AccountRequestTypeStatus.WITHDRAW) {
-            return ResponseEntity<Account>(accountService.withdrawLoan(account, detail.amount), HttpStatus.OK)
+        if (applymentLoanService.type == AccountRequestTypeStatus.WITHDRAW) {
+            return ResponseEntity<Account>(accountService.withdrawLoan(account, applymentLoanService.amount), HttpStatus.OK)
         } else {
             throw UndefinedTypeException()
         }
