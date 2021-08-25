@@ -6,7 +6,6 @@ import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.Cred
 import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchResultRepository
 import com.naverfinancial.creditrating.entity.user.dto.User
 import com.naverfinancial.creditrating.entity.user.repository.UserRepository
-import com.naverfinancial.creditrating.enumClass.ExceptionEnum
 import com.naverfinancial.creditrating.utils.JsonFormData
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
