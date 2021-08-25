@@ -36,6 +36,8 @@ class AccountController {
             is NullAccountException -> status = HttpStatus.BAD_REQUEST
 
             is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
+
+            is BelowCreditRating -> status = HttpStatus.OK
         }
 
         return ResponseEntity<String>(error.message, status)
@@ -139,11 +141,11 @@ class AccountController {
         }
 
         if (detail.type == "deposit" && detail.amount < 0) {
-            return ResponseEntity<Account>(accountService.depositLoan(accountId, detail.amount), HttpStatus.CREATED)
+            return ResponseEntity<Account>(accountService.depositLoan(accountId, detail.amount), HttpStatus.OK)
         } else if (detail.type == "withdraw" && detail.amount > 0) {
             return ResponseEntity<Account>(
                 accountService.withdrawLoan(accountId, detail.amount),
-                HttpStatus.CREATED
+                HttpStatus.OK
             )
         } else {
             throw UndefinedTypeException()
@@ -159,6 +161,6 @@ class AccountController {
      */
     @DeleteMapping("{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
-        return ResponseEntity<Integer>(accountService.removeAccount(accountId), HttpStatus.CREATED)
+        return ResponseEntity<Integer>(accountService.removeAccount(accountId), HttpStatus.OK)
     }
 }
