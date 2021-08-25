@@ -1,4 +1,6 @@
 package com.naverfinancial.loanservice.enumclass
 
-class AccountTypeStatus {
+enum class AccountTypeStatus {
+    NORMAL,
+    CANCELLED
 }

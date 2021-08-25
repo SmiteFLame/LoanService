@@ -1,5 +1,6 @@
 package com.naverfinancial.loanservice.entity.account.dto
 
+import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import java.sql.Timestamp
 import javax.persistence.*
 
@@ -15,14 +16,14 @@ data class AccountTransactionHistory (
     val amount : Int,
 
     @Column(nullable = false)
-    val type : String,
+    val type : AccountRequestTypeStatus,
 
-    @Column(name="created_date",nullable = false)
-    val createdDate : Timestamp,
+    @Column(name="translated_date",nullable = false)
+    val translatedDate : Timestamp,
 
     @Column(name="account_id", nullable = false)
     val accountId : Int,
 
-    @Column(name="account_numbers", nullable = false)
-    val accountNumbers : String,
+    @Column(name="account_number", nullable = false)
+    val accountNumber : String,
 )

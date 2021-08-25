@@ -1,6 +1,6 @@
 package com.naverfinancial.loanservice.enumclass
 
-enum class AccountTypeStatus {
+enum class AccountRequestTypeStatus {
     WITHDRAW,
     DEPOSIT
 }

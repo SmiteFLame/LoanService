@@ -1,6 +1,8 @@
 package com.naverfinancial.loanservice.controller
 
 import com.naverfinancial.loanservice.entity.account.dto.Account
+import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
+import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.*
 import com.naverfinancial.loanservice.wrapper.Detail
 import com.naverfinancial.loanservice.service.AccountService
@@ -10,9 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 import java.net.http.HttpTimeoutException
-import java.util.*
 
 @RestController
 @RequestMapping("/accounts")
@@ -28,18 +28,11 @@ class AccountController {
     fun exceptionHandler(error: Exception): ResponseEntity<String> {
         var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         when (error) {
-            is NullNdiException -> status = HttpStatus.BAD_REQUEST
-            is NullUserException -> status = HttpStatus.BAD_REQUEST
-            is DuplicationAccountException -> status = HttpStatus.BAD_REQUEST
+            is AccountException -> return ResponseEntity<String>(error.message, error.status)
+            is UserException -> return ResponseEntity<String>(error.message, error.status)
+
             is HttpMessageNotReadableException -> status = HttpStatus.BAD_REQUEST
-            is WrongTypeAccountID -> status = HttpStatus.BAD_REQUEST
-            is NullAccountException -> status = HttpStatus.BAD_REQUEST
-            is PageableException -> status = HttpStatus.BAD_REQUEST
-
             is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
-
-            is BelowCreditRating -> status = HttpStatus.OK
-
         }
 
         return ResponseEntity<String>(error.message, status)
@@ -53,8 +46,8 @@ class AccountController {
      * ResponseEntity : List<Account>
      */
     @GetMapping()
-    fun selectAccountList(@RequestParam page : Int?, size : Int?): ResponseEntity<List<Account>> {
-        if(page == null || size == null){
+    fun selectAccountList(@RequestParam page: Int?, size: Int?): ResponseEntity<List<Account>> {
+        if (page == null || size == null) {
             throw PageableException()
         }
         return ResponseEntity<List<Account>>(accountService.selectAccountList(page, size), HttpStatus.OK)
@@ -68,8 +61,12 @@ class AccountController {
      * ResponseEntity : List<Account>
      */
     @GetMapping("ndi/{ndi}")
-    fun selectAccountListByNdi(@PathVariable ndi: String, @RequestParam page : Int?, size : Int?): ResponseEntity<List<Account>> {
-        if(page == null || size == null){
+    fun selectAccountListByNdi(
+        @PathVariable ndi: String,
+        @RequestParam page: Int?,
+        size: Int?
+    ): ResponseEntity<List<Account>> {
+        if (page == null || size == null) {
             throw PageableException()
         }
         if (ndi == "") {
@@ -129,7 +126,7 @@ class AccountController {
     }
 
     /**
-     * 계좌번호를 입력받아서 대출을 신청 및 반환한다.
+     * 계좌번호를 입력받아서 대출을 신청하다
      *
      * PathVariable : account-numbers : String
      * RequestBody : type(대출 신청/반환 종류), amount(신청 금액)
@@ -147,14 +144,24 @@ class AccountController {
         if (accountService.selectAccountByAccountId(accountId) == null) {
             throw NullAccountException()
         }
+        if (detail.amount < 0) {
+            throw WrongAmountInput()
+        }
+        var account = accountService.selectAccountByAccountId(accountId)
+        if(account == null){
+            throw NullAccountException()
+        }
 
-        if (detail.type == "deposit" && detail.amount < 0) {
-            return ResponseEntity<Account>(accountService.depositLoan(accountId, detail.amount), HttpStatus.OK)
-        } else if (detail.type == "withdraw" && detail.amount > 0) {
-            return ResponseEntity<Account>(
-                accountService.withdrawLoan(accountId, detail.amount),
-                HttpStatus.OK
-            )
+        if(account.status == AccountTypeStatus.CANCELLED){
+            throw CancelledAccountException()
+        }
+
+
+        if (detail.type == AccountRequestTypeStatus.DEPOSIT) {
+            return ResponseEntity<Account>(accountService.depositLoan(account, detail.amount), HttpStatus.OK)
+        }
+        if (detail.type == AccountRequestTypeStatus.WITHDRAW) {
+            return ResponseEntity<Account>(accountService.withdrawLoan(account, detail.amount), HttpStatus.OK)
         } else {
             throw UndefinedTypeException()
         }
@@ -169,6 +176,14 @@ class AccountController {
      */
     @DeleteMapping("{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
-        return ResponseEntity<Integer>(accountService.removeAccount(accountId), HttpStatus.OK)
+        var account = accountService.selectAccountByAccountId(accountId)
+        if(account == null){
+            throw NullAccountException()
+        }
+
+        if(account.status != AccountTypeStatus.CANCELLED){
+            throw CancelledAccountException()
+        }
+        return ResponseEntity<Integer>(accountService.removeAccount(account), HttpStatus.OK)
     }
 }

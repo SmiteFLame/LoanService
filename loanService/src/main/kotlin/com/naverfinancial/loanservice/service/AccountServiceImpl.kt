@@ -6,6 +6,8 @@ import com.naverfinancial.loanservice.entity.account.dto.AccountTransactionHisto
 import com.naverfinancial.loanservice.entity.account.repository.AccountCancellationHistoryRepository
 import com.naverfinancial.loanservice.entity.account.repository.AccountRepository
 import com.naverfinancial.loanservice.entity.account.repository.AccountTransactionHistoryRepository
+import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
+import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
 import com.naverfinancial.loanservice.utils.JsonFormData
 import com.naverfinancial.loanservice.wrapper.CreditResult
@@ -56,7 +58,7 @@ class AccountServiceImpl : AccountService {
         // 마이너스 통장 중복 검사
         val accounts = accountRepository.findAccountsByNdi(ndi)
         for(account in accounts){
-            if(account.status == "normal"){
+            if(account.status == AccountTypeStatus.NORMAL){
                 return account
             }
         }
@@ -70,18 +72,18 @@ class AccountServiceImpl : AccountService {
         var newAccountNumbers : String
         while(true) {
             newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
-            accountRepository.findAccountbyAccountNumbers(newAccountNumbers) ?: break
+            accountRepository.findAccountbyAccountNumber(newAccountNumbers) ?: break
         }
 
         // 새로운 통장 개설
         var newAccount = Account(
             accountId = -1, // AUTO_INCREASED
-            accountNumbers = newAccountNumbers,
+            accountNumber = newAccountNumbers,
             ndi = ndi,
             loanLimit = -5000,
             balance = 0,
             grade = creditResult.grade,
-            status = "normal",
+            status = AccountTypeStatus.NORMAL,
             createdDate = Timestamp(System.currentTimeMillis()),
         )
 
@@ -92,13 +94,7 @@ class AccountServiceImpl : AccountService {
         return newAccount
     }
 
-    override fun withdrawLoan(accountId: Int, amount: Int): Account {
-        // 계좌 가져오기
-        val account = selectAccountByAccountId(accountId)
-        if(account == null || account.status != "normal"){
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
-        }
-
+    override fun withdrawLoan(account: Account, amount: Int): Account {
         // 대출 가능 조사하기
         if(account.balance + amount < account.loanLimit){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
@@ -106,21 +102,20 @@ class AccountServiceImpl : AccountService {
 
         val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
-        val historyTime = Timestamp(System.currentTimeMillis())
 
         // 대출 기록 남기기
         val newAccountTransactionHistory = AccountTransactionHistory(
             historyId = -1, // AUTO_INCREASED
             amount = amount,
-            type = "deposit",
-            createdDate = historyTime,
+            type = AccountRequestTypeStatus.WITHDRAW,
+            translatedDate = Timestamp(System.currentTimeMillis()),
             accountId = account.accountId,
-            accountNumbers = account.accountNumbers
+            accountNumber = account.accountNumber
         )
         accountTransactionHistoryRepository.save(newAccountTransactionHistory)
 
         // 계좌 수정하기
-        account.withdraw(amount, historyTime)
+        account.withdraw(amount)
         val newAccount = accountRepository.save(account)
 
         accountTransactionManager.commit(status)
@@ -128,23 +123,19 @@ class AccountServiceImpl : AccountService {
         return newAccount
     }
 
-    override fun depositLoan(accountId : Int, amount: Int): Account {
-       // 계좌 가져오기
-        val account = selectAccountByAccountId(accountId)
-        if(account == null || account.status != "normal"){
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
-        }
-
+    override fun depositLoan(account : Account, amount: Int): Account {
         val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
+
+        // 초과된 잔고는 기록하지 않는 것으로 변경
 
         // 반납 기록 남기기
         val newAccountTransactionHistory = AccountTransactionHistory(
             historyId = -1, // AUTO_INCREASED
             amount = amount,
-            type = "deposit",
-            createdDate = Timestamp(System.currentTimeMillis()),
+            type = AccountRequestTypeStatus.DEPOSIT,
+            translatedDate = Timestamp(System.currentTimeMillis()),
             accountId = account.accountId,
-            accountNumbers = account.accountNumbers
+            accountNumber = account.accountNumber
         )
 
         accountTransactionHistoryRepository.save(newAccountTransactionHistory)
@@ -158,13 +149,7 @@ class AccountServiceImpl : AccountService {
         return newAccount
     }
 
-    override fun removeAccount(accountId: Int): Integer {
-        // 계좌 가져오기=
-        val account = selectAccountByAccountId(accountId)
-        if(account == null || account.status != "normal"){
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
-        }
-
+    override fun removeAccount(account: Account): Integer {
         if(account.balance < 0){
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
@@ -174,7 +159,7 @@ class AccountServiceImpl : AccountService {
         val balance = account.balance
 
         // 계좌 상태 변경
-        account.cancel()
+        account.cancel(Timestamp(System.currentTimeMillis()))
         accountRepository.save(account)
 
         // 취소 기록 저장
