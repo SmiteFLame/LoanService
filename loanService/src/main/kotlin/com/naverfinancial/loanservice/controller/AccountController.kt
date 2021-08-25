@@ -1,7 +1,6 @@
 package com.naverfinancial.loanservice.controller
 
 import com.naverfinancial.loanservice.entity.account.dto.Account
-import com.naverfinancial.loanservice.enumClass.ExceptionEnum
 import com.naverfinancial.loanservice.exception.*
 import com.naverfinancial.loanservice.wrapper.Detail
 import com.naverfinancial.loanservice.service.AccountService
@@ -39,10 +38,8 @@ class AccountController {
             is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
         }
 
-        // 그외 에러들
         return ResponseEntity<String>(error.message, status)
     }
-
 
     /**
      * 전체 계좌 정보 리스트조회한다
@@ -108,13 +105,11 @@ class AccountController {
             throw DuplicationAccountException()
         }
 
-        // 등급 요청은 따로 분리하기
-        // 계좌에는 등급을 제외하고 추가하기
-        // 한도 계좌 같은 경우는 어떻게 처리할 것인지 고민하기
+        // 등급 요
         var creditResult = accountService.searchGrade(map.getValue("ndi"))
 
         if (!creditResult.isPermit) {
-            return ResponseEntity(HttpStatus.BAD_REQUEST)
+            throw BelowCreditRating()
         }
 
         return ResponseEntity<Account>(
