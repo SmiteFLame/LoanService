@@ -41,7 +41,7 @@ class UserController {
      *
      * PathVariable : email : String
      * ResponseEntity : User
-     * BAD_REQUEST - User에 해당되는 email가 없는 경우
+     * NOT_FOUND - User에 해당되는 email가 없는 경우
      */
     @GetMapping("{email}/email")
     fun selectUserByEmail(@PathVariable email: String): ResponseEntity<User> {
@@ -55,11 +55,12 @@ class UserController {
     }
 
     /**
-     * NDI을 입력받아서 유저 정보를 가져온 다
+     * NDI을 입력받아서 유저 정보를 가져온 후 출력
      *
      * PathVariable: ndi : String
      * ResponseEntity : User
-     * BAD_REQUEST - User에 해당되는 ndi가 없는 경우
+     * BAD_REQUEST - ndi가 없이 요청된 경우
+     * NOT_FOUND - User에 해당되는 ndi가 없는 경우
      */
     @GetMapping("{ndi}")
     fun selectUserByNdi(@PathVariable ndi: String?): ResponseEntity<User> {
@@ -76,10 +77,11 @@ class UserController {
 
     /**
      * 사용자의 신용등급 조회를 신청
+     *
      * PathVariable: ndi : String
      * ResponseEntity : User
-     * BAD_REQUEST - User에 해당되는 ndi가 없는 경우
-     * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
+     * BAD_REQUEST - ndi가 없이 요청된 경우
+     * NOT_FOUND - User에 해당되는 ndi가 없는 경우
      */
     @GetMapping("/credit/{ndi}")
     fun selectCreditRating(@PathVariable ndi : String) : ResponseEntity<UserCreditRating>{
@@ -98,7 +100,8 @@ class UserController {
      *
      * RequestBody : user : User
      * ResponseEntity : User
-     * BAD_REQUEST - 필수 회원 가입 정보가 들어오지 않은 경우, 이메일 형식이 잘못된 경우
+     * BAD_REQUEST - ndi가 없이 요청된 경우, 회원가입 정보가 잘못 들어온 경우
+     * NOT_FOUND - User에 해당되는 ndi가 없는 경우
      */
     @PostMapping()
     fun insertUser(@RequestBody user: User?): ResponseEntity<User> {

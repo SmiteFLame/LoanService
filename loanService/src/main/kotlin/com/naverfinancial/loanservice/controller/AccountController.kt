@@ -87,9 +87,9 @@ class AccountController {
     }
 
     /**
-     * 계좌 번호을 입력받아서 계좌 정보를 조회한다
+     * 계좌 아이디를 입력받아서 계좌 정보를 조회한다
      *
-     * PathVariable : ndi : String
+     * PathVariable : account_id : Int
      * ResponseEntity : Account
      * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
      */
@@ -103,7 +103,10 @@ class AccountController {
      *
      * RequestBody : ndi : String
      * ResponseEntity : Account
-     * BAD_REQUEST - ndi가 RequestBody에 없을 경우, User에 해당되는 ndi가 없는 경우
+     * BAD_REQUEST - ndi가 잘못 들어올 경우, 이미 계좌를 가지고 있을 경우
+     * NOT_FOUND - 존재하지 않는 유저일 경우, 신용등급이 없는 경우
+     * OK - 신용 등급이 미달인 경우
+     * CREATED - 성공
      */
     @PostMapping("applyment")
     fun insertAccount(@RequestBody map: Map<String, String>): ResponseEntity<Account> {
@@ -137,12 +140,15 @@ class AccountController {
     }
 
     /**
-     * 계좌번호를 입력받아서 대출을 신청하다
+     * 계좌 아이디를 입력받아서 대출을 신청하다
      *
-     * PathVariable : account-numbers : String
+     * PathVariable : account-id : Int
      * RequestBody : type(대출 신청/반환 종류), amount(신청 금액)
      * ResponseEntity : Account
-     * BAD_REQUEST - type이 잘못 된 경우, 계좌가 존재하지 않는 경우, 통장이 정지된 경우, 한도보다 더 많은 금액을 대출 신청 한 경우
+     * BAD_REQUEST - type이 잘못 된 경우, 통장이 정지된 경우, 잘못된 금액이 들어온 경우, 이미 해지된 계좌가 들어온 경우
+     * NOT_FOUND -  계좌가 존재하지 않는 경우
+     * OK - 한도보다 더 많은 금액을 대출 신청 한 경우
+     * CREATED - 성공
      */
     @PutMapping("applyment/{account-id}/balance")
     fun updateAccount(
@@ -169,19 +175,19 @@ class AccountController {
 
 
         if (applymentLoanService.type == AccountRequestTypeStatus.DEPOSIT) {
-            return ResponseEntity<Account>(accountService.depositLoan(account, applymentLoanService.amount), HttpStatus.OK)
+            return ResponseEntity<Account>(accountService.depositLoan(account, applymentLoanService.amount), HttpStatus.CREATED)
         }
         if (applymentLoanService.type == AccountRequestTypeStatus.WITHDRAW) {
-            return ResponseEntity<Account>(accountService.withdrawLoan(account, applymentLoanService.amount), HttpStatus.OK)
+            return ResponseEntity<Account>(accountService.withdrawLoan(account, applymentLoanService.amount), HttpStatus.CREATED)
         } else {
             throw UndefinedTypeException()
         }
     }
 
     /**
-     * 계좌정보를 입력 받아서 계좌를 해지한다.
+     * 계좌 아이디를 입력 받아서 계좌를 해지한다.
      *
-     * PathVariable : account-numbers : String
+     * PathVariable : account-id : Int
      * ResponseEntity : balance : Int, 잔액을 전달
      * BAD_REQUEST - 계좌 정보가 없는 경우
      */
@@ -192,7 +198,7 @@ class AccountController {
             throw NullAccountException()
         }
 
-        if(account.status != AccountTypeStatus.CANCELLED){
+        if(account.status == AccountTypeStatus.CANCELLED){
             throw CancelledAccountException()
         }
         return ResponseEntity<Integer>(accountService.removeAccount(account), HttpStatus.OK)
