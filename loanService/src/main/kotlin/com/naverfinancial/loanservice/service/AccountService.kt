@@ -1,6 +1,7 @@
 package com.naverfinancial.loanservice.service
 
 import com.naverfinancial.loanservice.entity.account.dto.Account
+import com.naverfinancial.loanservice.entity.account.dto.AccountTransactionHistory
 import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
 
 interface AccountService {
@@ -27,5 +28,11 @@ interface AccountService {
 
     // 통장 해지
     fun removeAccount(account : Account): Integer
+
+    // 통장 거래 내역 조회
+    fun selectAccountTransactionList(page : Int, size : Int) : List<AccountTransactionHistory>
+
+    // 통장 거래 내역 조회
+    fun selectAccountTransactionListByAccountId(account : Account, page : Int, size : Int) : List<AccountTransactionHistory>
 
 }

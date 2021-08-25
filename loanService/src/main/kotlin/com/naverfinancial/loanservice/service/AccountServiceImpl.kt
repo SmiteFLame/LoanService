@@ -24,7 +24,7 @@ import java.sql.Timestamp
 class AccountServiceImpl : AccountService {
 
     @Autowired
-    lateinit var accountRepository : AccountRepository
+    lateinit var accountRepository: AccountRepository
 
     @Autowired
     lateinit var accountTransactionHistoryRepository: AccountTransactionHistoryRepository
@@ -36,7 +36,7 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountTransactionManager: PlatformTransactionManager
 
-    override fun selectAccountList(page : Int, size : Int)  : List<Account> {
+    override fun selectAccountList(page: Int, size: Int): List<Account> {
         return accountRepository.findAll(PageRequest.of(page - 1, size)).toList();
     }
 
@@ -44,15 +44,15 @@ class AccountServiceImpl : AccountService {
         return accountRepository.findAccountbyAccountId(accountId)
     }
 
-    override fun selectAccountListByNdi(ndi: String, page : Int, size : Int): List<Account> {
+    override fun selectAccountListByNdi(ndi: String, page: Int, size: Int): List<Account> {
         return accountRepository.findAccountsByNdi(ndi, PageRequest.of(page - 1, size))
     }
 
-    override fun selectAccountByNdiStatusNormal(ndi: String) : Account?{
+    override fun selectAccountByNdiStatusNormal(ndi: String): Account? {
         // 마이너스 통장 중복 검사
         val accounts = accountRepository.findAccountsByNdi(ndi)
-        for(account in accounts){
-            if(account.status == AccountTypeStatus.NORMAL){
+        for (account in accounts) {
+            if (account.status == AccountTypeStatus.NORMAL) {
                 return account
             }
         }
@@ -63,8 +63,8 @@ class AccountServiceImpl : AccountService {
         val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // 통장번호 랜덤 생성
-        var newAccountNumbers : String
-        while(true) {
+        var newAccountNumbers: String
+        while (true) {
             newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
             accountRepository.findAccountbyAccountNumber(newAccountNumbers) ?: break
         }
@@ -90,7 +90,7 @@ class AccountServiceImpl : AccountService {
 
     override fun withdrawLoan(account: Account, amount: Int): Account {
         // 대출 가능 조사하기
-        if(account.balance - amount < account.loanLimit){
+        if (account.balance - amount < account.loanLimit) {
             throw OverLimitException()
         }
 
@@ -118,20 +118,20 @@ class AccountServiceImpl : AccountService {
         return newAccount
     }
 
-    override fun depositLoan(account : Account, amount: Int): Account {
+    override fun depositLoan(account: Account, amount: Int): Account {
         val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         account.deposit(amount)
         var newAccount = accountRepository.save(account)
 
         // 이미 마이너스 통장이 아닌 상태로 넣은 경우
-        if(newAccount.balance > amount){
+        if (newAccount.balance > amount) {
             return newAccount
         }
 
         var translatedAmount = amount
         // 거래 금액이 초과된 경우
-        if(newAccount.balance > 0){
+        if (newAccount.balance > 0) {
             translatedAmount -= newAccount.balance
         }
 
@@ -153,7 +153,7 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun removeAccount(account: Account): Integer {
-        if(account.balance < 0){
+        if (account.balance < 0) {
             throw RestLimitException()
         }
 
@@ -176,5 +176,17 @@ class AccountServiceImpl : AccountService {
         accountTransactionManager.commit(status)
 
         return Integer(balance)
+    }
+
+    override fun selectAccountTransactionList(page: Int, size: Int): List<AccountTransactionHistory> {
+        return accountTransactionHistoryRepository.findAll(PageRequest.of(page - 1, size)).toList()
+    }
+
+    override fun selectAccountTransactionListByAccountId(
+        account: Account,
+        page: Int,
+        size: Int
+    ): List<AccountTransactionHistory> {
+        return accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(account.accountId, PageRequest.of(page - 1, size)).toList()
     }
 }
