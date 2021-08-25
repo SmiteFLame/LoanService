@@ -12,6 +12,7 @@ import com.naverfinancial.loanservice.wrapper.CreditResult
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
@@ -39,21 +40,21 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountTransactionManager: PlatformTransactionManager
 
-    override fun selectAccountList()  : List<Account> {
-        return accountRepository.findAll();
+    override fun selectAccountList(page : Int, size : Int)  : List<Account> {
+        return accountRepository.findAll(PageRequest.of(page - 1, size)).toList();
     }
 
     override fun selectAccountByAccountId(accountId: Int): Account? {
         return accountRepository.findAccountbyAccountId(accountId)
     }
 
-    override fun selectAccountListByNdi(ndi: String): List<Account> {
-        return accountRepository.findAccountsByNdi(ndi)
+    override fun selectAccountListByNdi(ndi: String, page : Int, size : Int): List<Account> {
+        return accountRepository.findAccountsByNdi(ndi, PageRequest.of(page - 1, size))
     }
 
     override fun selectAccountByNdiStatusNormal(ndi: String) : Account?{
         // 마이너스 통장 중복 검사
-        val accounts = selectAccountListByNdi(ndi)
+        val accounts = accountRepository.findAccountsByNdi(ndi)
         for(account in accounts){
             if(account.status == "normal"){
                 return account

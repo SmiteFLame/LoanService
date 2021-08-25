@@ -51,8 +51,8 @@ class AccountController {
      * ResponseEntity : List<Account>
      */
     @GetMapping()
-    fun selectAccountList(): ResponseEntity<List<Account>> {
-        return ResponseEntity<List<Account>>(accountService.selectAccountList(), HttpStatus.OK)
+    fun selectAccountList(@RequestParam page : Int, size : Int): ResponseEntity<List<Account>> {
+        return ResponseEntity<List<Account>>(accountService.selectAccountList(page, size), HttpStatus.OK)
     }
 
     /**
@@ -63,14 +63,14 @@ class AccountController {
      * ResponseEntity : List<Account>
      */
     @GetMapping("ndi/{ndi}")
-    fun selectAccountListByNdi(@PathVariable ndi: String): ResponseEntity<List<Account>> {
+    fun selectAccountListByNdi(@PathVariable ndi: String, @RequestParam page : Int, size : Int): ResponseEntity<List<Account>> {
         if (ndi == "") {
             throw NullNdiException()
         }
         if (userService.selectUserByNDI(ndi) == null) {
             throw NullUserException()
         }
-        return ResponseEntity<List<Account>>(accountService.selectAccountListByNdi(ndi), HttpStatus.OK)
+        return ResponseEntity<List<Account>>(accountService.selectAccountListByNdi(ndi, page, size), HttpStatus.OK)
     }
 
     /**

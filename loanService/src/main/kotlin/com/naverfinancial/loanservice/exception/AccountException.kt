@@ -2,7 +2,9 @@ package com.naverfinancial.loanservice.exception
 
 import org.springframework.http.HttpStatus
 
-class DuplicationAccountException : Exception("이미 계좌를 가지고 있습니다")
+class DuplicationAccountException : Exception("이미 계좌를 가지고 있습니다"){
+    var status = HttpStatus.BAD_REQUEST
+}
 
 class UndefinedTypeException : Exception("정의되지 않은 신청 방법입니다")
 

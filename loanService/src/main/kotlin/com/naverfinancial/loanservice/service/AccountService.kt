@@ -6,13 +6,13 @@ import java.util.*
 
 interface AccountService {
     // 마이너스 통장 전체 조회
-    fun selectAccountList(): List<Account>
+    fun selectAccountList(page : Int, size : Int): List<Account>
 
     // 마이너스 통장 계좌 번호 통장 조회
     fun selectAccountByAccountId(accountId: Int): Account?
 
-    // 마이너스 통장 유효아이디 통장 조회
-    fun selectAccountListByNdi(ndi: String): List<Account>
+    // 마이너스 통장 유효아이디 통장 조회 (Page,
+    fun selectAccountListByNdi(ndi: String, page : Int, size : Int): List<Account>
 
     // 노멀 마이너스 통장 유효아이디 통장 조회
     fun selectAccountByNdiStatusNormal(ndi: String) : Account?
