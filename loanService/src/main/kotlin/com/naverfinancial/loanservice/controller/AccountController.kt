@@ -34,10 +34,12 @@ class AccountController {
             is HttpMessageNotReadableException -> status = HttpStatus.BAD_REQUEST
             is WrongTypeAccountID -> status = HttpStatus.BAD_REQUEST
             is NullAccountException -> status = HttpStatus.BAD_REQUEST
+            is PageableException -> status = HttpStatus.BAD_REQUEST
 
             is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
 
             is BelowCreditRating -> status = HttpStatus.OK
+
         }
 
         return ResponseEntity<String>(error.message, status)
@@ -51,7 +53,10 @@ class AccountController {
      * ResponseEntity : List<Account>
      */
     @GetMapping()
-    fun selectAccountList(@RequestParam page : Int, size : Int): ResponseEntity<List<Account>> {
+    fun selectAccountList(@RequestParam page : Int?, size : Int?): ResponseEntity<List<Account>> {
+        if(page == null || size == null){
+            throw PageableException()
+        }
         return ResponseEntity<List<Account>>(accountService.selectAccountList(page, size), HttpStatus.OK)
     }
 
@@ -63,7 +68,10 @@ class AccountController {
      * ResponseEntity : List<Account>
      */
     @GetMapping("ndi/{ndi}")
-    fun selectAccountListByNdi(@PathVariable ndi: String, @RequestParam page : Int, size : Int): ResponseEntity<List<Account>> {
+    fun selectAccountListByNdi(@PathVariable ndi: String, @RequestParam page : Int?, size : Int?): ResponseEntity<List<Account>> {
+        if(page == null || size == null){
+            throw PageableException()
+        }
         if (ndi == "") {
             throw NullNdiException()
         }
