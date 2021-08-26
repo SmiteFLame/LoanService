@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.*
 import java.net.http.HttpTimeoutException
 
@@ -40,7 +41,9 @@ class AccountController {
         var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         when (error) {
             is HttpMessageNotReadableException -> status = HttpStatus.BAD_REQUEST
+            is IllegalStateException -> status = HttpStatus.BAD_REQUEST
             is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
+            is MissingServletRequestParameterException -> status = HttpStatus.BAD_REQUEST
         }
 
         return ResponseEntity<String>(error.message, status)
@@ -54,10 +57,7 @@ class AccountController {
      * ResponseEntity : List<Account>
      */
     @GetMapping()
-    fun selectAccountList(@RequestParam page: Int?, size: Int?): ResponseEntity<List<Account>> {
-        if (page == null || size == null) {
-            throw PageableException()
-        }
+    fun selectAccountList(@RequestParam page: Int, size: Int): ResponseEntity<List<Account>> {
         return ResponseEntity<List<Account>>(accountService.selectAccountList(page, size), HttpStatus.OK)
     }
 
@@ -70,18 +70,13 @@ class AccountController {
      */
     @GetMapping("ndi/{ndi}")
     fun selectAccountListByNdi(
-        @PathVariable ndi: String,
-        @RequestParam page: Int?,
-        size: Int?
+        @PathVariable ndi: String, @RequestParam page: Int, size: Int
     ): ResponseEntity<List<Account>> {
-        if (page == null || size == null) {
-            throw PageableException()
-        }
-        if (ndi == null||ndi == "") {
+        if (ndi == null || ndi == "") {
             throw NullNdiException()
         }
         if (userService.selectUserByNDI(ndi) == null) {
-            throw NullUserException()
+            throw NullUserException(HttpStatus.NOT_FOUND)
         }
         return ResponseEntity<List<Account>>(accountService.selectAccountListByNdi(ndi, page, size), HttpStatus.OK)
     }
@@ -115,7 +110,7 @@ class AccountController {
             throw NullNdiException()
         }
         if (userService.selectUserByNDI(map.getValue("ndi")) == null) {
-            throw NullUserException()
+            throw NullUserException(HttpStatus.NOT_FOUND)
         }
 
         var account = accountService.selectAccountByNdiStatusNormal(map.getValue("ndi"))
@@ -123,11 +118,7 @@ class AccountController {
             throw DuplicationAccountException()
         }
 
-        var userCreditRating = userService.selectCreditRating(map.getValue("ndi"))
-
-        if(userCreditRating == null){
-            throw NoCreditRating()
-        }
+        var userCreditRating = userService.selectCreditRating(map.getValue("ndi")) ?: throw NoCreditRating()
 
         if (!userCreditRating.isPermit) {
             throw BelowCreditRating()
@@ -153,32 +144,35 @@ class AccountController {
     @PutMapping("applyment/{account-id}/balance")
     fun updateAccount(
         @PathVariable("account-id") accountId: Int,
-        @RequestBody applymentLoanService : ApplymentLoanService
+        @RequestBody applymentLoanService: ApplymentLoanService
     ): ResponseEntity<Account> {
         if (accountId < 0) {
             throw WrongTypeAccountID()
-        }
-        if (accountService.selectAccountByAccountId(accountId) == null) {
-            throw NullAccountException()
         }
         if (applymentLoanService.amount < 0) {
             throw WrongAmountInput()
         }
         var account = accountService.selectAccountByAccountId(accountId)
-        if(account == null){
+        if (account == null) {
             throw NullAccountException()
         }
 
-        if(account.status == AccountTypeStatus.CANCELLED){
+        if (account.status == AccountTypeStatus.CANCELLED) {
             throw CancelledAccountException()
         }
 
 
         if (applymentLoanService.type == AccountRequestTypeStatus.DEPOSIT) {
-            return ResponseEntity<Account>(accountService.depositLoan(account, applymentLoanService.amount), HttpStatus.CREATED)
+            return ResponseEntity<Account>(
+                accountService.depositLoan(account, applymentLoanService.amount),
+                HttpStatus.CREATED
+            )
         }
         if (applymentLoanService.type == AccountRequestTypeStatus.WITHDRAW) {
-            return ResponseEntity<Account>(accountService.withdrawLoan(account, applymentLoanService.amount), HttpStatus.CREATED)
+            return ResponseEntity<Account>(
+                accountService.withdrawLoan(account, applymentLoanService.amount),
+                HttpStatus.CREATED
+            )
         } else {
             throw UndefinedTypeException()
         }
@@ -194,14 +188,14 @@ class AccountController {
     @DeleteMapping("applyment/{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
         var account = accountService.selectAccountByAccountId(accountId)
-        if(account == null){
+        if (account == null) {
             throw NullAccountException()
         }
 
-        if(account.status == AccountTypeStatus.CANCELLED){
+        if (account.status == AccountTypeStatus.CANCELLED) {
             throw CancelledAccountException()
         }
-        return ResponseEntity<Integer>(accountService.removeAccount(account), HttpStatus.OK)
+        return ResponseEntity<Integer>(accountService.removeAccount(account), HttpStatus.CREATED)
     }
 
     /**
@@ -212,11 +206,14 @@ class AccountController {
      * ResponseEntity : List<Account>
      */
     @GetMapping("transaction")
-    fun selectAccountTransactionList(@RequestParam page: Int?, size: Int?): ResponseEntity<List<AccountTransactionHistory>> {
-        if (page == null || size == null) {
-            throw PageableException()
-        }
-        return ResponseEntity<List<AccountTransactionHistory>>(accountService.selectAccountTransactionList(page, size), HttpStatus.OK)
+    fun selectAccountTransactionList(
+        @RequestParam page: Int,
+        size: Int
+    ): ResponseEntity<List<AccountTransactionHistory>> {
+        return ResponseEntity<List<AccountTransactionHistory>>(
+            accountService.selectAccountTransactionList(page, size),
+            HttpStatus.OK
+        )
     }
 
     /**
@@ -227,14 +224,21 @@ class AccountController {
      * ResponseEntity : List<Account>
      */
     @GetMapping("transaction/{account-id}")
-    fun selectAccountTransactionListByAccountId(@PathVariable("account-id") accountId: Int, @RequestParam page: Int?, size: Int?): ResponseEntity<List<AccountTransactionHistory>> {
-        if (page == null || size == null) {
-            throw PageableException()
-        }
+    fun selectAccountTransactionListByAccountId(
+        @PathVariable("account-id") accountId: Int,
+        @RequestParam page: Int,
+        size: Int
+    ): ResponseEntity<List<AccountTransactionHistory>> {
         var account = accountService.selectAccountByAccountId(accountId)
-        if(account == null){
+        if (account == null) {
             throw NullAccountException()
         }
-        return ResponseEntity<List<AccountTransactionHistory>>(accountService.selectAccountTransactionListByAccountId(account, page, size), HttpStatus.OK)
+        return ResponseEntity<List<AccountTransactionHistory>>(
+            accountService.selectAccountTransactionListByAccountId(
+                account,
+                page,
+                size
+            ), HttpStatus.OK
+        )
     }
 }

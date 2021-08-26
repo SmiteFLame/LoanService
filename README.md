@@ -44,7 +44,7 @@ CREATE TABLE user(
     user_name VARCHAR(10) not null,
     age INT NOT NULL,
     salary INT NOT NULL
-)default CHARACTER SET UTF8 collate utf8_general_ci;
+)
 
 CREATE TABLE user_credit_rating(
     NDI VARCHAR(36) PRIMARY KEY,
@@ -52,7 +52,7 @@ CREATE TABLE user_credit_rating(
     isPermit BOOLEAN NOT NULL,
     created_date DATETIME NOT NULL default(NOW()),
     FOREIGN KEY(NDI) REFERENCES user(NDI)
-)default CHARACTER SET UTF8 collate utf8_general_ci;
+)
 
 -- CreditDB
 CREATE TABLE credit_rating_search_history(

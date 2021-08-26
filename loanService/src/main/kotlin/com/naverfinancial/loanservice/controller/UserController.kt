@@ -46,10 +46,7 @@ class UserController {
     @GetMapping("{email}/email")
     fun selectUserByEmail(@PathVariable email: String): ResponseEntity<User> {
 
-        val user = userService.selectUserByEmails(email)
-        if (user == null) {
-            throw NullUserException()
-        }
+        val user = userService.selectUserByEmails(email) ?: throw NullUserException(HttpStatus.OK)
         return ResponseEntity<User>(user, HttpStatus.OK)
 
     }
@@ -67,17 +64,14 @@ class UserController {
         if (ndi == null || ndi == "") {
             throw NullNdiException()
         }
-        var user = userService.selectUserByNDI(ndi)
-        if (user == null) {
-            throw NullUserException()
-        }
+        var user: User? = userService.selectUserByNDI(ndi) ?: throw NullUserException(HttpStatus.OK)
         return ResponseEntity<User>(user, HttpStatus.OK)
 
     }
 
     /**
      * 사용자의 신용등급 조회를 신청
-     *
+     * 
      * PathVariable: ndi : String
      * ResponseEntity : User
      * BAD_REQUEST - ndi가 없이 요청된 경우
@@ -88,11 +82,7 @@ class UserController {
         if (ndi == null || ndi == "") {
             throw NullNdiException()
         }
-        var user = userService.selectUserByNDI(ndi)
-        if (user == null) {
-            throw NullUserException()
-        }
-        return ResponseEntity<UserCreditRating>(userService.saveCreditRating(user.ndi!!), HttpStatus.OK)
+        return ResponseEntity<UserCreditRating>(userService.saveCreditRating(ndi), HttpStatus.OK)
     }
 
     /**
@@ -108,6 +98,9 @@ class UserController {
         if(user == null || !EmailValiation.checkEmailValid(user.email)){
             throw UnvalidUserException()
         }
-        return ResponseEntity<User>(userService.insertUser(user), HttpStatus.CREATED)
+        if(userService.selectUserByEmails(user.email) != null){
+            throw DuplicationEmailException()
+        }
+        return ResponseEntity<User>(userService.insertUser(user), HttpStatus.OK)
     }
 }

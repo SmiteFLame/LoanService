@@ -34,12 +34,8 @@ class BelowCreditRating : AccountException("신용등급 미달로 대출 신청
     override var status: HttpStatus = HttpStatus.OK
 }
 
-class PageableException : AccountException("페이지 번호 혹은 페이지 크기가 입력되지 않았습니다"){
-    override var status: HttpStatus = HttpStatus.BAD_REQUEST
-}
-
 class CancelledAccountException : AccountException("이미 해지된 계좌입니다"){
-    override var status: HttpStatus = HttpStatus.BAD_REQUEST
+    override var status: HttpStatus = HttpStatus.OK
 }
 
 class OverLimitException : AccountException("대출 한도를 초과하였습니다"){
