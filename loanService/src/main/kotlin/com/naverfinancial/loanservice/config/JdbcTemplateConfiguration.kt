@@ -1,7 +1,8 @@
 package com.naverfinancial.loanservice.config
 
-import com.naverfinancial.loanservice.entity.account.config.AccountJpaTransactionManager
-import com.naverfinancial.loanservice.entity.user.config.UserJpaTransactionManager
+
+import com.naverfinancial.loanservice.config.entityConfig.AccountJpaTransactionManager
+import com.naverfinancial.loanservice.config.entityConfig.UserJpaTransactionManager
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

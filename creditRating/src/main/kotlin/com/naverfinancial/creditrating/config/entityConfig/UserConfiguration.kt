@@ -1,4 +1,4 @@
-package com.naverfinancial.creditrating.entity.user.config
+package com.naverfinancial.creditrating.config.entityConfig
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier

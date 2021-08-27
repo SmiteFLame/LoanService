@@ -1,4 +1,4 @@
-package com.naverfinancial.loanservice.entity.user.config
+package com.naverfinancial.loanservice.config.entityConfig
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
