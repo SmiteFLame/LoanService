@@ -1,12 +1,10 @@
 package com.naverfinancial.creditrating.config
 
+import com.naverfinancial.creditrating.entity.creditRatingSearch.config.CreditRatingSearchJpaTransactionManager
+import com.naverfinancial.creditrating.entity.user.config.UserJpaTransactionManager
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.datasource.DataSourceTransactionManager
-import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.EnableTransactionManagement
 import javax.sql.DataSource
@@ -16,20 +14,19 @@ import javax.sql.DataSource
 @EnableTransactionManagement
 class JdbcTemplateConfiguration {
 
-    @Qualifier("user")
+    @Qualifier("userTransactionManager")
     @Bean
     fun userTransactionManager(userDataSource: DataSource?): PlatformTransactionManager? {
-        val jpaTransactionManager = JpaTransactionManager()
+        val jpaTransactionManager = UserJpaTransactionManager()
         jpaTransactionManager.dataSource = userDataSource
         return jpaTransactionManager
     }
 
-    @Qualifier("account")
+    @Qualifier("creditRatingSearchTransactionManager")
     @Bean
     fun creditRatingSearchTransactionManager(creditRatingSearchDataSource: DataSource?): PlatformTransactionManager? {
-        val jpaTransactionManager = JpaTransactionManager()
+        val jpaTransactionManager = CreditRatingSearchJpaTransactionManager()
         jpaTransactionManager.dataSource = creditRatingSearchDataSource
         return jpaTransactionManager
     }
-
 }

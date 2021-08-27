@@ -7,12 +7,11 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
 import javax.persistence.EntityManagerFactory
 
 class CreditRatingSearchJpaTransactionManager : JpaTransactionManager(){
-    @Qualifier("creditRatingSearchEntityManager")
+    @Qualifier("creditRatingSearchLocalContainerEntityManagerFactoryBean")
     @Autowired
-    lateinit var creditRatingSearchEntityManagerFactoryBean: LocalContainerEntityManagerFactoryBean
+    lateinit var creditRatingSearchEntityManager: LocalContainerEntityManagerFactoryBean
 
     override fun getEntityManagerFactory(): EntityManagerFactory? {
-        return creditRatingSearchEntityManagerFactoryBean.`object`
+        return creditRatingSearchEntityManager.`object`
     }
-
 }

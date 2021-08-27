@@ -7,7 +7,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
 import javax.persistence.EntityManagerFactory
 
 class AccountJpaTransactionManager : JpaTransactionManager() {
-    @Qualifier("accountEntityManager")
+    @Qualifier("accountLocalContainerEntityManagerFactoryBean")
     @Autowired
     lateinit var accountLocalContainerEntityManagerFactoryBean: LocalContainerEntityManagerFactoryBean
 

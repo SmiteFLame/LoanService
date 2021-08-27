@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.*
 import java.net.http.HttpTimeoutException
-import java.util.*
 
 @RestController
 @RequestMapping("/users")
@@ -96,7 +95,7 @@ class UserController {
     @PostMapping()
     fun insertUser(@RequestBody user: User?): ResponseEntity<User> {
         if(user == null || !EmailValiation.checkEmailValid(user.email)){
-            throw UnvalidUserException()
+            throw InvalidUserException()
         }
         if(userService.selectUserByEmails(user.email) != null){
             throw DuplicationEmailException()

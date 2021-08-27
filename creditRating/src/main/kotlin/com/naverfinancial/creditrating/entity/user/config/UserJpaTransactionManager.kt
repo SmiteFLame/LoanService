@@ -7,11 +7,11 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
 import javax.persistence.EntityManagerFactory
 
 class UserJpaTransactionManager : JpaTransactionManager() {
-    @Qualifier("userEntityManager")
+    @Qualifier("userLocalContainerEntityManagerFactoryBean")
     @Autowired
-    lateinit var userLocalContainerEntityManagerFactoryBean: LocalContainerEntityManagerFactoryBean
+    lateinit var userEntityManager: LocalContainerEntityManagerFactoryBean
 
     override fun getEntityManagerFactory(): EntityManagerFactory? {
-        return userLocalContainerEntityManagerFactoryBean.`object`
+        return userEntityManager.`object`
     }
 }

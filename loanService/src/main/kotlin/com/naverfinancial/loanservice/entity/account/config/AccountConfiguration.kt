@@ -23,7 +23,7 @@ class AccountConfiguration {
     fun accountDataSource(): DataSource = DataSourceBuilder.create().build()
 
     @Primary
-    @Qualifier("accountEntityManager")
+    @Qualifier("accountLocalContainerEntityManagerFactoryBean")
     @Bean
     fun accountEntityManager(): LocalContainerEntityManagerFactoryBean =
         (LocalContainerEntityManagerFactoryBean()).apply {

@@ -18,6 +18,6 @@ class DuplicationEmailException() : UserException("이미 이메일을에 해당
     override  var status : HttpStatus = HttpStatus.BAD_REQUEST
 }
 
-class UnvalidUserException() : UserException("잘못된 회원 정보 입니다"){
+class InvalidUserException() : UserException("잘못된 회원 정보 입니다"){
     override var status: HttpStatus = HttpStatus.BAD_REQUEST
 }

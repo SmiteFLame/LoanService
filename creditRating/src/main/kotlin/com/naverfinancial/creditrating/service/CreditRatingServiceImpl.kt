@@ -5,10 +5,10 @@ import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatin
 import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchHistoryRepository
 import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchResultRepository
 import com.naverfinancial.creditrating.entity.user.dto.User
-import com.naverfinancial.creditrating.entity.user.repository.UserRepository
 import com.naverfinancial.creditrating.utils.JsonFormData
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.DefaultTransactionDefinition
@@ -23,14 +23,12 @@ import java.time.Duration
 class CreditRatingServiceImpl : CreditRatingService {
 
     @Autowired
-    lateinit var userRepository: UserRepository
-
-    @Autowired
     lateinit var creditRatingSearchHistoryRepository: CreditRatingSearchHistoryRepository
 
     @Autowired
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
+    @Qualifier("creditRatingSearchTransactionManager")
     @Autowired
     lateinit var creditRatingSearchTransactionManager: PlatformTransactionManager
 

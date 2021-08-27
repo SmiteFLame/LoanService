@@ -28,7 +28,7 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
-    @Qualifier("user")
+    @Qualifier("userTransactionManager")
     @Autowired
     lateinit var userTransactionManager: PlatformTransactionManager
 

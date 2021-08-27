@@ -32,7 +32,7 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
 
-    @Qualifier("account")
+    @Qualifier("accountTransactionManager")
     @Autowired
     lateinit var accountTransactionManager: PlatformTransactionManager
 

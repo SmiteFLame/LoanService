@@ -5,9 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
-import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter
 import javax.sql.DataSource
@@ -23,7 +21,7 @@ class UserConfiguration {
     @ConfigurationProperties(prefix = "spring.datasource-user")
     fun userDataSource(): DataSource = DataSourceBuilder.create().build()
 
-    @Qualifier("userEntityManager")
+    @Qualifier("userLocalContainerEntityManagerFactoryBean")
     @Bean
     fun userEntityManager(): LocalContainerEntityManagerFactoryBean =
         (LocalContainerEntityManagerFactoryBean()).apply {

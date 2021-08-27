@@ -23,5 +23,4 @@ data class User (
 
     @Column(nullable = false)
     val salary : Int
-){
-}
+)

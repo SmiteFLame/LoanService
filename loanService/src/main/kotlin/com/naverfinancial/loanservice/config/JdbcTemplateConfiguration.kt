@@ -1,10 +1,10 @@
 package com.naverfinancial.loanservice.config
 
+import com.naverfinancial.loanservice.entity.account.config.AccountJpaTransactionManager
 import com.naverfinancial.loanservice.entity.user.config.UserJpaTransactionManager
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.EnableTransactionManagement
 import javax.sql.DataSource
@@ -14,7 +14,7 @@ import javax.sql.DataSource
 @EnableTransactionManagement
 class JdbcTemplateConfiguration {
 
-    @Qualifier("user")
+    @Qualifier("userTransactionManager")
     @Bean
     fun userTransactionManager(userDataSource: DataSource?): PlatformTransactionManager? {
         val jpaTransactionManager = UserJpaTransactionManager()
@@ -22,10 +22,10 @@ class JdbcTemplateConfiguration {
         return jpaTransactionManager
     }
 
-    @Qualifier("account")
+    @Qualifier("accountTransactionManager")
     @Bean
     fun accountTransactionManager(accountDataSource: DataSource?): PlatformTransactionManager? {
-        val jpaTransactionManager = JpaTransactionManager()
+        val jpaTransactionManager = AccountJpaTransactionManager()
         jpaTransactionManager.dataSource = accountDataSource
         return jpaTransactionManager
     }

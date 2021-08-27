@@ -24,7 +24,7 @@ class CreditRatingSearchConfiguration {
     fun creditRatingSearchDataSource(): DataSource = DataSourceBuilder.create().build()
 
     @Primary
-    @Qualifier("creditRatingSearchEntityManager")
+    @Qualifier("creditRatingSearchLocalContainerEntityManagerFactoryBean")
     @Bean
     fun creditRatingSearchEntityManager(): LocalContainerEntityManagerFactoryBean =
         (LocalContainerEntityManagerFactoryBean()).apply {
@@ -32,5 +32,4 @@ class CreditRatingSearchConfiguration {
             setPackagesToScan("com.naverfinancial.creditrating.entity.creditRatingSearch")
             jpaVendorAdapter = HibernateJpaVendorAdapter()
         }
-
 }

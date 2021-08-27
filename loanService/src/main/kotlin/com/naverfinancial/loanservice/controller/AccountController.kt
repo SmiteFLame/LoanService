@@ -152,10 +152,7 @@ class AccountController {
         if (applymentLoanService.amount < 0) {
             throw WrongAmountInput()
         }
-        var account = accountService.selectAccountByAccountId(accountId)
-        if (account == null) {
-            throw NullAccountException()
-        }
+        var account = accountService.selectAccountByAccountId(accountId) ?: throw NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw CancelledAccountException()
@@ -187,10 +184,7 @@ class AccountController {
      */
     @DeleteMapping("applyment/{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
-        var account = accountService.selectAccountByAccountId(accountId)
-        if (account == null) {
-            throw NullAccountException()
-        }
+        var account = accountService.selectAccountByAccountId(accountId) ?: throw NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw CancelledAccountException()
