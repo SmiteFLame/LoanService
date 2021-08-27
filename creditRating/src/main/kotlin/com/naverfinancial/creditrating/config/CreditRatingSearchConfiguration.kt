@@ -35,11 +35,8 @@ class CreditRatingSearchConfiguration {
 
     @Bean
     fun creditRatingSearchTransactionManager(creditRatingSearchDataSource: DataSource?): PlatformTransactionManager? {
-        val jpaTransactionManager = object : JpaTransactionManager(){
-            override fun getEntityManagerFactory(): EntityManagerFactory? {
-                return creditRatingSearchEntityManager().`object`
-            }
-        }
+        val jpaTransactionManager = JpaTransactionManager()
+        jpaTransactionManager.entityManagerFactory = creditRatingSearchEntityManager().`object`
         jpaTransactionManager.dataSource = creditRatingSearchDataSource
         return jpaTransactionManager
     }

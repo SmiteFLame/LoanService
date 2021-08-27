@@ -35,11 +35,8 @@ class AccountConfiguration {
 
     @Bean
     fun accountTransactionManager(accountDataSource: DataSource?): PlatformTransactionManager? {
-        val jpaTransactionManager = object : JpaTransactionManager(){
-            override fun getEntityManagerFactory(): EntityManagerFactory? {
-                return accountEntityManager().`object`
-            }
-        }
+        val jpaTransactionManager = JpaTransactionManager()
+        jpaTransactionManager.entityManagerFactory = accountEntityManager().`object`
         jpaTransactionManager.dataSource = accountDataSource
         return jpaTransactionManager
     }

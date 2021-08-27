@@ -35,11 +35,8 @@ class UserConfiguration {
 
     @Bean
     fun userTransactionManager(userDataSource: DataSource?): PlatformTransactionManager? {
-        val jpaTransactionManager = object : JpaTransactionManager(){
-            override fun getEntityManagerFactory(): EntityManagerFactory? {
-                return userEntityManager().`object`
-            }
-        }
+        val jpaTransactionManager = JpaTransactionManager()
+        jpaTransactionManager.entityManagerFactory = userEntityManager().`object`
         jpaTransactionManager.dataSource = userDataSource
         return jpaTransactionManager
     }
