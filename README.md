@@ -8,23 +8,24 @@
 ### 유저 정보 검색 및 추가
 ![유저및계좌번호검색](./image/flow/1.png)
 
-### 신용등급 조화
-![유저및계좌번호검색](./image/flow/2.png)
+### 신용등급 조회
+![신용등급조회](./image/flow/2.png)
 
 ### 계좌 정보 조회
-![유저및계좌번호검색](./image/flow/3.png)
+![계좌정보조회](./image/flow/3.png)
 
 ### 마이너스 통장 신청
-![유저및계좌번호검색](./image/flow/4.png)
+![마이너스통장신청](./image/flow/4.png)
 
 ### 대출 신청 및 반환
-![유저및계좌번호검색](./image/flow/5.png)
+![대출신청및반환](./image/flow/5.png)
 
 ### 거래 내역 조회
-![유저및계좌번호검색](./image/flow/6.png)
+![거래내역조회](./image/flow/6.png)
 
 ### 통장 해지
-![유저및계좌번호검색](./image/flow/7.png)
+![통장해지](./image/flow/7.png)
+
 
 ## 데이터베이스
 
@@ -42,7 +43,7 @@ CREATE TABLE user(
     user_name VARCHAR(10) not null,
     age INT NOT NULL,
     salary INT NOT NULL
-)
+);
 
 CREATE TABLE user_credit_rating(
     NDI VARCHAR(36) PRIMARY KEY,
@@ -50,7 +51,7 @@ CREATE TABLE user_credit_rating(
     isPermit BOOLEAN NOT NULL,
     created_date DATETIME NOT NULL default(NOW()),
     FOREIGN KEY(NDI) REFERENCES user(NDI)
-)
+);
 
 -- CreditDB
 CREATE TABLE credit_rating_search_history(
@@ -101,3 +102,20 @@ CREATE TABLE account_cancellation_history(
 );
 
 ```
+
+## 실행방법
+
+1. Docker를 통해서 서버 3개 실행
+```
+docker run -p 43306:3306 --name AccountDB -e MYSQL_ROOT_PASSWORD=naver -e MYSQL_DATABASE="account" -d mysql:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+docker run -p 53306:3306 --name UserDB -e MYSQL_ROOT_PASSWORD=naver -e MYSQL_DATABASE="user" -d mysql:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+docker run -p 63306:3306 --name CreditDB -e MYSQL_ROOT_PASSWORD=naver -e MYSQL_DATABASE="credit" -d mysql:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+```
+
+2. CB 모듈 실행
+- [CB모듈](https://oss.navercorp.com/finance-css/intern-dummy-cb)
+
+3. creditRating Spring Boot 실행
+
+4. loanService Spring Boot 실행
+
