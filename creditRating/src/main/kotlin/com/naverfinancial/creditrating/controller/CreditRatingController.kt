@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*
 import java.net.http.HttpTimeoutException
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/credits")
 class CreditRatingController {
 
