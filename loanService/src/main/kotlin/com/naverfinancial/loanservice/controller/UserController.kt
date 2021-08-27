@@ -1,7 +1,7 @@
 package com.naverfinancial.loanservice.controller
 
-import com.naverfinancial.loanservice.entity.user.dto.User
-import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
+import com.naverfinancial.loanservice.datasource.user.dto.User
+import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.exception.*
 import com.naverfinancial.loanservice.service.UserService
 import com.naverfinancial.loanservice.utils.EmailValiation

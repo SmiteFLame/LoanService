@@ -1,6 +1,6 @@
 package com.naverfinancial.creditrating.service
 
-import com.naverfinancial.creditrating.entity.user.dto.User
+import com.naverfinancial.creditrating.datasource.user.dto.User
 
 interface UserService {
     fun selectUserByNDI(ndi : String) : User?

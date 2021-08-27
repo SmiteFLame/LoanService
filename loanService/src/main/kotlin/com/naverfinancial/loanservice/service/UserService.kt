@@ -1,7 +1,7 @@
 package com.naverfinancial.loanservice.service
 
-import com.naverfinancial.loanservice.entity.user.dto.User
-import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
+import com.naverfinancial.loanservice.datasource.user.dto.User
+import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.wrapper.CreditRatingSearchResult
 
 interface UserService {

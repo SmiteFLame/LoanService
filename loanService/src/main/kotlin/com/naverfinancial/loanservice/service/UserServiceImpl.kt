@@ -1,20 +1,16 @@
 package com.naverfinancial.loanservice.service
 
-import com.naverfinancial.loanservice.entity.user.dto.User
-import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
-import com.naverfinancial.loanservice.entity.user.repository.UserCreditRatingRepository
-import com.naverfinancial.loanservice.entity.user.repository.UserRepository
+import com.naverfinancial.loanservice.datasource.user.dto.User
+import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
+import com.naverfinancial.loanservice.datasource.user.repository.UserCreditRatingRepository
+import com.naverfinancial.loanservice.datasource.user.repository.UserRepository
 import com.naverfinancial.loanservice.exception.CreditRatingException
 import com.naverfinancial.loanservice.utils.JsonFormData
 import com.naverfinancial.loanservice.wrapper.CreditRatingSearchResult
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.annotation.Transactional
-import org.springframework.transaction.support.DefaultTransactionDefinition
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest

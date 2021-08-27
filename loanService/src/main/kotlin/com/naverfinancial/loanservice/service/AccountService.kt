@@ -1,8 +1,8 @@
 package com.naverfinancial.loanservice.service
 
-import com.naverfinancial.loanservice.entity.account.dto.Account
-import com.naverfinancial.loanservice.entity.account.dto.AccountTransactionHistory
-import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
+import com.naverfinancial.loanservice.datasource.account.dto.Account
+import com.naverfinancial.loanservice.datasource.account.dto.AccountTransactionHistory
+import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 
 interface AccountService {
     // 마이너스 통장 전체 조회

@@ -1,12 +1,12 @@
 package com.naverfinancial.loanservice.service
 
-import com.naverfinancial.loanservice.entity.account.dto.Account
-import com.naverfinancial.loanservice.entity.account.dto.AccountCancellationHistory
-import com.naverfinancial.loanservice.entity.account.dto.AccountTransactionHistory
-import com.naverfinancial.loanservice.entity.account.repository.AccountCancellationHistoryRepository
-import com.naverfinancial.loanservice.entity.account.repository.AccountRepository
-import com.naverfinancial.loanservice.entity.account.repository.AccountTransactionHistoryRepository
-import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
+import com.naverfinancial.loanservice.datasource.account.dto.Account
+import com.naverfinancial.loanservice.datasource.account.dto.AccountCancellationHistory
+import com.naverfinancial.loanservice.datasource.account.dto.AccountTransactionHistory
+import com.naverfinancial.loanservice.datasource.account.repository.AccountCancellationHistoryRepository
+import com.naverfinancial.loanservice.datasource.account.repository.AccountRepository
+import com.naverfinancial.loanservice.datasource.account.repository.AccountTransactionHistoryRepository
+import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.OverLimitException
@@ -14,11 +14,8 @@ import com.naverfinancial.loanservice.exception.RestLimitException
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
 import com.naverfinancial.loanservice.utils.PagingUtil
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 
 @Service

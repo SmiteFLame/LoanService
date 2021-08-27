@@ -1,7 +1,7 @@
 package com.naverfinancial.loanservice.controller
 
-import com.naverfinancial.loanservice.entity.account.dto.Account
-import com.naverfinancial.loanservice.entity.account.dto.AccountTransactionHistory
+import com.naverfinancial.loanservice.datasource.account.dto.Account
+import com.naverfinancial.loanservice.datasource.account.dto.AccountTransactionHistory
 import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.*
@@ -12,12 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
-import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.server.MethodNotAllowedException
-import java.net.http.HttpTimeoutException
 
 @RestController
 @RequestMapping("/accounts")

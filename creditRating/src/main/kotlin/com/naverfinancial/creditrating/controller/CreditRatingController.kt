@@ -1,6 +1,6 @@
 package com.naverfinancial.creditrating.controller
 
-import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchResult
+import com.naverfinancial.creditrating.datasource.creditRatingSearch.dto.CreditRatingSearchResult
 import com.naverfinancial.creditrating.exception.NullNdiException
 import com.naverfinancial.creditrating.exception.NullUserException
 import com.naverfinancial.creditrating.exception.UserException

@@ -1,18 +1,14 @@
 package com.naverfinancial.creditrating.service
 
-import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchHistory
-import com.naverfinancial.creditrating.entity.creditRatingSearch.dto.CreditRatingSearchResult
-import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchHistoryRepository
-import com.naverfinancial.creditrating.entity.creditRatingSearch.repository.CreditRatingSearchResultRepository
-import com.naverfinancial.creditrating.entity.user.dto.User
+import com.naverfinancial.creditrating.datasource.creditRatingSearch.dto.CreditRatingSearchHistory
+import com.naverfinancial.creditrating.datasource.creditRatingSearch.dto.CreditRatingSearchResult
+import com.naverfinancial.creditrating.datasource.creditRatingSearch.repository.CreditRatingSearchHistoryRepository
+import com.naverfinancial.creditrating.datasource.creditRatingSearch.repository.CreditRatingSearchResultRepository
+import com.naverfinancial.creditrating.datasource.user.dto.User
 import com.naverfinancial.creditrating.utils.JsonFormData
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.annotation.Transactional
-import org.springframework.transaction.support.DefaultTransactionDefinition
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
