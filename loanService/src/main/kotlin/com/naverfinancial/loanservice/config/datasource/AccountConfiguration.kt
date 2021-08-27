@@ -25,7 +25,6 @@ class AccountConfiguration {
     @ConfigurationProperties(prefix = "spring.datasource-account")
     fun accountDataSource(): DataSource = DataSourceBuilder.create().build()
 
-    @Primary
     @Qualifier("accountLocalContainerEntityManagerFactoryBean")
     @Bean
     fun accountEntityManager(): LocalContainerEntityManagerFactoryBean =

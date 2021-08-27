@@ -25,7 +25,6 @@ class CreditRatingSearchConfiguration {
     @ConfigurationProperties(prefix = "spring.datasource-credit-rating-search")
     fun creditRatingSearchDataSource(): DataSource = DataSourceBuilder.create().build()
 
-    @Primary
     @Qualifier("creditRatingSearchLocalContainerEntityManagerFactoryBean")
     @Bean
     fun creditRatingSearchEntityManager(): LocalContainerEntityManagerFactoryBean =
