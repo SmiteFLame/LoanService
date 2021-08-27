@@ -53,24 +53,24 @@ class AccountController {
      * 전체 계좌 정보 리스트조회한다
      *
      * RequestParam : ndi : String
-     * Bad Request : NDI가 없는 경우, page, size가 잘못 설정된 경우
+     * Bad Request : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
      * ResponseEntity : List<Account>
      */
     @GetMapping()
-    fun selectAccountList(@RequestParam page: Int, size: Int): ResponseEntity<List<Account>> {
-        return ResponseEntity<List<Account>>(accountService.selectAccountList(page, size), HttpStatus.OK)
+    fun selectAccountList(@RequestParam limit: Int, offset: Int): ResponseEntity<List<Account>> {
+        return ResponseEntity<List<Account>>(accountService.selectAccountList(limit, offset), HttpStatus.OK)
     }
 
     /**
      * NDI에 해당되는 계좌 리스트들을 조회한다
      *
      * RequestParam : ndi : String
-     * Bad Request : NDI가 없는 경우, page, size가 잘못 설정된 경우
+     * Bad Request : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
      * ResponseEntity : List<Account>
      */
     @GetMapping("ndi/{ndi}")
     fun selectAccountListByNdi(
-        @PathVariable ndi: String, @RequestParam page: Int, size: Int
+        @PathVariable ndi: String, @RequestParam limit: Int, offset: Int
     ): ResponseEntity<List<Account>> {
         if (ndi == null || ndi == "") {
             throw NullNdiException()
@@ -78,7 +78,7 @@ class AccountController {
         if (userService.selectUserByNDI(ndi) == null) {
             throw NullUserException(HttpStatus.NOT_FOUND)
         }
-        return ResponseEntity<List<Account>>(accountService.selectAccountListByNdi(ndi, page, size), HttpStatus.OK)
+        return ResponseEntity<List<Account>>(accountService.selectAccountListByNdi(ndi, limit, offset), HttpStatus.OK)
     }
 
     /**
@@ -196,16 +196,16 @@ class AccountController {
      * 전체 계좌 정보 리스트조회한다
      *
      * RequestParam : ndi : String
-     * Bad Request : NDI가 없는 경우, page, size가 잘못 설정된 경우
+     * Bad Request : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
      * ResponseEntity : List<Account>
      */
     @GetMapping("transaction")
     fun selectAccountTransactionList(
-        @RequestParam page: Int,
-        size: Int
+        @RequestParam limit: Int,
+        offset: Int
     ): ResponseEntity<List<AccountTransactionHistory>> {
         return ResponseEntity<List<AccountTransactionHistory>>(
-            accountService.selectAccountTransactionList(page, size),
+            accountService.selectAccountTransactionList(limit, offset),
             HttpStatus.OK
         )
     }
@@ -214,14 +214,14 @@ class AccountController {
      * 특정 계좌 아이디의 계좌 거래 정보 리스트조회한다
      *
      * RequestParam : ndi : String
-     * Bad Request : NDI가 없는 경우, page, size가 잘못 설정된 경우
+     * Bad Request : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
      * ResponseEntity : List<Account>
      */
     @GetMapping("transaction/{account-id}")
     fun selectAccountTransactionListByAccountId(
         @PathVariable("account-id") accountId: Int,
-        @RequestParam page: Int,
-        size: Int
+        @RequestParam limit: Int,
+        offset: Int
     ): ResponseEntity<List<AccountTransactionHistory>> {
         var account = accountService.selectAccountByAccountId(accountId)
         if (account == null) {
@@ -230,8 +230,8 @@ class AccountController {
         return ResponseEntity<List<AccountTransactionHistory>>(
             accountService.selectAccountTransactionListByAccountId(
                 account,
-                page,
-                size
+                limit,
+                offset
             ), HttpStatus.OK
         )
     }
