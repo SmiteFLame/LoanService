@@ -109,7 +109,7 @@ CREATE TABLE account_cancellation_history(
 ```
 docker run -p 43306:3306 --name AccountDB -e MYSQL_ROOT_PASSWORD=naver -e MYSQL_DATABASE="account" -d mysql:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 docker run -p 53306:3306 --name UserDB -e MYSQL_ROOT_PASSWORD=naver -e MYSQL_DATABASE="user" -d mysql:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-docker run -p 63306:3306 --name CreditDB -e MYSQL_ROOT_PASSWORD=naver -e MYSQL_DATABASE="credit" -d mysql:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+docker run -p 63306:3306 --name CreditRatingSearchDB -e MYSQL_ROOT_PASSWORD=naver -e MYSQL_DATABASE="credit_rating_search" -d mysql:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 ```
 
 2. CB 모듈 실행
