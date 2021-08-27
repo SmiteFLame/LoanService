@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.DefaultTransactionDefinition
 import java.net.URI
 import java.net.http.HttpClient
@@ -20,6 +21,7 @@ import java.sql.Timestamp
 import java.util.*
 
 @Service
+@Transactional("userTransactionManager")
 class UserServiceImpl : UserService {
 
     @Autowired
@@ -27,10 +29,6 @@ class UserServiceImpl : UserService {
 
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
-
-    @Qualifier("userTransactionManager")
-    @Autowired
-    lateinit var userTransactionManager: PlatformTransactionManager
 
     override fun selectUserByEmails(email: String): User? {
         return userRepository.findUserByEmail(email)
@@ -51,7 +49,6 @@ class UserServiceImpl : UserService {
             return userCreditRating
         }
         var creditRatingSearchResult = searchGrade(ndi)
-        val status = userTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         var newUserCreditRating = UserCreditRating(
             ndi = ndi,
@@ -59,22 +56,15 @@ class UserServiceImpl : UserService {
             isPermit = creditRatingSearchResult.isPermit,
             createdDate = Timestamp(System.currentTimeMillis())
         )
-        userCreditRatingRepository.save(newUserCreditRating)
-        userTransactionManager.commit(status)
-        return newUserCreditRating
+
+        return userCreditRatingRepository.save(newUserCreditRating)
     }
 
     override fun insertUser(user: User): User {
-        val status = userTransactionManager.getTransaction(DefaultTransactionDefinition())
-
         val uuid = UUID.randomUUID().toString()
         user.ndi = uuid
 
-        userRepository.save(user)
-
-        userTransactionManager.commit(status)
-
-        return user
+        return  userRepository.save(user)
     }
 
 

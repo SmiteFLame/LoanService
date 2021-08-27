@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.DefaultTransactionDefinition
 import java.net.URI
 import java.net.http.HttpClient
@@ -20,6 +21,7 @@ import java.sql.Timestamp
 import java.time.Duration
 
 @Service
+@Transactional("creditRatingSearchTransactionManager")
 class CreditRatingServiceImpl : CreditRatingService {
 
     @Autowired
@@ -28,18 +30,12 @@ class CreditRatingServiceImpl : CreditRatingService {
     @Autowired
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
-    @Qualifier("creditRatingSearchTransactionManager")
-    @Autowired
-    lateinit var creditRatingSearchTransactionManager: PlatformTransactionManager
-
     override fun selectGrade(user : User): CreditRatingSearchResult {
         var grade : Int = 0
         var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
         grade = creditRatingSearchResult?.grade ?: getGrade(user)
 
         val isPermit = evaluateLoanAvailability(grade)
-
-        val status = creditRatingSearchTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // CreditRatingSearchHistory 기록하기
         val newCreditRatingSearchHistory =
@@ -61,8 +57,6 @@ class CreditRatingServiceImpl : CreditRatingService {
                 historyId = resultOfCreditRatingSearchHistory.historyId
             )
         creditRatingSearchResultRepository.save(creditRatingSearchResult)
-
-        creditRatingSearchTransactionManager.commit(status)
 
         return creditRatingSearchResult
     }

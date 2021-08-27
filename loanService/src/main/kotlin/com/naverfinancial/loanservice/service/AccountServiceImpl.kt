@@ -18,10 +18,11 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.support.DefaultTransactionDefinition
+import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 
 @Service
+@Transactional("accountTransactionManager")
 class AccountServiceImpl : AccountService {
 
     @Autowired
@@ -32,10 +33,6 @@ class AccountServiceImpl : AccountService {
 
     @Autowired
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
-
-    @Qualifier("accountTransactionManager")
-    @Autowired
-    lateinit var accountTransactionManager: PlatformTransactionManager
 
     override fun selectAccountList(limit: Int, offset: Int): List<Account> {
         return accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit)).toList();
@@ -61,7 +58,6 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account {
-        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         // 통장번호 랜덤 생성
         var newAccountNumbers: String
@@ -82,9 +78,7 @@ class AccountServiceImpl : AccountService {
             createdDate = Timestamp(System.currentTimeMillis()),
         )
 
-        newAccount = accountRepository.save(newAccount)
-
-        accountTransactionManager.commit(status)
+        newAccount = accountRepository.saveAndFlush(newAccount)
 
         return newAccount
     }
@@ -94,8 +88,6 @@ class AccountServiceImpl : AccountService {
         if (account.balance - amount < account.loanLimit) {
             throw OverLimitException()
         }
-
-        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         account.withdraw(amount)
 
@@ -113,15 +105,10 @@ class AccountServiceImpl : AccountService {
 
 
         // 계좌 수정하기
-        val newAccount = accountRepository.save(account)
-        accountTransactionManager.commit(status)
-
-        return newAccount
+        return accountRepository.save(account)
     }
 
     override fun depositLoan(account: Account, amount: Int): Account {
-        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
-
         account.deposit(amount)
         var newAccount = accountRepository.save(account)
 
@@ -148,8 +135,6 @@ class AccountServiceImpl : AccountService {
 
         accountTransactionHistoryRepository.save(newAccountTransactionHistory)
 
-        accountTransactionManager.commit(status)
-
         return newAccount
     }
 
@@ -157,8 +142,6 @@ class AccountServiceImpl : AccountService {
         if (account.balance < 0) {
             throw RestLimitException()
         }
-
-        val status = accountTransactionManager.getTransaction(DefaultTransactionDefinition())
 
         val balance = account.balance
 
@@ -173,8 +156,6 @@ class AccountServiceImpl : AccountService {
         )
 
         accountCancellationHistoryRepository.save(accountCancellationHistory)
-
-        accountTransactionManager.commit(status)
 
         return Integer(balance)
     }
