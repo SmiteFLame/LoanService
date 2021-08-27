@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 
 @Service
-@Transactional("accountTransactionManager")
 class AccountServiceImpl : AccountService {
 
     @Autowired
@@ -78,7 +77,7 @@ class AccountServiceImpl : AccountService {
             createdDate = Timestamp(System.currentTimeMillis()),
         )
 
-        newAccount = accountRepository.saveAndFlush(newAccount)
+        newAccount = accountRepository.save(newAccount)
 
         return newAccount
     }
@@ -164,9 +163,7 @@ class AccountServiceImpl : AccountService {
         return accountTransactionHistoryRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit)).toList()
     }
 
-    override fun selectAccountTransactionListByAccountId(
-        account: Account,
-        limit: Int, offset: Int
+    override fun selectAccountTransactionListByAccountId(account: Account, limit: Int, offset: Int
     ): List<AccountTransactionHistory> {
         return accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
             account.accountId,

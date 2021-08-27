@@ -12,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import org.springframework.web.server.MethodNotAllowedException
 import java.net.http.HttpTimeoutException
 
 @RestController
@@ -38,15 +41,28 @@ class AccountController {
 
     @ExceptionHandler
     fun exceptionHandler(error: Exception): ResponseEntity<String> {
+        var message = error.message
         var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         when (error) {
-            is HttpMessageNotReadableException -> status = HttpStatus.BAD_REQUEST
-            is IllegalStateException -> status = HttpStatus.BAD_REQUEST
-            is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
-            is MissingServletRequestParameterException -> status = HttpStatus.BAD_REQUEST
+            is HttpMessageNotReadableException -> {
+                message = "입력값이 잘못 들어왔습니다"
+                status = HttpStatus.BAD_REQUEST
+            }
+            is MethodNotAllowedException ->{
+                message = "없는 URL입니다"
+                status = HttpStatus.BAD_REQUEST
+            }
+            is MissingServletRequestParameterException ->{
+                message = "URL Query문이 존재하지 않거나 잘못되었습니다"
+                status = HttpStatus.BAD_REQUEST
+            }
+            is MethodArgumentTypeMismatchException ->{
+                message = "URL이 Param 입력값이 잘못 들어왔습니다"
+                status = HttpStatus.BAD_REQUEST
+            }
         }
 
-        return ResponseEntity<String>(error.message, status)
+        return ResponseEntity<String>(message, status)
     }
 
     /**

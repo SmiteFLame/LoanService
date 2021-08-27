@@ -4,11 +4,13 @@ import com.naverfinancial.loanservice.entity.user.dto.User
 import com.naverfinancial.loanservice.entity.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.entity.user.repository.UserCreditRatingRepository
 import com.naverfinancial.loanservice.entity.user.repository.UserRepository
+import com.naverfinancial.loanservice.exception.CreditRatingException
 import com.naverfinancial.loanservice.utils.JsonFormData
 import com.naverfinancial.loanservice.wrapper.CreditRatingSearchResult
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Transactional
@@ -21,7 +23,6 @@ import java.sql.Timestamp
 import java.util.*
 
 @Service
-@Transactional("userTransactionManager")
 class UserServiceImpl : UserService {
 
     @Autowired
@@ -77,9 +78,13 @@ class UserServiceImpl : UserService {
             .header("Content-Type", "application/json")
             .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return CreditRatingSearchResult(
-            JSONObject(response.body()).getInt("grade"),
-            JSONObject(response.body()).getBoolean("isPermit")
-        )
+        if(response.statusCode() == 200){
+            return CreditRatingSearchResult(
+                JSONObject(response.body()).getInt("grade"),
+                JSONObject(response.body()).getBoolean("isPermit")
+            )
+        } else {
+            throw CreditRatingException(response.body().toString(), HttpStatus.valueOf(response.statusCode()))
+        }
     }
 }

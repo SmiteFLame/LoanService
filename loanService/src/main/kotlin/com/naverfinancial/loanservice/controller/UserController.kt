@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.*
+import java.net.ConnectException
 import java.net.http.HttpTimeoutException
 
 @RestController
@@ -26,13 +27,24 @@ class UserController {
 
     @ExceptionHandler
     fun exceptionHandler(error: Exception): ResponseEntity<String> {
+        var message = error.message
         var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         when (error) {
-            is HttpMessageNotReadableException -> status = HttpStatus.BAD_REQUEST
-            is HttpTimeoutException -> status = HttpStatus.GATEWAY_TIMEOUT
+            is HttpMessageNotReadableException -> {
+                message = "입력값이 잘못 들어왔습니다"
+                status = HttpStatus.BAD_REQUEST
+            }
+            is HttpTimeoutException -> {
+                message = "제한시간이 초과되었습니다."
+                status = HttpStatus.GATEWAY_TIMEOUT
+            }
+            is ConnectException ->{
+                message = "신용 등급 서버가 열리지 않았습니다."
+                status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
         }
 
-        return ResponseEntity<String>(error.message, status)
+        return ResponseEntity<String>(message, status)
     }
 
     /**

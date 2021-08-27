@@ -21,7 +21,6 @@ import java.sql.Timestamp
 import java.time.Duration
 
 @Service
-@Transactional("creditRatingSearchTransactionManager")
 class CreditRatingServiceImpl : CreditRatingService {
 
     @Autowired
@@ -31,7 +30,7 @@ class CreditRatingServiceImpl : CreditRatingService {
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
     override fun selectGrade(user : User): CreditRatingSearchResult {
-        var grade : Int = 0
+        var grade = 0
         var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
         grade = creditRatingSearchResult?.grade ?: getGrade(user)
 
