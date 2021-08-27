@@ -1,7 +1,7 @@
 package com.naverfinancial.creditrating.config
 
-import com.naverfinancial.creditrating.config.datasourceConfig.CreditRatingSearchJpaTransactionManager
-import com.naverfinancial.creditrating.config.datasourceConfig.UserJpaTransactionManager
+import com.naverfinancial.creditrating.config.datasource.CreditRatingSearchJpaTransactionManager
+import com.naverfinancial.creditrating.config.datasource.UserJpaTransactionManager
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

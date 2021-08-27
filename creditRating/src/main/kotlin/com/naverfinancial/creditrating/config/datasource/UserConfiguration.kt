@@ -1,4 +1,4 @@
-package com.naverfinancial.creditrating.config.datasourceConfig
+package com.naverfinancial.creditrating.config.datasource
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier

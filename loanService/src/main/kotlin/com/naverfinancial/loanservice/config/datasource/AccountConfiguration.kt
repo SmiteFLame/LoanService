@@ -1,4 +1,4 @@
-package com.naverfinancial.loanservice.config.datasourceConfig
+package com.naverfinancial.loanservice.config.datasource
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
