@@ -13,11 +13,7 @@ abstract class AccountException(string: String) : Exception(string) {
         override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 
-    class WrongTypeAccountID : AccountException("잘못된 계좌 아이디 입니다") {
-        override var status: HttpStatus = HttpStatus.BAD_REQUEST
-    }
-
-    class WrongAmountInput : AccountException("잘못된 대출 신청입니다") {
+    class WrongAmountInput : AccountException("잘못된 금액 신청입니다") {
         override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 
@@ -29,7 +25,7 @@ abstract class AccountException(string: String) : Exception(string) {
         override var status: HttpStatus = HttpStatus.NOT_FOUND
     }
 
-    class BelowCreditRating : AccountException("신용등급 미달로 대출 신청이 불가능합니다.") {
+    class BelowCreditRating : AccountException("신용등급 미달로 대출 신청이 불가능합니다") {
         override var status: HttpStatus = HttpStatus.OK
     }
 
