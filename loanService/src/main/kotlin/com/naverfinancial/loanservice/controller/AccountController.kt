@@ -8,11 +8,13 @@ import com.naverfinancial.loanservice.exception.AccountException
 import com.naverfinancial.loanservice.exception.UserException
 import com.naverfinancial.loanservice.service.AccountService
 import com.naverfinancial.loanservice.service.UserService
+import com.naverfinancial.loanservice.utils.PagingUtil
 import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -68,6 +70,10 @@ class AccountController {
                 message = "URL이 Param 입력값이 잘못 들어왔습니다"
                 status = HttpStatus.BAD_REQUEST
             }
+            is HttpRequestMethodNotSupportedException ->{
+                message = "존재하지 않는 메서드 입니다."
+                status = HttpStatus.METHOD_NOT_ALLOWED;
+            }
         }
 
         return ResponseEntity<String>(message, status)
@@ -82,6 +88,7 @@ class AccountController {
      */
     @GetMapping()
     fun selectAccountList(@RequestParam limit: Int, offset: Int): ResponseEntity<List<Account>> {
+        PagingUtil.checkIsValid(limit, offset)
         return ResponseEntity<List<Account>>(accountService.selectAccountList(limit, offset), HttpStatus.OK)
     }
 
@@ -98,9 +105,7 @@ class AccountController {
         @RequestParam limit: Int,
         offset: Int
     ): ResponseEntity<List<Account>> {
-        if (ndi == null || ndi == "") {
-            throw UserException.NullNdiException()
-        }
+        PagingUtil.checkIsValid(limit, offset)
         if (userService.selectUserByNDI(ndi) == null) {
             throw UserException.NullUserException(HttpStatus.NOT_FOUND)
         }
@@ -120,7 +125,7 @@ class AccountController {
     }
 
     /**
-     * NDI을 입력받아서 마이너스 계좌를 개설한다, 이미 계좌가 존재하는 경우 그 계좌를 반환한다
+     * NDI을 입력받아서 마이너스 계좌를 개설한다
      *
      * RequestBody : ndi : String
      * ResponseEntity : Account
@@ -131,7 +136,6 @@ class AccountController {
      */
     @PostMapping("applyment")
     fun insertAccount(@RequestBody map: Map<String, String>): ResponseEntity<Account> {
-
         if (!map.containsKey("ndi")) {
             throw UserException.NullNdiException()
         }

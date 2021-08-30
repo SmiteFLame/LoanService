@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -37,7 +38,7 @@ class UserController {
         var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         when (error) {
             is HttpMessageNotReadableException -> {
-                message = "입력값이 잘못 들어왔습니다"
+                message = "입력값이 잘못 들어왔습니다."
                 status = HttpStatus.BAD_REQUEST
             }
             is HttpTimeoutException -> {
@@ -47,6 +48,10 @@ class UserController {
             is ConnectException -> {
                 message = "신용 등급 서버가 열리지 않았습니다."
                 status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
+            is HttpRequestMethodNotSupportedException -> {
+                message = "존재하지 않는 메서드 입니다."
+                status = HttpStatus.METHOD_NOT_ALLOWED;
             }
         }
 
@@ -77,29 +82,9 @@ class UserController {
      * NOT_FOUND - User에 해당되는 ndi가 없는 경우
      */
     @GetMapping("{ndi}")
-    fun selectUserByNdi(@PathVariable ndi: String?): ResponseEntity<User> {
-        if (ndi == null || ndi == "") {
-            throw UserException.NullNdiException()
-        }
+    fun selectUserByNdi(@PathVariable ndi: String): ResponseEntity<User> {
         var user: User? = userService.selectUserByNDI(ndi) ?: throw UserException.NullUserException(HttpStatus.OK)
         return ResponseEntity<User>(user, HttpStatus.OK)
-
-    }
-
-    /**
-     * 사용자의 신용등급 조회를 신청
-     *
-     * PathVariable: ndi : String
-     * ResponseEntity : User
-     * BAD_REQUEST - ndi가 없이 요청된 경우
-     * NOT_FOUND - User에 해당되는 ndi가 없는 경우
-     */
-    @GetMapping("/credit/{ndi}")
-    fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
-        if (ndi == null || ndi == "") {
-            throw UserException.NullNdiException()
-        }
-        return ResponseEntity<UserCreditRating>(userService.saveCreditRating(ndi), HttpStatus.OK)
     }
 
     /**
@@ -112,12 +97,30 @@ class UserController {
      */
     @PostMapping()
     fun insertUser(@RequestBody user: User?): ResponseEntity<User> {
-        if (user == null || !EmailValiation.checkEmailValid(user.email)) {
+        if (user == null) {
             throw UserException.InvalidUserException()
+        }
+        if (!EmailValiation.checkEmailValid(user.email)) {
+            throw UserException.InvalidEmailException()
         }
         if (userService.selectUserByEmails(user.email) != null) {
             throw UserException.DuplicationEmailException()
         }
-        return ResponseEntity<User>(userService.insertUser(user), HttpStatus.OK)
+        return ResponseEntity<User>(userService.insertUser(user), HttpStatus.CREATED)
     }
+
+    /**
+     * 사용자의 신용등급 조회를 신청
+     *
+     * PathVariable: ndi : String
+     * ResponseEntity : User
+     * BAD_REQUEST - ndi가 없이 요청된 경우
+     * NOT_FOUND - User에 해당되는 ndi가 없는 경우
+     */
+    @GetMapping("/credit/{ndi}")
+    fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
+        userService.selectUserByNDI(ndi) ?: throw UserException.NullUserException(HttpStatus.NOT_FOUND)
+        return ResponseEntity<UserCreditRating>(userService.saveCreditRating(ndi), HttpStatus.CREATED)
+    }
+
 }
