@@ -1,8 +1,6 @@
 package com.naverfinancial.creditrating.controller
 
 import com.naverfinancial.creditrating.datasource.creditRatingSearch.dto.CreditRatingSearchResult
-import com.naverfinancial.creditrating.exception.NullNdiException
-import com.naverfinancial.creditrating.exception.NullUserException
 import com.naverfinancial.creditrating.exception.UserException
 import com.naverfinancial.creditrating.service.CreditRatingService
 import com.naverfinancial.creditrating.service.UserService
@@ -67,12 +65,12 @@ class CreditRatingController {
     @PostMapping
     fun selectGrade(@RequestBody map: Map<String, String>): ResponseEntity<CreditRatingSearchResult> {
         if (!map.containsKey("ndi")) {
-            throw NullNdiException()
+            throw UserException.NullNdiException()
         }
 
         var user = userService.selectUserByNDI(map.getValue("ndi"))
         if (user == null) {
-            throw NullUserException()
+            throw UserException.NullUserException()
         }
         return ResponseEntity<CreditRatingSearchResult>(creditRatingService.selectGrade(user), HttpStatus.OK)
     }

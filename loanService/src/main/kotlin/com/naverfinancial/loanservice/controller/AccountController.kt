@@ -4,7 +4,8 @@ import com.naverfinancial.loanservice.datasource.account.dto.Account
 import com.naverfinancial.loanservice.datasource.account.dto.AccountTransactionHistory
 import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
-import com.naverfinancial.loanservice.exception.*
+import com.naverfinancial.loanservice.exception.AccountException
+import com.naverfinancial.loanservice.exception.UserException
 import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import com.naverfinancial.loanservice.service.AccountService
 import com.naverfinancial.loanservice.service.UserService
@@ -87,10 +88,10 @@ class AccountController {
         @PathVariable ndi: String, @RequestParam limit: Int, offset: Int
     ): ResponseEntity<List<Account>> {
         if (ndi == null || ndi == "") {
-            throw NullNdiException()
+            throw UserException.NullNdiException()
         }
         if (userService.selectUserByNDI(ndi) == null) {
-            throw NullUserException(HttpStatus.NOT_FOUND)
+            throw UserException.NullUserException(HttpStatus.NOT_FOUND)
         }
         return ResponseEntity<List<Account>>(accountService.selectAccountListByNdi(ndi, limit, offset), HttpStatus.OK)
     }
@@ -121,21 +122,21 @@ class AccountController {
     fun insertAccount(@RequestBody map: Map<String, String>): ResponseEntity<Account> {
 
         if (!map.containsKey("ndi")) {
-            throw NullNdiException()
+            throw UserException.NullNdiException()
         }
         if (userService.selectUserByNDI(map.getValue("ndi")) == null) {
-            throw NullUserException(HttpStatus.NOT_FOUND)
+            throw UserException.NullUserException(HttpStatus.NOT_FOUND)
         }
 
         var account = accountService.selectAccountByNdiStatusNormal(map.getValue("ndi"))
         if (account != null) {
-            throw DuplicationAccountException()
+            throw AccountException.DuplicationAccountException()
         }
 
-        var userCreditRating = userService.selectCreditRating(map.getValue("ndi")) ?: throw NoCreditRating()
+        var userCreditRating = userService.selectCreditRating(map.getValue("ndi")) ?: throw AccountException.NoCreditRating()
 
         if (!userCreditRating.isPermit) {
-            throw BelowCreditRating()
+            throw AccountException.BelowCreditRating()
         }
 
         return ResponseEntity<Account>(
@@ -161,15 +162,15 @@ class AccountController {
         @RequestBody applymentLoanService: ApplymentLoanService
     ): ResponseEntity<Account> {
         if (accountId < 0) {
-            throw WrongTypeAccountID()
+            throw AccountException.WrongTypeAccountID()
         }
         if (applymentLoanService.amount < 0) {
-            throw WrongAmountInput()
+            throw AccountException.WrongAmountInput()
         }
-        var account = accountService.selectAccountByAccountId(accountId) ?: throw NullAccountException()
+        var account = accountService.selectAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
-            throw CancelledAccountException()
+            throw AccountException.CancelledAccountException()
         }
 
 
@@ -185,7 +186,7 @@ class AccountController {
                 HttpStatus.CREATED
             )
         } else {
-            throw UndefinedTypeException()
+            throw AccountException.UndefinedTypeException()
         }
     }
 
@@ -198,10 +199,10 @@ class AccountController {
      */
     @DeleteMapping("applyment/{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
-        var account = accountService.selectAccountByAccountId(accountId) ?: throw NullAccountException()
+        var account = accountService.selectAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
-            throw CancelledAccountException()
+            throw AccountException.CancelledAccountException()
         }
         return ResponseEntity<Integer>(accountService.removeAccount(account), HttpStatus.CREATED)
     }
@@ -239,7 +240,7 @@ class AccountController {
     ): ResponseEntity<List<AccountTransactionHistory>> {
         var account = accountService.selectAccountByAccountId(accountId)
         if (account == null) {
-            throw NullAccountException()
+            throw AccountException.NullAccountException()
         }
         return ResponseEntity<List<AccountTransactionHistory>>(
             accountService.selectAccountTransactionListByAccountId(

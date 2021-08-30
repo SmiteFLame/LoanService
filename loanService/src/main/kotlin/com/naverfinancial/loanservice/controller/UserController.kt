@@ -2,7 +2,7 @@ package com.naverfinancial.loanservice.controller
 
 import com.naverfinancial.loanservice.datasource.user.dto.User
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
-import com.naverfinancial.loanservice.exception.*
+import com.naverfinancial.loanservice.exception.UserException
 import com.naverfinancial.loanservice.service.UserService
 import com.naverfinancial.loanservice.utils.EmailValiation
 import org.springframework.beans.factory.annotation.Autowired
@@ -57,7 +57,7 @@ class UserController {
     @GetMapping("{email}/email")
     fun selectUserByEmail(@PathVariable email: String): ResponseEntity<User> {
 
-        val user = userService.selectUserByEmails(email) ?: throw NullUserException(HttpStatus.OK)
+        val user = userService.selectUserByEmails(email) ?: throw UserException.NullUserException(HttpStatus.OK)
         return ResponseEntity<User>(user, HttpStatus.OK)
 
     }
@@ -73,9 +73,9 @@ class UserController {
     @GetMapping("{ndi}")
     fun selectUserByNdi(@PathVariable ndi: String?): ResponseEntity<User> {
         if (ndi == null || ndi == "") {
-            throw NullNdiException()
+            throw UserException.NullNdiException()
         }
-        var user: User? = userService.selectUserByNDI(ndi) ?: throw NullUserException(HttpStatus.OK)
+        var user: User? = userService.selectUserByNDI(ndi) ?: throw UserException.NullUserException(HttpStatus.OK)
         return ResponseEntity<User>(user, HttpStatus.OK)
 
     }
@@ -91,7 +91,7 @@ class UserController {
     @GetMapping("/credit/{ndi}")
     fun selectCreditRating(@PathVariable ndi : String) : ResponseEntity<UserCreditRating>{
         if (ndi == null || ndi == "") {
-            throw NullNdiException()
+            throw UserException.NullNdiException()
         }
         return ResponseEntity<UserCreditRating>(userService.saveCreditRating(ndi), HttpStatus.OK)
     }
@@ -107,10 +107,10 @@ class UserController {
     @PostMapping()
     fun insertUser(@RequestBody user: User?): ResponseEntity<User> {
         if(user == null || !EmailValiation.checkEmailValid(user.email)){
-            throw InvalidUserException()
+            throw UserException.InvalidUserException()
         }
         if(userService.selectUserByEmails(user.email) != null){
-            throw DuplicationEmailException()
+            throw UserException.DuplicationEmailException()
         }
         return ResponseEntity<User>(userService.insertUser(user), HttpStatus.OK)
     }
