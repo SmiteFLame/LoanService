@@ -9,5 +9,4 @@ class LoanServiceApplicationTests {
     @Test
     fun contextLoads() {
     }
-
 }

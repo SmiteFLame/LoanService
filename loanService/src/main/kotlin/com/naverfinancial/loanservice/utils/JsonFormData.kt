@@ -10,7 +10,7 @@ class JsonFormData {
         fun formData(data: Map<String, String>): HttpRequest.BodyPublisher? {
 
             var res = "{\n"
-            for((k, v) in data){
+            for ((k, v) in data) {
                 res += "\t\"${(k.utf8())}\" : \"${v.utf8()}\" \n"
             }
             res += "}"

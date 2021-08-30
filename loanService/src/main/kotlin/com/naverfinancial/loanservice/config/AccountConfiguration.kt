@@ -30,7 +30,6 @@ class AccountConfiguration {
             jpaVendorAdapter = HibernateJpaVendorAdapter()
         }
 
-
     @Bean
     fun accountTransactionManager(accountDataSource: DataSource?): PlatformTransactionManager? {
         val jpaTransactionManager = JpaTransactionManager()

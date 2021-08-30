@@ -6,18 +6,18 @@ import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
 
-@Table(name="user_credit_rating")
+@Table(name = "user_credit_rating")
 @Entity
-data class UserCreditRating (
+data class UserCreditRating(
     @Id
-    var ndi : String?,
+    var ndi: String?,
 
     @Column(nullable = false)
-    val grade : Int,
+    val grade: Int,
 
     @Column(nullable = false)
-    val isPermit : Boolean,
+    val isPermit: Boolean,
 
     @Column(name = "created_date", nullable = false)
-    val createdDate : Timestamp,
+    val createdDate: Timestamp,
 )

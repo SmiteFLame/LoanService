@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UserCreditRatingRepository : JpaRepository<UserCreditRating, Integer> {
-    fun findUserCreditRatingByNdi(ndi : String) : UserCreditRating?
+    fun findUserCreditRatingByNdi(ndi: String): UserCreditRating?
 }

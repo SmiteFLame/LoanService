@@ -4,7 +4,7 @@ import com.naverfinancial.loanservice.datasource.user.dto.User
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.datasource.user.repository.UserCreditRatingRepository
 import com.naverfinancial.loanservice.datasource.user.repository.UserRepository
-import com.naverfinancial.loanservice.exception.CreditRatingException
+import com.naverfinancial.loanservice.exception.UserException
 import com.naverfinancial.loanservice.utils.JsonFormData
 import com.naverfinancial.loanservice.wrapper.CreditRatingSearchResult
 import org.json.JSONObject
@@ -61,26 +61,26 @@ class UserServiceImpl : UserService {
         val uuid = UUID.randomUUID().toString()
         user.ndi = uuid
 
-        return  userRepository.save(user)
+        return userRepository.save(user)
     }
 
 
     override fun searchGrade(ndi: String): CreditRatingSearchResult {
         val values = mapOf("ndi" to ndi)
-        val client = HttpClient.newBuilder().build();
+        val client = HttpClient.newBuilder().build()
         val request = HttpRequest.newBuilder()
             .uri(URI.create("http://localhost:8081/credits"))
             .POST(JsonFormData.formData(values))
             .header("Content-Type", "application/json")
             .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        if(response.statusCode() == 200){
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() == 200) {
             return CreditRatingSearchResult(
                 JSONObject(response.body()).getInt("grade"),
                 JSONObject(response.body()).getBoolean("isPermit")
             )
         } else {
-            throw CreditRatingException(response.body().toString(), HttpStatus.valueOf(response.statusCode()))
+            throw UserException.CreditRatingException(response.body().toString(), HttpStatus.valueOf(response.statusCode()))
         }
     }
 }

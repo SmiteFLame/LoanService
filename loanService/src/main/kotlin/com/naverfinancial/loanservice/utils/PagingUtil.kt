@@ -1,12 +1,12 @@
 package com.naverfinancial.loanservice.utils
 
-import com.naverfinancial.loanservice.exception.PagingArgumentExcetpion
+import com.naverfinancial.loanservice.exception.AccountException
 
 class PagingUtil {
     companion object {
-        fun getPage(limit: Int, offset: Int): Int{
-            if(limit < 0 || offset < 0){
-                throw PagingArgumentExcetpion()
+        fun getPage(limit: Int, offset: Int): Int {
+            if (limit < 0 || offset < 0) {
+                throw AccountException.PagingArgumentExcetpion()
             }
             return offset / limit
         }

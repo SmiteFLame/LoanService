@@ -9,8 +9,7 @@ import com.naverfinancial.loanservice.datasource.account.repository.AccountTrans
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
-import com.naverfinancial.loanservice.exception.OverLimitException
-import com.naverfinancial.loanservice.exception.RestLimitException
+import com.naverfinancial.loanservice.exception.AccountException
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
 import com.naverfinancial.loanservice.utils.PagingUtil
 import org.springframework.beans.factory.annotation.Autowired
@@ -82,11 +81,10 @@ class AccountServiceImpl : AccountService {
     override fun withdrawLoan(account: Account, amount: Int): Account {
         // 대출 가능 조사하기
         if (account.balance - amount < account.loanLimit) {
-            throw OverLimitException()
+            throw AccountException.OverLimitException()
         }
 
         account.withdraw(amount)
-
 
         // 대출 기록 남기기
         val newAccountTransactionHistory = AccountTransactionHistory(
@@ -98,7 +96,6 @@ class AccountServiceImpl : AccountService {
             accountNumber = account.accountNumber
         )
         accountTransactionHistoryRepository.save(newAccountTransactionHistory)
-
 
         // 계좌 수정하기
         return accountRepository.save(account)
@@ -136,7 +133,7 @@ class AccountServiceImpl : AccountService {
 
     override fun removeAccount(account: Account): Integer {
         if (account.balance < 0) {
-            throw RestLimitException()
+            throw AccountException.RestLimitException()
         }
 
         val balance = account.balance
@@ -157,10 +154,12 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun selectAccountTransactionList(limit: Int, offset: Int): List<AccountTransactionHistory> {
-        return accountTransactionHistoryRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit)).toList()
+        return accountTransactionHistoryRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+            .toList()
     }
 
-    override fun selectAccountTransactionListByAccountId(account: Account, limit: Int, offset: Int
+    override fun selectAccountTransactionListByAccountId(
+        account: Account, limit: Int, offset: Int
     ): List<AccountTransactionHistory> {
         return accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
             account.accountId,

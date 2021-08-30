@@ -6,15 +6,24 @@ import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.AccountException
 import com.naverfinancial.loanservice.exception.UserException
-import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import com.naverfinancial.loanservice.service.AccountService
 import com.naverfinancial.loanservice.service.UserService
+import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MissingServletRequestParameterException
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.server.MethodNotAllowedException
 
@@ -47,15 +56,15 @@ class AccountController {
                 message = "입력값이 잘못 들어왔습니다"
                 status = HttpStatus.BAD_REQUEST
             }
-            is MethodNotAllowedException ->{
+            is MethodNotAllowedException -> {
                 message = "없는 URL입니다"
                 status = HttpStatus.BAD_REQUEST
             }
-            is MissingServletRequestParameterException ->{
+            is MissingServletRequestParameterException -> {
                 message = "URL Query문이 존재하지 않거나 잘못되었습니다"
                 status = HttpStatus.BAD_REQUEST
             }
-            is MethodArgumentTypeMismatchException ->{
+            is MethodArgumentTypeMismatchException -> {
                 message = "URL이 Param 입력값이 잘못 들어왔습니다"
                 status = HttpStatus.BAD_REQUEST
             }
@@ -85,7 +94,9 @@ class AccountController {
      */
     @GetMapping("ndi/{ndi}")
     fun selectAccountListByNdi(
-        @PathVariable ndi: String, @RequestParam limit: Int, offset: Int
+        @PathVariable ndi: String,
+        @RequestParam limit: Int,
+        offset: Int
     ): ResponseEntity<List<Account>> {
         if (ndi == null || ndi == "") {
             throw UserException.NullNdiException()
@@ -133,7 +144,8 @@ class AccountController {
             throw AccountException.DuplicationAccountException()
         }
 
-        var userCreditRating = userService.selectCreditRating(map.getValue("ndi")) ?: throw AccountException.NoCreditRating()
+        var userCreditRating =
+            userService.selectCreditRating(map.getValue("ndi")) ?: throw AccountException.NoCreditRating()
 
         if (!userCreditRating.isPermit) {
             throw AccountException.BelowCreditRating()
@@ -167,12 +179,12 @@ class AccountController {
         if (applymentLoanService.amount < 0) {
             throw AccountException.WrongAmountInput()
         }
-        var account = accountService.selectAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+        var account =
+            accountService.selectAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
         }
-
 
         if (applymentLoanService.type == AccountRequestTypeStatus.DEPOSIT) {
             return ResponseEntity<Account>(
@@ -199,7 +211,8 @@ class AccountController {
      */
     @DeleteMapping("applyment/{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
-        var account = accountService.selectAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+        var account =
+            accountService.selectAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
@@ -247,7 +260,8 @@ class AccountController {
                 account,
                 limit,
                 offset
-            ), HttpStatus.OK
+            ),
+            HttpStatus.OK
         )
     }
 }
