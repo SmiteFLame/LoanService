@@ -25,7 +25,7 @@ class CreditRatingServiceImpl : CreditRatingService {
     @Autowired
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
-    override fun selectGrade(user : User): CreditRatingSearchResult {
+    override fun selectGrade(user: User): CreditRatingSearchResult {
         var grade = 0
         var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
         grade = creditRatingSearchResult?.grade ?: getGrade(user)
@@ -61,16 +61,16 @@ class CreditRatingServiceImpl : CreditRatingService {
         return grade <= 4
     }
 
-    fun getGrade(user : User) : Int{
+    fun getGrade(user: User): Int {
         val values = mapOf("age" to user.age.toString(), "salary" to user.salary.toString())
-        val client = HttpClient.newBuilder().build();
+        val client = HttpClient.newBuilder().build()
         val request = HttpRequest.newBuilder()
             .uri(URI.create("http://localhost:8888/api/cb/grade"))
             .POST(JsonFormData.formData(values))
             .timeout(Duration.ofSeconds(10))
             .header("Content-Type", "application/x-www-form-urlencoded")
             .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         return JSONObject(response.body()).getInt("grade")
     }
 }

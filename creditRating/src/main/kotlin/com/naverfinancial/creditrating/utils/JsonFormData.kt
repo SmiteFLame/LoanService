@@ -9,7 +9,7 @@ class JsonFormData {
 
         fun formData(data: Map<String, String>): HttpRequest.BodyPublisher? {
 
-            val res = data.map {(k, v) -> "${(k.utf8())}=${v.utf8()}"}
+            val res = data.map { (k, v) -> "${(k.utf8())}=${v.utf8()}" }
                 .joinToString("&")
 
             return HttpRequest.BodyPublishers.ofString(res)

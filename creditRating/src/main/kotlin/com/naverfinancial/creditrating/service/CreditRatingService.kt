@@ -4,6 +4,6 @@ import com.naverfinancial.creditrating.datasource.creditRatingSearch.dto.CreditR
 import com.naverfinancial.creditrating.datasource.user.dto.User
 
 interface CreditRatingService {
-    fun selectGrade(user : User) : CreditRatingSearchResult
+    fun selectGrade(user: User): CreditRatingSearchResult
     fun evaluateLoanAvailability(grade: Int): Boolean
 }

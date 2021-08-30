@@ -10,7 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.net.ConnectException
 import java.net.http.HttpTimeoutException
 
@@ -42,7 +46,7 @@ class CreditRatingController {
                 message = "CB서버의 제한시간이 초과되었습니다."
                 status = HttpStatus.GATEWAY_TIMEOUT
             }
-            is ConnectException ->{
+            is ConnectException -> {
                 message = "CB서버가 열리지 않았습니다."
                 status = HttpStatus.INTERNAL_SERVER_ERROR
             }

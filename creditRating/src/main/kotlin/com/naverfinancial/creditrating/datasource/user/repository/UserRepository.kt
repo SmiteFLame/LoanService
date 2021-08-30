@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UserRepository : JpaRepository<User, Integer> {
-    fun findUserByNdi(ndi : String) : User?
+    fun findUserByNdi(ndi: String): User?
 }
