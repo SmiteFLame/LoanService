@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus
 abstract class UserException(string: String) : Exception(string) {
     open var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
 
-    class NullNdiException() : UserException("NDI 입력값이 잘못되었습니다") {
+    class NullNdiException() : UserException("NDI 입력값이 없습니다.") {
         override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 

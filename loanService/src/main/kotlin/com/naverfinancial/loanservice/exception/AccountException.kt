@@ -45,7 +45,7 @@ abstract class AccountException(string: String) : Exception(string) {
         override var status: HttpStatus = HttpStatus.OK
     }
 
-    class PagingArgumentExcetpion : AccountException("잘못된 한도 조건이 입력되었습니다") {
+    class PagingArgumentExcetpion : AccountException("잘못된 페이지 조건이 입력되었습니다") {
         override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 }
