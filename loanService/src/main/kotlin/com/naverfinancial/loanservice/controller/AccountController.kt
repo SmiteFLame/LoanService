@@ -70,10 +70,6 @@ class AccountController {
                 message = "URL이 Param 입력값이 잘못 들어왔습니다"
                 status = HttpStatus.BAD_REQUEST
             }
-            is HttpRequestMethodNotSupportedException ->{
-                message = "존재하지 않는 메서드 입니다."
-                status = HttpStatus.METHOD_NOT_ALLOWED;
-            }
         }
 
         return ResponseEntity<String>(message, status)
@@ -177,10 +173,7 @@ class AccountController {
         @PathVariable("account-id") accountId: Int,
         @RequestBody applymentLoanService: ApplymentLoanService
     ): ResponseEntity<Account> {
-        if (accountId < 0) {
-            throw AccountException.WrongTypeAccountID()
-        }
-        if (applymentLoanService.amount < 0) {
+        if (applymentLoanService.amount <= 0) {
             throw AccountException.WrongAmountInput()
         }
         var account =
@@ -236,6 +229,7 @@ class AccountController {
         @RequestParam limit: Int,
         offset: Int
     ): ResponseEntity<List<AccountTransactionHistory>> {
+        PagingUtil.checkIsValid(limit, offset)
         return ResponseEntity<List<AccountTransactionHistory>>(
             accountService.selectAccountTransactionList(limit, offset),
             HttpStatus.OK
@@ -255,6 +249,7 @@ class AccountController {
         @RequestParam limit: Int,
         offset: Int
     ): ResponseEntity<List<AccountTransactionHistory>> {
+        PagingUtil.checkIsValid(limit, offset)
         var account = accountService.selectAccountByAccountId(accountId)
         if (account == null) {
             throw AccountException.NullAccountException()

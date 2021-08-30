@@ -49,10 +49,6 @@ class UserController {
                 message = "신용 등급 서버가 열리지 않았습니다."
                 status = HttpStatus.INTERNAL_SERVER_ERROR
             }
-            is HttpRequestMethodNotSupportedException -> {
-                message = "존재하지 않는 메서드 입니다."
-                status = HttpStatus.METHOD_NOT_ALLOWED;
-            }
         }
 
         return ResponseEntity<String>(message, status)
