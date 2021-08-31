@@ -25,16 +25,20 @@ abstract class AccountException(string: String) : Exception(string) {
         override var status: HttpStatus = HttpStatus.NOT_FOUND
     }
 
+    class NullAccountTransactionHistoryException : AccountException("계좌거래내역이 존재하지 않습니다") {
+        override var status: HttpStatus = HttpStatus.NOT_FOUND
+    }
+
     class NoCreditRating : AccountException("신용등급이 존재하지 않습니다") {
         override var status: HttpStatus = HttpStatus.NOT_FOUND
     }
 
     class BelowCreditRating : AccountException("신용등급 미달로 대출 신청이 불가능합니다") {
-        override var status: HttpStatus = HttpStatus.OK
+        override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 
     class CancelledAccountException : AccountException("이미 해지된 계좌입니다") {
-        override var status: HttpStatus = HttpStatus.OK
+        override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 
     class OverLimitException : AccountException("대출 한도를 초과하였습니다") {
@@ -42,7 +46,7 @@ abstract class AccountException(string: String) : Exception(string) {
     }
 
     class RestLimitException : AccountException("대출 잔고가 남았습니다") {
-        override var status: HttpStatus = HttpStatus.OK
+        override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 
     class PagingArgumentException : AccountException("잘못된 페이지 조건이 입력되었습니다") {
