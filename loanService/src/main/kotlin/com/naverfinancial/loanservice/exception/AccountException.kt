@@ -41,7 +41,11 @@ abstract class AccountException(string: String) : Exception(string) {
         override var status: HttpStatus = HttpStatus.OK
     }
 
-    class PagingArgumentExcetpion : AccountException("잘못된 페이지 조건이 입력되었습니다") {
+    class PagingArgumentException : AccountException("잘못된 페이지 조건이 입력되었습니다") {
+        override var status: HttpStatus = HttpStatus.BAD_REQUEST
+    }
+
+    class NonIdTypeException() : UserException("존재하지 않는 IdType입니다"){
         override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 }

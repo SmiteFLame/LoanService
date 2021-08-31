@@ -2,6 +2,9 @@ package com.naverfinancial.loanservice.controller
 
 import com.naverfinancial.loanservice.datasource.account.dto.Account
 import com.naverfinancial.loanservice.datasource.account.dto.AccountTransactionHistory
+import com.naverfinancial.loanservice.datasource.account.repository.AccountRepository
+import com.naverfinancial.loanservice.datasource.user.repository.UserCreditRatingRepository
+import com.naverfinancial.loanservice.datasource.user.repository.UserRepository
 import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.AccountException
@@ -11,6 +14,8 @@ import com.naverfinancial.loanservice.service.UserService
 import com.naverfinancial.loanservice.utils.PagingUtil
 import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -37,7 +42,14 @@ class AccountController {
     lateinit var accountService: AccountService
 
     @Autowired
-    lateinit var userService: UserService
+    lateinit var accountRepository: AccountRepository
+
+    @Autowired
+    lateinit var userRepository: UserRepository
+
+    @Autowired
+    lateinit var userCreditRatingRepository: UserCreditRatingRepository
+
 
     @ExceptionHandler(UserException::class)
     fun userExceptionHandler(error: UserException): ResponseEntity<String> {
@@ -76,48 +88,43 @@ class AccountController {
     }
 
     /**
-     * 전체 계좌 정보 리스트조회한다
+     * 전체(NDI별) 계좌 정보 리스트조회한다
      *
      * RequestParam : ndi : String
-     * Bad Request : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
-     * ResponseEntity : List<Account>
+     * ResponseEntity : Page<Account>
+     * BAD_REQUEST : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
+     * NOT_FOUND : Account가 없는 경우
      */
     @GetMapping()
-    fun selectAccountList(@RequestParam limit: Int, offset: Int): ResponseEntity<List<Account>> {
+    fun selectAccountList(@RequestParam("id-type") idType : String?, ndi : String, limit: Int, offset: Int): ResponseEntity<Page<Account>> {
         PagingUtil.checkIsValid(limit, offset)
-        return ResponseEntity<List<Account>>(accountService.selectAccountList(limit, offset), HttpStatus.OK)
+
+        val accounts : Page<Account>? = if(idType == "ndi"){
+            accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+        } else if(idType != null){
+            throw AccountException.NonIdTypeException()
+        } else{
+            accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+        }
+
+        if(accounts.size == 0){
+            throw AccountException.NullAccountException()
+        }
+
+        return ResponseEntity<Page<Account>>(accounts, HttpStatus.OK)
     }
 
-    /**
-     * NDI에 해당되는 계좌 리스트들을 조회한다
-     *
-     * RequestParam : ndi : String
-     * Bad Request : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
-     * ResponseEntity : List<Account>
-     */
-    @GetMapping("ndi/{ndi}")
-    fun selectAccountListByNdi(
-        @PathVariable ndi: String,
-        @RequestParam limit: Int,
-        offset: Int
-    ): ResponseEntity<List<Account>> {
-        PagingUtil.checkIsValid(limit, offset)
-        if (userService.selectUserByNDI(ndi) == null) {
-            throw UserException.NullUserException(HttpStatus.NOT_FOUND)
-        }
-        return ResponseEntity<List<Account>>(accountService.selectAccountListByNdi(ndi, limit, offset), HttpStatus.OK)
-    }
 
     /**
      * 계좌 아이디를 입력받아서 계좌 정보를 조회한다
      *
      * PathVariable : account_id : Int
      * ResponseEntity : Account
-     * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
      */
     @GetMapping("{account-id}")
     fun selectAccountByAccountId(@PathVariable("account-id") accountId: Int): ResponseEntity<Account> {
-        return ResponseEntity<Account>(accountService.selectAccountByAccountId(accountId), HttpStatus.OK)
+        var account: Account? = accountRepository.findAccountbyAccountId(accountId) ?: throw AccountException.NullAccountException()
+        return ResponseEntity<Account>(account, HttpStatus.OK)
     }
 
     /**
@@ -135,8 +142,8 @@ class AccountController {
         if (!map.containsKey("ndi")) {
             throw UserException.NullNdiException()
         }
-        if (userService.selectUserByNDI(map.getValue("ndi")) == null) {
-            throw UserException.NullUserException(HttpStatus.NOT_FOUND)
+        if (userRepository.findUserByNdi(map.getValue("ndi")) == null) {
+            throw UserException.NullUserException()
         }
 
         var account = accountService.selectAccountByNdiStatusNormal(map.getValue("ndi"))
@@ -144,8 +151,7 @@ class AccountController {
             throw AccountException.DuplicationAccountException()
         }
 
-        var userCreditRating =
-            userService.selectCreditRating(map.getValue("ndi")) ?: throw AccountException.NoCreditRating()
+        var userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(map.getValue("ndi"))?: throw AccountException.NoCreditRating()
 
         if (!userCreditRating.isPermit) {
             throw AccountException.BelowCreditRating()
