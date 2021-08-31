@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.net.ConnectException
 import java.net.http.HttpTimeoutException
@@ -55,31 +56,21 @@ class UserController {
     }
 
     /**
-     * email을 입력받아서 해당하는 유저를 반환한다.
+     * NDI(Email)을 입력받아서 유저 정보를 가져온 후 출력
      *
-     * PathVariable : email : String
-     * ResponseEntity : User
-     * NOT_FOUND - User에 해당되는 email가 없는 경우
-     */
-    @GetMapping("{email}/email")
-    fun selectUserByEmail(@PathVariable email: String): ResponseEntity<User> {
-
-        val user = userService.selectUserByEmails(email) ?: throw UserException.NullUserException(HttpStatus.OK)
-        return ResponseEntity<User>(user, HttpStatus.OK)
-
-    }
-
-    /**
-     * NDI을 입력받아서 유저 정보를 가져온 후 출력
-     *
-     * PathVariable: ndi : String
+     * PathVariable: word : String
+     * RequestParam: idType : String?
      * ResponseEntity : User
      * BAD_REQUEST - ndi가 없이 요청된 경우
      * NOT_FOUND - User에 해당되는 ndi가 없는 경우
      */
-    @GetMapping("{ndi}")
-    fun selectUserByNdi(@PathVariable ndi: String): ResponseEntity<User> {
-        var user: User? = userService.selectUserByNDI(ndi) ?: throw UserException.NullUserException(HttpStatus.OK)
+    @GetMapping("{word}")
+    fun selectUserByNdi(@PathVariable word: String, @RequestParam("id-type") idType : String?): ResponseEntity<User> {
+        var user: User? = if(idType == "email"){
+            userService.selectUserByEmails(word)
+        } else{
+            userService.selectUserByNDI(word)
+        }
         return ResponseEntity<User>(user, HttpStatus.OK)
     }
 
@@ -115,7 +106,7 @@ class UserController {
      */
     @GetMapping("/credit/{ndi}")
     fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
-        userService.selectUserByNDI(ndi) ?: throw UserException.NullUserException(HttpStatus.NOT_FOUND)
+        userService.selectUserByNDI(ndi) ?: throw UserException.NullUserException()
         return ResponseEntity<UserCreditRating>(userService.saveCreditRating(ndi), HttpStatus.CREATED)
     }
 
