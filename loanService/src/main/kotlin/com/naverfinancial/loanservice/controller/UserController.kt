@@ -3,6 +3,7 @@ package com.naverfinancial.loanservice.controller
 import com.naverfinancial.loanservice.datasource.user.dto.User
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.datasource.user.repository.UserRepository
+import com.naverfinancial.loanservice.exception.CommonException
 import com.naverfinancial.loanservice.exception.UserException
 import com.naverfinancial.loanservice.service.UserService
 import com.naverfinancial.loanservice.utils.EmailValiation
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.HttpRequestMethodNotSupportedException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import java.lang.IllegalStateException
 import java.net.ConnectException
 import java.net.http.HttpTimeoutException
 
@@ -34,6 +38,11 @@ class UserController {
 
     @Autowired
     lateinit var userRepository: UserRepository
+
+    @ExceptionHandler(CommonException::class)
+    fun commonExceptionHandler(error: CommonException): ResponseEntity<String> {
+        return ResponseEntity<String>(error.message, error.status)
+    }
 
     @ExceptionHandler(UserException::class)
     fun userExceptionHandler(error: UserException): ResponseEntity<String> {
@@ -53,6 +62,21 @@ class UserController {
                 message = "제한시간이 초과되었습니다."
                 status = HttpStatus.GATEWAY_TIMEOUT
             }
+            // RequestParam이 존재하지 않는 경우
+            is MissingServletRequestParameterException -> {
+                message = "필요한 파라미터 조건이 없습니다."
+                status = HttpStatus.BAD_REQUEST
+            }
+            // RequestParam 일부 입력값만 입력이 되지 않은 경우
+            is IllegalStateException ->{
+                message = "필요한 파라미터 조건이 없습니다."
+                status = HttpStatus.BAD_REQUEST
+            }
+            // RequestParam 타입이 잘못 들어온 경우
+            is MethodArgumentTypeMismatchException -> {
+                message = "파라미터 입력값이 잘못되었습니다"
+                status = HttpStatus.BAD_REQUEST
+            }
         }
 
         return ResponseEntity<String>(message, status)
@@ -68,7 +92,9 @@ class UserController {
      */
     @GetMapping()
     fun selectUsers( @RequestParam limit: Int, offset: Int): ResponseEntity<Page<User>> {
-        PagingUtil.checkIsValid(limit, offset)
+        if(!PagingUtil.checkIsValid(limit, offset)){
+            throw CommonException.PagingArgumentException()
+        }
         var users = userRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
         if(!users.hasContent()){
             throw UserException.NullUserException()
@@ -90,7 +116,7 @@ class UserController {
         var user: User? = if(idType == "email"){
             userRepository.findUserByEmail(word)
         } else if(idType != null){
-            throw UserException.NonIdTypeException()
+            throw CommonException.NonIdTypeException()
         } else{
             userRepository.findUserByNdi(word)
         }

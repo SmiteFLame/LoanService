@@ -9,6 +9,7 @@ import com.naverfinancial.loanservice.datasource.user.repository.UserRepository
 import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.AccountException
+import com.naverfinancial.loanservice.exception.CommonException
 import com.naverfinancial.loanservice.exception.UserException
 import com.naverfinancial.loanservice.service.AccountService
 import com.naverfinancial.loanservice.utils.PagingUtil
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.server.MethodNotAllowedException
+import java.lang.IllegalStateException
 
 @RestController
 @RequestMapping("/accounts")
@@ -51,6 +53,10 @@ class AccountController {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
+    @ExceptionHandler(CommonException::class)
+    fun commonExceptionHandler(error: CommonException): ResponseEntity<String> {
+        return ResponseEntity<String>(error.message, error.status)
+    }
 
     @ExceptionHandler(UserException::class)
     fun userExceptionHandler(error: UserException): ResponseEntity<String> {
@@ -75,12 +81,19 @@ class AccountController {
                 message = "없는 URL입니다"
                 status = HttpStatus.BAD_REQUEST
             }
+            // RequestParam이 존재하지 않는 경우
             is MissingServletRequestParameterException -> {
-                message = "URL Query문이 존재하지 않거나 잘못되었습니다"
+                message = "필요한 파라미터 조건이 없습니다."
                 status = HttpStatus.BAD_REQUEST
             }
+            // RequestParam 일부 입력값만 입력이 되지 않은 경우
+            is IllegalStateException ->{
+                message = "필요한 파라미터 조건이 없습니다."
+                status = HttpStatus.BAD_REQUEST
+            }
+            // RequestParam 타입이 잘못 들어온 경우
             is MethodArgumentTypeMismatchException -> {
-                message = "URL이 Param 입력값이 잘못 들어왔습니다"
+                message = "파라미터 입력값이 잘못되었습니다"
                 status = HttpStatus.BAD_REQUEST
             }
         }
@@ -103,12 +116,14 @@ class AccountController {
         limit: Int,
         offset: Int
     ): ResponseEntity<Page<Account>> {
-        PagingUtil.checkIsValid(limit, offset)
+        if(!PagingUtil.checkIsValid(limit, offset)){
+            throw CommonException.PagingArgumentException()
+        }
 
         val accounts: Page<Account> = if (idType == "ndi" && ndi != null) {
             accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
         } else if (idType != null) {
-            throw AccountException.NonIdTypeException()
+            throw CommonException.NonIdTypeException()
         } else {
             accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
         }
@@ -183,7 +198,7 @@ class AccountController {
      * OK - 한도보다 더 많은 금액을 대출 신청 한 경우
      * CREATED - 성공
      */
-    @PostMapping("applyment/{account-id}/applyments")
+    @PostMapping("{account-id}/applyments")
     fun updateAccount(
         @PathVariable("account-id") accountId: Int,
         @RequestBody applymentLoanService: ApplymentLoanService?
@@ -232,7 +247,9 @@ class AccountController {
         @RequestParam("id-type") idType: String?,
         @RequestParam("account-id") accountId: Int?
     ): ResponseEntity<Page<AccountTransactionHistory>> {
-        PagingUtil.checkIsValid(limit, offset)
+        if(!PagingUtil.checkIsValid(limit, offset)){
+            throw CommonException.PagingArgumentException()
+        }
         var accountTransactionHistory: Page<AccountTransactionHistory> =
             if (idType == "account-id" && accountId != null) {
                 if(accountRepository.findAccountByAccountId(accountId) == null){
@@ -243,7 +260,7 @@ class AccountController {
                     PageRequest.of(PagingUtil.getPage(limit, offset), limit)
                 )
             } else if (idType != null) {
-                throw AccountException.NonIdTypeException()
+                throw CommonException.NonIdTypeException()
             } else {
                 accountTransactionHistoryRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
             }
