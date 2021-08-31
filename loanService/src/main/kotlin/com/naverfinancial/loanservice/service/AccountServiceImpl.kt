@@ -136,7 +136,9 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun selectAccountTransactionListByAccountId(
-        account: Account, limit: Int, offset: Int
+        account: Account,
+        limit: Int,
+        offset: Int
     ): List<AccountTransactionHistory> {
         return accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
             account.accountId,

@@ -17,7 +17,7 @@ abstract class AccountException(string: String) : Exception(string) {
         override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 
-    class InvalidApplymentLoanServiceException() : UserException("입력값이 존재하지 않습니다") {
+    class InvalidApplymentLoanServiceException : UserException("입력값이 존재하지 않습니다") {
         override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 

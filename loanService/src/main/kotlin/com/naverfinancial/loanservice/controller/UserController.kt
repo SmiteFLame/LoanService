@@ -14,7 +14,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
-import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import java.lang.IllegalStateException
-import java.net.ConnectException
 import java.net.http.HttpTimeoutException
 
 @RestController
@@ -39,12 +37,12 @@ class UserController {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    @ExceptionHandler(CommonException::class)
+    @ExceptionHandler
     fun commonExceptionHandler(error: CommonException): ResponseEntity<String> {
         return ResponseEntity<String>(error.message, error.status)
     }
 
-    @ExceptionHandler(UserException::class)
+    @ExceptionHandler
     fun userExceptionHandler(error: UserException): ResponseEntity<String> {
         return ResponseEntity<String>(error.message, error.status)
     }
@@ -55,21 +53,21 @@ class UserController {
         var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         when (error) {
             is HttpMessageNotReadableException -> {
-                message = "입력값이 잘못 들어왔습니다."
+                message = "입력값이 잘못 들어왔습니다"
                 status = HttpStatus.BAD_REQUEST
             }
             is HttpTimeoutException -> {
-                message = "제한시간이 초과되었습니다."
+                message = "제한시간이 초과되었습니다"
                 status = HttpStatus.GATEWAY_TIMEOUT
             }
             // RequestParam이 존재하지 않는 경우
             is MissingServletRequestParameterException -> {
-                message = "필요한 파라미터 조건이 없습니다."
+                message = "필요한 파라미터 조건이 없습니다"
                 status = HttpStatus.BAD_REQUEST
             }
             // RequestParam 일부 입력값만 입력이 되지 않은 경우
-            is IllegalStateException ->{
-                message = "필요한 파라미터 조건이 없습니다."
+            is IllegalStateException -> {
+                message = "필요한 파라미터 조건이 없습니다"
                 status = HttpStatus.BAD_REQUEST
             }
             // RequestParam 타입이 잘못 들어온 경우
@@ -91,12 +89,12 @@ class UserController {
      * NOT_FOUND : 조건에 맞는 유저가 없는 경우
      */
     @GetMapping()
-    fun selectUsers( @RequestParam limit: Int, offset: Int): ResponseEntity<Page<User>> {
-        if(!PagingUtil.checkIsValid(limit, offset)){
+    fun selectUsers(@RequestParam limit: Int, offset: Int): ResponseEntity<Page<User>> {
+        if (!PagingUtil.checkIsValid(limit, offset)) {
             throw CommonException.PagingArgumentException()
         }
         var users = userRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
-        if(!users.hasContent()){
+        if (!users.hasContent()) {
             throw UserException.NullUserException()
         }
         return ResponseEntity<Page<User>>(users, HttpStatus.OK)
@@ -112,15 +110,15 @@ class UserController {
      * NOT_FOUND - NDI(Email)에 해당하는 유저가 없는 경우
      */
     @GetMapping("{word}")
-    fun selectUserByNdi(@PathVariable word: String, @RequestParam("id-type") idType : String?): ResponseEntity<User> {
-        var user: User? = if(idType == "email"){
+    fun selectUserByNdi(@PathVariable word: String, @RequestParam("id-type") idType: String?): ResponseEntity<User> {
+        var user: User? = if (idType == "email") {
             userRepository.findUserByEmail(word)
-        } else if(idType != null){
+        } else if (idType != null) {
             throw CommonException.NonIdTypeException()
-        } else{
+        } else {
             userRepository.findUserByNdi(word)
         }
-        if(user == null){
+        if (user == null) {
             throw UserException.NullUserException()
         }
         return ResponseEntity<User>(user, HttpStatus.OK)
@@ -159,5 +157,4 @@ class UserController {
     fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
         return ResponseEntity<UserCreditRating>(userService.saveCreditRating(ndi), HttpStatus.CREATED)
     }
-
 }

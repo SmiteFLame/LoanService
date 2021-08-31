@@ -53,18 +53,18 @@ class AccountController {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
-    @ExceptionHandler(CommonException::class)
+    @ExceptionHandler
+    fun accountExceptionHandler(error: AccountException): ResponseEntity<String> {
+        return ResponseEntity<String>(error.message, error.status)
+    }
+
+    @ExceptionHandler
     fun commonExceptionHandler(error: CommonException): ResponseEntity<String> {
         return ResponseEntity<String>(error.message, error.status)
     }
 
-    @ExceptionHandler(UserException::class)
+    @ExceptionHandler
     fun userExceptionHandler(error: UserException): ResponseEntity<String> {
-        return ResponseEntity<String>(error.message, error.status)
-    }
-
-    @ExceptionHandler(AccountException::class)
-    fun accountExceptionHandler(error: AccountException): ResponseEntity<String> {
         return ResponseEntity<String>(error.message, error.status)
     }
 
@@ -83,12 +83,12 @@ class AccountController {
             }
             // RequestParam이 존재하지 않는 경우
             is MissingServletRequestParameterException -> {
-                message = "필요한 파라미터 조건이 없습니다."
+                message = "필요한 파라미터 조건이 없습니다"
                 status = HttpStatus.BAD_REQUEST
             }
             // RequestParam 일부 입력값만 입력이 되지 않은 경우
-            is IllegalStateException ->{
-                message = "필요한 파라미터 조건이 없습니다."
+            is IllegalStateException -> {
+                message = "필요한 파라미터 조건이 없습니다"
                 status = HttpStatus.BAD_REQUEST
             }
             // RequestParam 타입이 잘못 들어온 경우
@@ -116,7 +116,7 @@ class AccountController {
         limit: Int,
         offset: Int
     ): ResponseEntity<Page<Account>> {
-        if(!PagingUtil.checkIsValid(limit, offset)){
+        if (!PagingUtil.checkIsValid(limit, offset)) {
             throw CommonException.PagingArgumentException()
         }
 
@@ -134,7 +134,6 @@ class AccountController {
 
         return ResponseEntity<Page<Account>>(accounts, HttpStatus.OK)
     }
-
 
     /**
      * 계좌 아이디를 입력받아서 계좌 정보를 조회한다
@@ -247,12 +246,12 @@ class AccountController {
         @RequestParam("id-type") idType: String?,
         @RequestParam("account-id") accountId: Int?
     ): ResponseEntity<Page<AccountTransactionHistory>> {
-        if(!PagingUtil.checkIsValid(limit, offset)){
+        if (!PagingUtil.checkIsValid(limit, offset)) {
             throw CommonException.PagingArgumentException()
         }
         var accountTransactionHistory: Page<AccountTransactionHistory> =
             if (idType == "account-id" && accountId != null) {
-                if(accountRepository.findAccountByAccountId(accountId) == null){
+                if (accountRepository.findAccountByAccountId(accountId) == null) {
                     throw AccountException.NullAccountException()
                 }
                 accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
@@ -264,7 +263,7 @@ class AccountController {
             } else {
                 accountTransactionHistoryRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
             }
-        if(accountTransactionHistory.content.size == 0){
+        if (accountTransactionHistory.content.size == 0) {
             throw AccountException.NullAccountTransactionHistoryException()
         }
         return ResponseEntity<Page<AccountTransactionHistory>>(accountTransactionHistory, HttpStatus.OK)
@@ -286,6 +285,6 @@ class AccountController {
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
         }
-        return ResponseEntity<Integer>(accountService.removeAccount(account), HttpStatus.CREATED)
+        return ResponseEntity<Integer>(accountService.removeAccount(account), HttpStatus.OK)
     }
 }

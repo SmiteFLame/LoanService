@@ -64,7 +64,7 @@ class CreditRatingServiceImpl : CreditRatingService {
     }
 
     fun getGrade(user: User): Int {
-        try{
+        try {
             val values = mapOf("age" to user.age.toString(), "salary" to user.salary.toString())
             val client = HttpClient.newBuilder().build()
             val request = HttpRequest.newBuilder()
@@ -75,9 +75,8 @@ class CreditRatingServiceImpl : CreditRatingService {
                 .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
             return JSONObject(response.body()).getInt("grade")
-        } catch (e : ConnectException){
+        } catch (e: ConnectException) {
             throw UserException.FailConnectCBServerException()
         }
-
     }
 }
