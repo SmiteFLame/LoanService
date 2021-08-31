@@ -29,36 +29,13 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
 
-//    override fun selectAccountList(limit: Int, offset: Int): List<Account> {
-//        return accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit)).toList();
-//    }
-//
-//    override fun selectAccountByAccountId(accountId: Int): Account? {
-//        return accountRepository.findAccountbyAccountId(accountId)
-//    }
-//
-//    override fun selectAccountListByNdi(ndi: String, limit: Int, offset: Int): List<Account> {
-//        return accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
-//    }
-
-    override fun selectAccountByNdiStatusNormal(ndi: String): Account? {
-        // 마이너스 통장 중복 검사
-        val accounts = accountRepository.findAccountsByNdi(ndi)
-        for (account in accounts) {
-            if (account.status == AccountTypeStatus.NORMAL) {
-                return account
-            }
-        }
-        return null
-    }
-
     override fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account {
 
         // 통장번호 랜덤 생성
         var newAccountNumbers: String
         while (true) {
             newAccountNumbers = AccountNumberGenerators.generatorAccountNumbers()
-            accountRepository.findAccountbyAccountNumber(newAccountNumbers) ?: break
+            accountRepository.findAccountByAccountNumber(newAccountNumbers) ?: break
         }
 
         // 새로운 통장 개설
