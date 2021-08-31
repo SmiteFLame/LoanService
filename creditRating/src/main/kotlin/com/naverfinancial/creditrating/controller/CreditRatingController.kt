@@ -1,9 +1,9 @@
 package com.naverfinancial.creditrating.controller
 
 import com.naverfinancial.creditrating.datasource.creditRatingSearch.dto.CreditRatingSearchResult
+import com.naverfinancial.creditrating.datasource.user.repository.UserRepository
 import com.naverfinancial.creditrating.exception.UserException
 import com.naverfinancial.creditrating.service.CreditRatingService
-import com.naverfinancial.creditrating.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -24,7 +24,7 @@ class CreditRatingController {
     lateinit var creditRatingService: CreditRatingService
 
     @Autowired
-    lateinit var userService: UserService
+    lateinit var userRepository: UserRepository
 
     @ExceptionHandler(UserException::class)
     fun userExceptionHandler(error: UserException): ResponseEntity<String> {
@@ -68,7 +68,7 @@ class CreditRatingController {
             throw UserException.NullNdiException()
         }
 
-        var user = userService.selectUserByNDI(map.getValue("ndi"))
+        var user = userRepository.findUserByNdi(map.getValue("ndi"))
         if (user == null) {
             throw UserException.NullUserException()
         }
