@@ -37,11 +37,11 @@ class CreditRatingController {
         var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         when (error) {
             is HttpMessageNotReadableException -> {
-                message = "입력값이 잘못 들어왔습니다"
+                message = "일부 입력값이 없습니다"
                 status = HttpStatus.BAD_REQUEST
             }
             is HttpTimeoutException -> {
-                message = "CB서버의 제한시간이 초과되었습니다."
+                message = "CB서버의 제한시간이 초과되었습니다"
                 status = HttpStatus.GATEWAY_TIMEOUT
             }
         }
