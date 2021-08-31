@@ -27,20 +27,8 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
-    override fun selectUserByEmails(email: String): User? {
-        return userRepository.findUserByEmail(email)
-    }
-
-    override fun selectUserByNDI(ndi: String): User? {
-        return userRepository.findUserByNdi(ndi)
-    }
-
-    override fun selectCreditRating(ndi: String): UserCreditRating? {
-        return userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
-    }
-
     override fun saveCreditRating(ndi: String): UserCreditRating {
-        val userCreditRating = selectCreditRating(ndi)
+        val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
 
         if (userCreditRating != null) {
             return userCreditRating

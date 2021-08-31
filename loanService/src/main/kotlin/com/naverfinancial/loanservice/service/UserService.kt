@@ -5,15 +5,6 @@ import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.wrapper.CreditRatingSearchResult
 
 interface UserService {
-    // 사용자 이메일 조회
-    fun selectUserByEmails(emails: String): User?
-
-    // 사용자 NDI 조회
-    fun selectUserByNDI(ndi: String): User?
-
-    // 사용자 신용 등급 조회
-    fun selectCreditRating(ndi: String): UserCreditRating?
-
     // 사용자 신용 등급 생성
     fun saveCreditRating(ndi: String): UserCreditRating
 
