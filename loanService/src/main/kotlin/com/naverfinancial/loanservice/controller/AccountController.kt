@@ -3,6 +3,7 @@ package com.naverfinancial.loanservice.controller
 import com.naverfinancial.loanservice.datasource.account.dto.Account
 import com.naverfinancial.loanservice.datasource.account.dto.AccountTransactionHistory
 import com.naverfinancial.loanservice.datasource.account.repository.AccountRepository
+import com.naverfinancial.loanservice.datasource.account.repository.AccountTransactionHistoryRepository
 import com.naverfinancial.loanservice.datasource.user.repository.UserCreditRatingRepository
 import com.naverfinancial.loanservice.datasource.user.repository.UserRepository
 import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
@@ -40,6 +41,9 @@ class AccountController {
 
     @Autowired
     lateinit var accountRepository: AccountRepository
+
+    @Autowired
+    lateinit var accountTransactionHistoryRepository: AccountTransactionHistoryRepository
 
     @Autowired
     lateinit var userRepository: UserRepository
@@ -93,18 +97,23 @@ class AccountController {
      * NOT_FOUND : Account가 없는 경우
      */
     @GetMapping()
-    fun selectAccountList(@RequestParam("id-type") idType : String?, ndi : String?, limit: Int, offset: Int): ResponseEntity<Page<Account>> {
+    fun selectAccountList(
+        @RequestParam("id-type") idType: String?,
+        ndi: String?,
+        limit: Int,
+        offset: Int
+    ): ResponseEntity<Page<Account>> {
         PagingUtil.checkIsValid(limit, offset)
 
-        val accounts : Page<Account> = if(idType == "ndi" && ndi != null){
+        val accounts: Page<Account> = if (idType == "ndi" && ndi != null) {
             accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
-        } else if(idType != null){
+        } else if (idType != null) {
             throw AccountException.NonIdTypeException()
-        } else{
+        } else {
             accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
         }
 
-        if(!accounts.hasContent()){
+        if (!accounts.hasContent()) {
             throw AccountException.NullAccountException()
         }
 
@@ -121,7 +130,8 @@ class AccountController {
      */
     @GetMapping("{account-id}")
     fun selectAccountByAccountId(@PathVariable("account-id") accountId: Int): ResponseEntity<Account> {
-        var account: Account? = accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+        var account: Account? =
+            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
         return ResponseEntity<Account>(account, HttpStatus.OK)
     }
 
@@ -149,7 +159,8 @@ class AccountController {
             throw AccountException.DuplicationAccountException()
         }
 
-        var userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(map.getValue("ndi"))?: throw AccountException.NoCreditRating()
+        var userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(map.getValue("ndi"))
+            ?: throw AccountException.NoCreditRating()
 
         if (!userCreditRating.isPermit) {
             throw AccountException.BelowCreditRating()
@@ -177,13 +188,14 @@ class AccountController {
         @PathVariable("account-id") accountId: Int,
         @RequestBody applymentLoanService: ApplymentLoanService?
     ): ResponseEntity<Account> {
-        if(applymentLoanService == null){
+        if (applymentLoanService == null) {
             throw AccountException.InvalidApplymentLoanServiceException()
         }
         if (applymentLoanService.amount <= 0) {
             throw AccountException.WrongAmountInput()
         }
-        var account = accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+        var account =
+            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
@@ -206,66 +218,57 @@ class AccountController {
     }
 
     /**
+     * 전체(account-id) 계좌 정보 리스트조회한다
+     *
+     * RequestParam : ndi : String
+     * ResponseEntity : List<Account>
+     * BAD_REQUEST : limit, offset가 잘못 설정된 경우, idType이 잘못 설정된 경우
+     * NOT_FOUND : 계좌가 없는 경우, 계좌 거래 내역이 없는 경우
+     */
+    @GetMapping("transaction")
+    fun selectAccountTransactionHistoryList(
+        @RequestParam limit: Int,
+        offset: Int,
+        @RequestParam("id-type") idType: String?,
+        @RequestParam("account-id") accountId: Int?
+    ): ResponseEntity<Page<AccountTransactionHistory>> {
+        PagingUtil.checkIsValid(limit, offset)
+        var accountTransactionHistory: Page<AccountTransactionHistory> =
+            if (idType == "account-id" && accountId != null) {
+                if(accountRepository.findAccountByAccountId(accountId) == null){
+                    throw AccountException.NullAccountException()
+                }
+                accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
+                    accountId,
+                    PageRequest.of(PagingUtil.getPage(limit, offset), limit)
+                )
+            } else if (idType != null) {
+                throw AccountException.NonIdTypeException()
+            } else {
+                accountTransactionHistoryRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+            }
+        if(accountTransactionHistory.content.size == 0){
+            throw AccountException.NullAccountTransactionHistoryException()
+        }
+        return ResponseEntity<Page<AccountTransactionHistory>>(accountTransactionHistory, HttpStatus.OK)
+    }
+
+    /**
      * 계좌 아이디를 입력 받아서 계좌를 해지한다.
      *
      * PathVariable : account-id : Int
      * ResponseEntity : balance : Int, 잔액을 전달
-     * BAD_REQUEST - 계좌 정보가 없는 경우
+     * BAD_REQUEST : 계좌 정보가 없는 경우
+     * NOT_FOUND : 계좌가 이미 해지된 경우
      */
-    @DeleteMapping("applyment/{account-id}")
+    @DeleteMapping("{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
-        var account = accountRepository.findAccountByAccountId(accountId)?: throw AccountException.NullAccountException()
+        var account =
+            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
         }
         return ResponseEntity<Integer>(accountService.removeAccount(account), HttpStatus.CREATED)
-    }
-
-    /**
-     * 전체 계좌 정보 리스트조회한다
-     *
-     * RequestParam : ndi : String
-     * Bad Request : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
-     * ResponseEntity : List<Account>
-     */
-    @GetMapping("transaction")
-    fun selectAccountTransactionList(
-        @RequestParam limit: Int,
-        offset: Int
-    ): ResponseEntity<List<AccountTransactionHistory>> {
-        PagingUtil.checkIsValid(limit, offset)
-        return ResponseEntity<List<AccountTransactionHistory>>(
-            accountService.selectAccountTransactionList(limit, offset),
-            HttpStatus.OK
-        )
-    }
-
-    /**
-     * 특정 계좌 아이디의 계좌 거래 정보 리스트조회한다
-     *
-     * RequestParam : ndi : String
-     * Bad Request : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
-     * ResponseEntity : List<Account>
-     */
-    @GetMapping("transaction/{account-id}")
-    fun selectAccountTransactionListByAccountId(
-        @PathVariable("account-id") accountId: Int,
-        @RequestParam limit: Int,
-        offset: Int
-    ): ResponseEntity<List<AccountTransactionHistory>> {
-        PagingUtil.checkIsValid(limit, offset)
-        var account = accountRepository.findAccountByAccountId(accountId)
-        if (account == null) {
-            throw AccountException.NullAccountException()
-        }
-        return ResponseEntity<List<AccountTransactionHistory>>(
-            accountService.selectAccountTransactionListByAccountId(
-                account,
-                limit,
-                offset
-            ),
-            HttpStatus.OK
-        )
     }
 }
