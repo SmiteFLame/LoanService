@@ -10,7 +10,6 @@ import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.AccountException
 import com.naverfinancial.loanservice.exception.UserException
 import com.naverfinancial.loanservice.service.AccountService
-import com.naverfinancial.loanservice.service.UserService
 import com.naverfinancial.loanservice.utils.PagingUtil
 import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,14 +18,12 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
-import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -120,10 +117,11 @@ class AccountController {
      *
      * PathVariable : account_id : Int
      * ResponseEntity : Account
+     * NOT_FOUND : 게좌 정보가 존재하지 않는 경우
      */
     @GetMapping("{account-id}")
     fun selectAccountByAccountId(@PathVariable("account-id") accountId: Int): ResponseEntity<Account> {
-        var account: Account? = accountRepository.findAccountbyAccountId(accountId) ?: throw AccountException.NullAccountException()
+        var account: Account? = accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
         return ResponseEntity<Account>(account, HttpStatus.OK)
     }
 
@@ -137,7 +135,7 @@ class AccountController {
      * OK - 신용 등급이 미달인 경우
      * CREATED - 성공
      */
-    @PostMapping("applyment")
+    @PostMapping()
     fun insertAccount(@RequestBody map: Map<String, String>): ResponseEntity<Account> {
         if (!map.containsKey("ndi")) {
             throw UserException.NullNdiException()
@@ -146,7 +144,7 @@ class AccountController {
             throw UserException.NullUserException()
         }
 
-        var account = accountService.selectAccountByNdiStatusNormal(map.getValue("ndi"))
+        var account = accountRepository.findAccountByNdiAndStatus(map.getValue("ndi"), AccountTypeStatus.NORMAL)
         if (account != null) {
             throw AccountException.DuplicationAccountException()
         }
@@ -174,15 +172,18 @@ class AccountController {
      * OK - 한도보다 더 많은 금액을 대출 신청 한 경우
      * CREATED - 성공
      */
-    @PutMapping("applyment/{account-id}/balance")
+    @PostMapping("applyment/{account-id}/applyments")
     fun updateAccount(
         @PathVariable("account-id") accountId: Int,
-        @RequestBody applymentLoanService: ApplymentLoanService
+        @RequestBody applymentLoanService: ApplymentLoanService?
     ): ResponseEntity<Account> {
+        if(applymentLoanService == null){
+            throw AccountException.InvalidApplymentLoanServiceException()
+        }
         if (applymentLoanService.amount <= 0) {
             throw AccountException.WrongAmountInput()
         }
-        var account = accountRepository.findAccountbyAccountId(accountId) ?: throw AccountException.NullAccountException()
+        var account = accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
@@ -213,7 +214,7 @@ class AccountController {
      */
     @DeleteMapping("applyment/{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
-        var account = accountRepository.findAccountbyAccountId(accountId)?: throw AccountException.NullAccountException()
+        var account = accountRepository.findAccountByAccountId(accountId)?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
@@ -254,7 +255,7 @@ class AccountController {
         offset: Int
     ): ResponseEntity<List<AccountTransactionHistory>> {
         PagingUtil.checkIsValid(limit, offset)
-        var account = accountRepository.findAccountbyAccountId(accountId)
+        var account = accountRepository.findAccountByAccountId(accountId)
         if (account == null) {
             throw AccountException.NullAccountException()
         }
