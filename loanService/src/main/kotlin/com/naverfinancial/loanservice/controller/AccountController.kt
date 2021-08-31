@@ -99,7 +99,7 @@ class AccountController {
     fun selectAccountList(@RequestParam("id-type") idType : String?, ndi : String, limit: Int, offset: Int): ResponseEntity<Page<Account>> {
         PagingUtil.checkIsValid(limit, offset)
 
-        val accounts : Page<Account>? = if(idType == "ndi"){
+        val accounts : Page<Account> = if(idType == "ndi"){
             accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
         } else if(idType != null){
             throw AccountException.NonIdTypeException()
@@ -182,8 +182,7 @@ class AccountController {
         if (applymentLoanService.amount <= 0) {
             throw AccountException.WrongAmountInput()
         }
-        var account =
-            accountService.selectAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+        var account = accountRepository.findAccountbyAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
@@ -214,8 +213,7 @@ class AccountController {
      */
     @DeleteMapping("applyment/{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
-        var account =
-            accountService.selectAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+        var account = accountRepository.findAccountbyAccountId(accountId)?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
@@ -256,7 +254,7 @@ class AccountController {
         offset: Int
     ): ResponseEntity<List<AccountTransactionHistory>> {
         PagingUtil.checkIsValid(limit, offset)
-        var account = accountService.selectAccountByAccountId(accountId)
+        var account = accountRepository.findAccountbyAccountId(accountId)
         if (account == null) {
             throw AccountException.NullAccountException()
         }
