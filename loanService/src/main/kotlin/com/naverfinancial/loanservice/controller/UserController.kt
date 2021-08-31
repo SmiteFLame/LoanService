@@ -74,7 +74,7 @@ class UserController {
     fun selectUsers( @RequestParam limit: Int, offset: Int): ResponseEntity<Page<User>> {
         PagingUtil.checkIsValid(limit, offset)
         var users = userRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
-        if(users.size == 0){
+        if(!users.hasContent()){
             throw UserException.NullUserException()
         }
         return ResponseEntity<Page<User>>(users, HttpStatus.OK)

@@ -96,10 +96,10 @@ class AccountController {
      * NOT_FOUND : Account가 없는 경우
      */
     @GetMapping()
-    fun selectAccountList(@RequestParam("id-type") idType : String?, ndi : String, limit: Int, offset: Int): ResponseEntity<Page<Account>> {
+    fun selectAccountList(@RequestParam("id-type") idType : String?, ndi : String?, limit: Int, offset: Int): ResponseEntity<Page<Account>> {
         PagingUtil.checkIsValid(limit, offset)
 
-        val accounts : Page<Account> = if(idType == "ndi"){
+        val accounts : Page<Account> = if(idType == "ndi" && ndi != null){
             accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
         } else if(idType != null){
             throw AccountException.NonIdTypeException()
@@ -107,7 +107,7 @@ class AccountController {
             accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
         }
 
-        if(accounts.size == 0){
+        if(!accounts.hasContent()){
             throw AccountException.NullAccountException()
         }
 
