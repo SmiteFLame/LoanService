@@ -10,7 +10,7 @@ class PagingUtil {
 
         fun checkIsValid(limit: Int, offset: Int){
             if (limit < 0 || offset < 0) {
-                throw AccountException.PagingArgumentExcetpion()
+                throw AccountException.PagingArgumentException()
             }
         }
     }
