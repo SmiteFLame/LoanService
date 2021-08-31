@@ -155,7 +155,7 @@ class UserController {
      * ResponseEntity : User
      * INTERNAL_SERVER_ERROR : 신용 등급 서버가 안열린 경우
      */
-    @GetMapping("/credit/{ndi}")
+    @GetMapping("/credit-rating/{ndi}")
     fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
         return ResponseEntity<UserCreditRating>(userService.saveCreditRating(ndi), HttpStatus.CREATED)
     }
