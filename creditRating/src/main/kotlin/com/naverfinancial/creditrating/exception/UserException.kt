@@ -12,5 +12,7 @@ abstract class UserException(string: String) : Exception(string) {
     class NullUserException() : UserException("사용자가 존재하지 않습니다") {
         override var status: HttpStatus = HttpStatus.NOT_FOUND
     }
-
+    class FailConnectCBServerException() : UserException("CB서버가 열리지 않았습니다."){
+        override var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
+    }
 }

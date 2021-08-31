@@ -53,10 +53,6 @@ class UserController {
                 message = "제한시간이 초과되었습니다."
                 status = HttpStatus.GATEWAY_TIMEOUT
             }
-            is ConnectException -> {
-                message = "신용 등급 서버가 열리지 않았습니다."
-                status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
         }
 
         return ResponseEntity<String>(message, status)
@@ -131,12 +127,10 @@ class UserController {
      *
      * PathVariable: ndi : String
      * ResponseEntity : User
-     * BAD_REQUEST - ndi가 없이 요청된 경우
-     * NOT_FOUND - User에 해당되는 ndi가 없는 경우
+     * INTERNAL_SERVER_ERROR : 신용 등급 서버가 안열린 경우
      */
     @GetMapping("/credit/{ndi}")
     fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
-        userRepository.findUserByNdi(ndi) ?: throw UserException.NullUserException()
         return ResponseEntity<UserCreditRating>(userService.saveCreditRating(ndi), HttpStatus.CREATED)
     }
 

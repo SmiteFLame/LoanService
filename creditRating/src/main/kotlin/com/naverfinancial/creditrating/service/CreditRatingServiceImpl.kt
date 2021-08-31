@@ -5,10 +5,12 @@ import com.naverfinancial.creditrating.datasource.creditRatingSearch.dto.CreditR
 import com.naverfinancial.creditrating.datasource.creditRatingSearch.repository.CreditRatingSearchHistoryRepository
 import com.naverfinancial.creditrating.datasource.creditRatingSearch.repository.CreditRatingSearchResultRepository
 import com.naverfinancial.creditrating.datasource.user.dto.User
+import com.naverfinancial.creditrating.exception.UserException
 import com.naverfinancial.creditrating.utils.JsonFormData
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.net.ConnectException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -62,15 +64,20 @@ class CreditRatingServiceImpl : CreditRatingService {
     }
 
     fun getGrade(user: User): Int {
-        val values = mapOf("age" to user.age.toString(), "salary" to user.salary.toString())
-        val client = HttpClient.newBuilder().build()
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:8888/api/cb/grade"))
-            .POST(JsonFormData.formData(values))
-            .timeout(Duration.ofSeconds(10))
-            .header("Content-Type", "application/x-www-form-urlencoded")
-            .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-        return JSONObject(response.body()).getInt("grade")
+        try{
+            val values = mapOf("age" to user.age.toString(), "salary" to user.salary.toString())
+            val client = HttpClient.newBuilder().build()
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8888/api/cb/grade"))
+                .POST(JsonFormData.formData(values))
+                .timeout(Duration.ofSeconds(10))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .build()
+            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+            return JSONObject(response.body()).getInt("grade")
+        } catch (e : ConnectException){
+            throw UserException.FailConnectCBServerException()
+        }
+
     }
 }

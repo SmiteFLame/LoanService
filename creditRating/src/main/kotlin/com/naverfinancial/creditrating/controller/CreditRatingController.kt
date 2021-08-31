@@ -44,10 +44,6 @@ class CreditRatingController {
                 message = "CB서버의 제한시간이 초과되었습니다."
                 status = HttpStatus.GATEWAY_TIMEOUT
             }
-            is ConnectException -> {
-                message = "CB서버가 열리지 않았습니다."
-                status = HttpStatus.INTERNAL_SERVER_ERROR
-            }
         }
 
         return ResponseEntity<String>(message, status)
