@@ -12,5 +12,7 @@ interface AccountRepository : JpaRepository<Account, Int> {
     fun findAccountByAccountNumber(accountNumber: String): Account?
     fun findAccountByAccountId(accountId: Int): Account?
     fun findAccountByNdiAndStatus(ndi: String, status: AccountTypeStatus): Account?
+    fun findAccountsByNdiAndStatus(ndi: String, status: AccountTypeStatus, pageable: Pageable): Page<Account>
     fun findAccountsByNdi(ndi: String, pageable: Pageable): Page<Account>
+    fun findAccountsByStatus(status : AccountTypeStatus, pageable: Pageable) : Page<Account>
 }

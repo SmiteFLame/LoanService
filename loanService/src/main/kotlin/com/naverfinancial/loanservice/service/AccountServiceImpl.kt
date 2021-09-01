@@ -11,7 +11,10 @@ import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.AccountException
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
+import com.naverfinancial.loanservice.utils.PagingUtil
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
 
@@ -26,6 +29,22 @@ class AccountServiceImpl : AccountService {
 
     @Autowired
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
+
+    override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Int): Page<Account> {
+        return if (ndi != null && status == AccountTypeStatus.ALL) {
+            accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+        } else if (ndi != null) {
+            accountRepository.findAccountsByNdiAndStatus(
+                ndi,
+                status,
+                PageRequest.of(PagingUtil.getPage(limit, offset), limit)
+            )
+        } else if (status == AccountTypeStatus.ALL) {
+            accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+        } else {
+            accountRepository.findAccountsByStatus(status, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+        }
+    }
 
     override fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account {
 

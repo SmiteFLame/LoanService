@@ -112,6 +112,7 @@ class AccountController {
     @GetMapping
     fun selectAccountList(
         ndi: String?,
+        @RequestParam(defaultValue = "NORMAL") status: AccountTypeStatus,
         limit: Int,
         offset: Int
     ): ResponseEntity<Page<Account>> {
@@ -119,11 +120,7 @@ class AccountController {
             throw CommonException.PagingArgumentException()
         }
 
-        val accounts: Page<Account> = if (ndi != null) {
-            accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
-        } else {
-            accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
-        }
+        val accounts = accountService.selectAccounts(ndi, status, limit, offset)
 
         if (!accounts.hasContent()) {
             throw AccountException.NullAccountException()
