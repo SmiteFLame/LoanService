@@ -111,7 +111,6 @@ class AccountController {
      */
     @GetMapping
     fun selectAccountList(
-        @RequestParam("id-type") idType: String?,
         ndi: String?,
         limit: Int,
         offset: Int
@@ -120,10 +119,8 @@ class AccountController {
             throw CommonException.PagingArgumentException()
         }
 
-        val accounts: Page<Account> = if (idType == "ndi" && ndi != null) {
+        val accounts: Page<Account> = if (ndi != null) {
             accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
-        } else if (idType != null) {
-            throw CommonException.NonIdTypeException()
         } else {
             accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
         }
@@ -243,14 +240,13 @@ class AccountController {
     fun selectAccountTransactionHistoryList(
         @RequestParam limit: Int,
         offset: Int,
-        @RequestParam("id-type") idType: String?,
         @RequestParam("account-id") accountId: Int?
     ): ResponseEntity<Page<AccountTransactionHistory>> {
         if (!PagingUtil.checkIsValid(limit, offset)) {
             throw CommonException.PagingArgumentException()
         }
         val accountTransactionHistory: Page<AccountTransactionHistory> =
-            if (idType == "account-id" && accountId != null) {
+            if (accountId != null) {
                 if (accountRepository.findAccountByAccountId(accountId) == null) {
                     throw AccountException.NullAccountException()
                 }
@@ -258,8 +254,6 @@ class AccountController {
                     accountId,
                     PageRequest.of(PagingUtil.getPage(limit, offset), limit)
                 )
-            } else if (idType != null) {
-                throw CommonException.NonIdTypeException()
             } else {
                 accountTransactionHistoryRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
             }
