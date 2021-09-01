@@ -89,7 +89,10 @@ class UserController {
      * NOT_FOUND : 조건에 맞는 유저가 없는 경우
      */
     @GetMapping
-    fun selectUsers(@RequestParam limit: Int, offset: Int): ResponseEntity<Page<User>> {
+    fun selectUsers(
+        @RequestParam(defaultValue = "10") limit: Int,
+        @RequestParam(defaultValue = "0") offset: Int
+    ): ResponseEntity<Page<User>> {
         if (!PagingUtil.checkIsValid(limit, offset)) {
             throw CommonException.PagingArgumentException()
         }

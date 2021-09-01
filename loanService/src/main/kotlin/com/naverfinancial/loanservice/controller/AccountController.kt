@@ -113,8 +113,8 @@ class AccountController {
     fun selectAccountList(
         ndi: String?,
         @RequestParam(defaultValue = "NORMAL") status: AccountTypeStatus,
-        limit: Int,
-        offset: Int
+        @RequestParam(defaultValue = "10") limit: Int,
+        @RequestParam(defaultValue = "0") offset: Int
     ): ResponseEntity<Page<Account>> {
         if (!PagingUtil.checkIsValid(limit, offset)) {
             throw CommonException.PagingArgumentException()
@@ -235,8 +235,8 @@ class AccountController {
      */
     @GetMapping("transaction")
     fun selectAccountTransactionHistoryList(
-        @RequestParam limit: Int,
-        offset: Int,
+        @RequestParam(defaultValue = "10") limit: Int,
+        @RequestParam(defaultValue = "0") offset: Int,
         @RequestParam("account-id") accountId: Int?
     ): ResponseEntity<Page<AccountTransactionHistory>> {
         if (!PagingUtil.checkIsValid(limit, offset)) {
