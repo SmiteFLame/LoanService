@@ -63,10 +63,7 @@ class CreditRatingController {
             throw UserException.NullNdiException()
         }
 
-        var user = userRepository.findUserByNdi(map.getValue("ndi"))
-        if (user == null) {
-            throw UserException.NullUserException()
-        }
+        val user = userRepository.findUserByNdi(map.getValue("ndi")) ?: throw UserException.NullUserException()
         return ResponseEntity<CreditRatingSearchResult>(creditRatingService.selectGrade(user), HttpStatus.OK)
     }
 }

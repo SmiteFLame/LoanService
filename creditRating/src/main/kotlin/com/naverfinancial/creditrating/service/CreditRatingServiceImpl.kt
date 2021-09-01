@@ -28,9 +28,8 @@ class CreditRatingServiceImpl : CreditRatingService {
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
     override fun selectGrade(user: User): CreditRatingSearchResult {
-        var grade = 0
         var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
-        grade = creditRatingSearchResult?.grade ?: getGrade(user)
+        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
 
         val isPermit = evaluateLoanAvailability(grade)
 
