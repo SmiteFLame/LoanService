@@ -11,9 +11,7 @@ import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.AccountException
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
-import com.naverfinancial.loanservice.utils.PagingUtil
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
 
@@ -39,20 +37,18 @@ class AccountServiceImpl : AccountService {
         }
 
         // 새로운 통장 개설
-        var newAccount = Account(
-            accountId = -1, // AUTO_INCREASED
-            accountNumber = newAccountNumbers,
-            ndi = ndi,
-            loanLimit = -5000,
-            balance = 0,
-            grade = userCreditRating.grade,
-            status = AccountTypeStatus.NORMAL,
-            createdDate = Timestamp(System.currentTimeMillis()),
+        return accountRepository.save(
+            Account(
+                accountId = -1, // AUTO_INCREASED
+                accountNumber = newAccountNumbers,
+                ndi = ndi,
+                loanLimit = -5000,
+                balance = 0,
+                grade = userCreditRating.grade,
+                status = AccountTypeStatus.NORMAL,
+                createdDate = Timestamp(System.currentTimeMillis()),
+            )
         )
-
-        newAccount = accountRepository.save(newAccount)
-
-        return newAccount
     }
 
     override fun withdrawLoan(account: Account, amount: Int): Account {
@@ -64,15 +60,16 @@ class AccountServiceImpl : AccountService {
         account.withdraw(amount)
 
         // 대출 기록 남기기
-        val newAccountTransactionHistory = AccountTransactionHistory(
-            historyId = -1, // AUTO_INCREASED
-            amount = amount,
-            type = AccountRequestTypeStatus.WITHDRAW,
-            translatedDate = Timestamp(System.currentTimeMillis()),
-            accountId = account.accountId,
-            accountNumber = account.accountNumber
+        accountTransactionHistoryRepository.save(
+            AccountTransactionHistory(
+                historyId = -1, // AUTO_INCREASED
+                amount = amount,
+                type = AccountRequestTypeStatus.WITHDRAW,
+                translatedDate = Timestamp(System.currentTimeMillis()),
+                accountId = account.accountId,
+                accountNumber = account.accountNumber
+            )
         )
-        accountTransactionHistoryRepository.save(newAccountTransactionHistory)
 
         // 계좌 수정하기
         return accountRepository.save(account)
@@ -94,16 +91,16 @@ class AccountServiceImpl : AccountService {
         }
 
         // 반납 기록 남기기
-        val newAccountTransactionHistory = AccountTransactionHistory(
-            historyId = -1, // AUTO_INCREASED
-            amount = translatedAmount,
-            type = AccountRequestTypeStatus.DEPOSIT,
-            translatedDate = Timestamp(System.currentTimeMillis()),
-            accountId = account.accountId,
-            accountNumber = account.accountNumber
+        accountTransactionHistoryRepository.save(
+            AccountTransactionHistory(
+                historyId = -1, // AUTO_INCREASED
+                amount = translatedAmount,
+                type = AccountRequestTypeStatus.DEPOSIT,
+                translatedDate = Timestamp(System.currentTimeMillis()),
+                accountId = account.accountId,
+                accountNumber = account.accountNumber
+            )
         )
-
-        accountTransactionHistoryRepository.save(newAccountTransactionHistory)
 
         return newAccount
     }
@@ -120,12 +117,12 @@ class AccountServiceImpl : AccountService {
         accountRepository.save(account)
 
         // 취소 기록 저장
-        val accountCancellationHistory = AccountCancellationHistory(
-            accountId = account.accountId,
-            cancellationDate = Timestamp(System.currentTimeMillis())
+        accountCancellationHistoryRepository.save(
+            AccountCancellationHistory(
+                accountId = account.accountId,
+                cancellationDate = Timestamp(System.currentTimeMillis())
+            )
         )
-
-        accountCancellationHistoryRepository.save(accountCancellationHistory)
 
         return Integer(balance)
     }

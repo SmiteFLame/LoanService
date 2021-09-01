@@ -1,7 +1,6 @@
 package com.naverfinancial.loanservice.service
 
 import com.naverfinancial.loanservice.datasource.account.dto.Account
-import com.naverfinancial.loanservice.datasource.account.dto.AccountTransactionHistory
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 
 interface AccountService {
