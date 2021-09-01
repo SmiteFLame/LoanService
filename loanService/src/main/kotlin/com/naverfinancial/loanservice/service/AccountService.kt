@@ -14,5 +14,5 @@ interface AccountService {
     fun withdrawLoan(account: Account, amount: Int): Account
 
     // 통장 해지
-    fun removeAccount(account: Account): Integer
+    fun removeAccount(account: Account): Int
 }

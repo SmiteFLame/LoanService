@@ -109,7 +109,7 @@ class AccountController {
      * BAD_REQUEST : NDI가 없는 경우, limit, offset가 잘못 설정된 경우
      * NOT_FOUND : Account가 없는 경우
      */
-    @GetMapping()
+    @GetMapping
     fun selectAccountList(
         @RequestParam("id-type") idType: String?,
         ndi: String?,
@@ -144,7 +144,7 @@ class AccountController {
      */
     @GetMapping("{account-id}")
     fun selectAccountByAccountId(@PathVariable("account-id") accountId: Int): ResponseEntity<Account> {
-        var account: Account? =
+        val account: Account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
         return ResponseEntity<Account>(account, HttpStatus.OK)
     }
@@ -159,7 +159,7 @@ class AccountController {
      * OK - 신용 등급이 미달인 경우
      * CREATED - 성공
      */
-    @PostMapping()
+    @PostMapping
     fun insertAccount(@RequestBody map: Map<String, String>): ResponseEntity<Account> {
         if (!map.containsKey("ndi")) {
             throw UserException.NullNdiException()
@@ -168,12 +168,12 @@ class AccountController {
             throw UserException.NullUserException()
         }
 
-        var account = accountRepository.findAccountByNdiAndStatus(map.getValue("ndi"), AccountTypeStatus.NORMAL)
+        val account = accountRepository.findAccountByNdiAndStatus(map.getValue("ndi"), AccountTypeStatus.NORMAL)
         if (account != null) {
             throw AccountException.DuplicationAccountException()
         }
 
-        var userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(map.getValue("ndi"))
+        val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(map.getValue("ndi"))
             ?: throw AccountException.NoCreditRating()
 
         if (!userCreditRating.isPermit) {
@@ -208,7 +208,7 @@ class AccountController {
         if (applymentLoanService.amount <= 0) {
             throw AccountException.WrongAmountInput()
         }
-        var account =
+        val account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
@@ -249,7 +249,7 @@ class AccountController {
         if (!PagingUtil.checkIsValid(limit, offset)) {
             throw CommonException.PagingArgumentException()
         }
-        var accountTransactionHistory: Page<AccountTransactionHistory> =
+        val accountTransactionHistory: Page<AccountTransactionHistory> =
             if (idType == "account-id" && accountId != null) {
                 if (accountRepository.findAccountByAccountId(accountId) == null) {
                     throw AccountException.NullAccountException()
@@ -278,13 +278,13 @@ class AccountController {
      * NOT_FOUND : 계좌가 이미 해지된 경우
      */
     @DeleteMapping("{account-id}")
-    fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Integer> {
-        var account =
+    fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Int> {
+        val account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
         }
-        return ResponseEntity<Integer>(accountService.removeAccount(account), HttpStatus.OK)
+        return ResponseEntity<Int>(accountService.removeAccount(account), HttpStatus.OK)
     }
 }

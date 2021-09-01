@@ -5,6 +5,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface AccountTransactionHistoryRepository : JpaRepository<AccountTransactionHistory, Integer> {
+interface AccountTransactionHistoryRepository : JpaRepository<AccountTransactionHistory, Int> {
     fun findAccountTransactionHistoriesByAccountId(accountId: Int, pageable: Pageable): Page<AccountTransactionHistory>
 }

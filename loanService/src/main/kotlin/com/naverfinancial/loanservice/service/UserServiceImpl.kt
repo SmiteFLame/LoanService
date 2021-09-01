@@ -17,7 +17,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.sql.Timestamp
-import java.util.*
+import java.util.UUID
 
 @Service
 class UserServiceImpl : UserService {
@@ -34,9 +34,9 @@ class UserServiceImpl : UserService {
         if (userCreditRating != null) {
             return userCreditRating
         }
-        var creditRatingSearchResult = searchGrade(ndi)
+        val creditRatingSearchResult = searchGrade(ndi)
 
-        var newUserCreditRating = UserCreditRating(
+        val newUserCreditRating = UserCreditRating(
             ndi = ndi,
             grade = creditRatingSearchResult.grade,
             isPermit = creditRatingSearchResult.isPermit,
@@ -52,7 +52,7 @@ class UserServiceImpl : UserService {
     }
 
     override fun searchGrade(ndi: String): CreditRatingSearchResult {
-        try{
+        try {
             val values = mapOf("ndi" to ndi)
             val client = HttpClient.newBuilder().build()
             val request = HttpRequest.newBuilder()
@@ -67,9 +67,12 @@ class UserServiceImpl : UserService {
                     JSONObject(response.body()).getBoolean("isPermit")
                 )
             } else {
-                throw UserException.CreditRatingException(response.body().toString(), HttpStatus.valueOf(response.statusCode()))
+                throw UserException.CreditRatingException(
+                    response.body().toString(),
+                    HttpStatus.valueOf(response.statusCode())
+                )
             }
-        }catch (e : ConnectException){
+        } catch (e: ConnectException) {
             throw UserException.FailConnectCreditRatingServerException()
         }
     }

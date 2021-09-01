@@ -88,12 +88,12 @@ class UserController {
      * BAD_REQUEST : limit, offset가 잘못 설정된 경우
      * NOT_FOUND : 조건에 맞는 유저가 없는 경우
      */
-    @GetMapping()
+    @GetMapping
     fun selectUsers(@RequestParam limit: Int, offset: Int): ResponseEntity<Page<User>> {
         if (!PagingUtil.checkIsValid(limit, offset)) {
             throw CommonException.PagingArgumentException()
         }
-        var users = userRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+        val users = userRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
         if (!users.hasContent()) {
             throw UserException.NullUserException()
         }
@@ -111,7 +111,7 @@ class UserController {
      */
     @GetMapping("{word}")
     fun selectUserByNdi(@PathVariable word: String, @RequestParam("id-type") idType: String?): ResponseEntity<User> {
-        var user: User? = if (idType == "email") {
+        val user: User? = if (idType == "email") {
             userRepository.findUserByEmail(word)
         } else if (idType != null) {
             throw CommonException.NonIdTypeException()
@@ -132,7 +132,7 @@ class UserController {
      * BAD_REQUEST - 값이 일부 혹은 전부가 입력되지 않은 경우, 이메일의 조건이 맞지 않는 경우, 이메일이 이미 존재하는 경우
      * NOT_FOUND - User에 해당되는 ndi가 없는 경우
      */
-    @PostMapping()
+    @PostMapping
     fun insertUser(@RequestBody user: User?): ResponseEntity<User> {
         if (user == null) {
             throw UserException.InvalidUserException()

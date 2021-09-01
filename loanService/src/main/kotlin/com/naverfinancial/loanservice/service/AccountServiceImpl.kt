@@ -77,7 +77,7 @@ class AccountServiceImpl : AccountService {
 
     override fun depositLoan(account: Account, amount: Int): Account {
         account.deposit(amount)
-        var newAccount = accountRepository.save(account)
+        val newAccount = accountRepository.save(account)
 
         // 이미 마이너스 통장이 아닌 상태로 넣은 경우
         if (newAccount.balance > amount) {
@@ -105,7 +105,7 @@ class AccountServiceImpl : AccountService {
         return newAccount
     }
 
-    override fun removeAccount(account: Account): Integer {
+    override fun removeAccount(account: Account): Int {
         if (account.balance < 0) {
             throw AccountException.RestLimitException()
         }
@@ -124,6 +124,6 @@ class AccountServiceImpl : AccountService {
             )
         )
 
-        return Integer(balance)
+        return balance
     }
 }

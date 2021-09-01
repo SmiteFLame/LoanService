@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface AccountRepository : JpaRepository<Account, Integer> {
+interface AccountRepository : JpaRepository<Account, Int> {
     fun findAccountByAccountNumber(accountNumber: String): Account?
     fun findAccountByAccountId(accountId: Int): Account?
     fun findAccountByNdiAndStatus(ndi: String, status: AccountTypeStatus): Account?
