@@ -129,20 +129,4 @@ class AccountServiceImpl : AccountService {
 
         return Integer(balance)
     }
-
-    override fun selectAccountTransactionList(limit: Int, offset: Int): List<AccountTransactionHistory> {
-        return accountTransactionHistoryRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
-            .toList()
-    }
-
-    override fun selectAccountTransactionListByAccountId(
-        account: Account,
-        limit: Int,
-        offset: Int
-    ): List<AccountTransactionHistory> {
-        return accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
-            account.accountId,
-            PageRequest.of(PagingUtil.getPage(limit, offset), limit)
-        ).toList()
-    }
 }

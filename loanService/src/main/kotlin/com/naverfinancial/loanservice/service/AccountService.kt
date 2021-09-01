@@ -16,14 +16,4 @@ interface AccountService {
 
     // 통장 해지
     fun removeAccount(account: Account): Integer
-
-    // 통장 거래 내역 조회
-    fun selectAccountTransactionList(limit: Int, offset: Int): List<AccountTransactionHistory>
-
-    // 통장 거래 내역 조회
-    fun selectAccountTransactionListByAccountId(
-        account: Account,
-        limit: Int,
-        offset: Int
-    ): List<AccountTransactionHistory>
 }
