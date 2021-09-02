@@ -11,6 +11,7 @@ import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.net.ConnectException
 import java.net.URI
 import java.net.http.HttpClient
@@ -28,6 +29,7 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
+    @Transactional(value = "userTransactionManager")
     override fun saveCreditRating(ndi: String): UserCreditRating {
         val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
 
@@ -46,11 +48,13 @@ class UserServiceImpl : UserService {
         return userCreditRatingRepository.save(newUserCreditRating)
     }
 
+    @Transactional(value = "userTransactionManager")
     override fun insertUser(user: User): User {
         user.ndi = UUID.randomUUID().toString()
         return userRepository.save(user)
     }
 
+    @Transactional(value = "userTransactionManager")
     override fun searchGrade(ndi: String): CreditRatingSearchResult {
         try {
             val values = mapOf("ndi" to ndi)

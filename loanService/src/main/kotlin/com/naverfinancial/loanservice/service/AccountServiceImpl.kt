@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 import javax.persistence.LockModeType
@@ -33,6 +34,7 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
 
+    @Transactional(value = "accountTransactionManager")
     override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Long): Page<Account> {
         return if (ndi != null && status == AccountTypeStatus.ALL) {
             accountRepository.findAccountsByNdi(ndi, OffsetBasedPageRequest(limit, offset))
@@ -49,6 +51,7 @@ class AccountServiceImpl : AccountService {
         }
     }
 
+    @Transactional(value = "accountTransactionManager")
     override fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account {
 
         // 통장번호 랜덤 생성
@@ -73,6 +76,8 @@ class AccountServiceImpl : AccountService {
         )
     }
 
+    @Transactional(value = "accountTransactionManager")
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     override fun withdrawLoan(accountId: Int, amount: Int): Account {
         val account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
@@ -100,6 +105,8 @@ class AccountServiceImpl : AccountService {
         return updateAccount(account)
     }
 
+    @Transactional(value = "accountTransactionManager")
+    @Lock(value = LockModeType.PESSIMISTIC_FORCE_INCREMENT)
     override fun depositLoan(accountId: Int, amount: Int): Account {
         val account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
@@ -133,8 +140,9 @@ class AccountServiceImpl : AccountService {
     }
 
     @Transactional(value = "accountTransactionManager")
-    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
-    override fun removeAccount(account: Account){
+    override fun removeAccount(accountId: Int){
+        val account =
+            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
         if (account.balance != 0) {
             throw AccountException.RestLimitException()
         }
@@ -152,7 +160,6 @@ class AccountServiceImpl : AccountService {
         )
     }
 
-    @Modifying(clearAutomatically = true)
     fun updateAccount(account: Account) : Account{
         return accountRepository.save(account)
     }

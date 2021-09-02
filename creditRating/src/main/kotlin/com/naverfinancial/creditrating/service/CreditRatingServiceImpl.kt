@@ -10,6 +10,7 @@ import com.naverfinancial.creditrating.utils.JsonFormData
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.net.ConnectException
 import java.net.URI
 import java.net.http.HttpClient
@@ -27,6 +28,7 @@ class CreditRatingServiceImpl : CreditRatingService {
     @Autowired
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
+    @Transactional(value = "creditRatingSearchTransactionManager")
     override fun selectGrade(user: User): CreditRatingSearchResult {
         var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
         val grade = creditRatingSearchResult?.grade ?: getGrade(user)
@@ -57,6 +59,7 @@ class CreditRatingServiceImpl : CreditRatingService {
         return creditRatingSearchResult
     }
 
+    @Transactional(value = "userTransactionManager")
     override fun evaluateLoanAvailability(grade: Int): Boolean {
         // 연체 기록은 현재 없으므로 4단계 아래면 바로 전달
         return grade <= 4

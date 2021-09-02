@@ -15,6 +15,7 @@ import com.naverfinancial.loanservice.service.AccountService
 import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -95,6 +96,12 @@ class AccountController {
                 message = "파라미터 입력값이 잘못되었습니다"
                 status = HttpStatus.BAD_REQUEST
             }
+            // 데이터베이스에서 여러번 동시에 접속 하는 경우
+            is CannotAcquireLockException ->{
+                message = "다른 데이터 곳에서 중복으로 사용 중입니다."
+                status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
+
         }
 
         return ResponseEntity<String>(message, status)
