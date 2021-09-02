@@ -42,8 +42,7 @@ data class Account(
 
     @Column(name = "created_date", nullable = false)
     var createdDate: Timestamp,
-
-    ) {
+) {
     @Column(name = "cancelled_date")
     var cancelledDate: Timestamp? = null
 

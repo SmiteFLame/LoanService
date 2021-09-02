@@ -97,11 +97,10 @@ class AccountController {
                 status = HttpStatus.BAD_REQUEST
             }
             // 데이터베이스에서 여러번 동시에 접속 하는 경우
-            is CannotAcquireLockException ->{
+            is CannotAcquireLockException -> {
                 message = "다른 데이터 곳에서 중복으로 사용 중입니다."
                 status = HttpStatus.INTERNAL_SERVER_ERROR
             }
-
         }
 
         return ResponseEntity<String>(message, status)
@@ -275,7 +274,7 @@ class AccountController {
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
         }
-        accountService.removeAccount(account)
+        accountService.removeAccount(accountId)
         return ResponseEntity<Nothing>(HttpStatus.OK)
     }
 }

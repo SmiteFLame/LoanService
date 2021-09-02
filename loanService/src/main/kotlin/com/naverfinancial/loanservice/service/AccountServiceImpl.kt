@@ -15,9 +15,7 @@ import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.jpa.repository.Lock
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 import javax.persistence.LockModeType
@@ -140,7 +138,7 @@ class AccountServiceImpl : AccountService {
     }
 
     @Transactional(value = "accountTransactionManager")
-    override fun removeAccount(accountId: Int){
+    override fun removeAccount(accountId: Int) {
         val account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
         if (account.balance != 0) {
@@ -160,7 +158,7 @@ class AccountServiceImpl : AccountService {
         )
     }
 
-    fun updateAccount(account: Account) : Account{
+    fun updateAccount(account: Account): Account {
         return accountRepository.save(account)
     }
 }

@@ -42,17 +42,17 @@ class OffsetBasedPageRequest : Pageable {
     }
 
     override fun previousOrFirst(): Pageable {
-        return if(hasPrevious()){
+        return if (hasPrevious()) {
             OffsetBasedPageRequest(pageSize, offset - pageSize, sort)
-        } else{
+        } else {
             this
         }
     }
 
     override fun first(): Pageable {
-        return if(hasPrevious()){
+        return if (hasPrevious()) {
             OffsetBasedPageRequest(pageSize, 0, sort)
-        } else{
+        } else {
             this
         }
     }
