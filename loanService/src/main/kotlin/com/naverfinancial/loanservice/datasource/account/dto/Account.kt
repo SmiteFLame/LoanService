@@ -1,6 +1,9 @@
 package com.naverfinancial.loanservice.datasource.account.dto
 
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
+import org.hibernate.annotations.DynamicUpdate
+import org.hibernate.annotations.OptimisticLockType
+import org.hibernate.annotations.OptimisticLocking
 import java.sql.Timestamp
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -10,6 +13,8 @@ import javax.persistence.Id
 import javax.persistence.Table
 
 @Table(name = "account")
+@OptimisticLocking(type = OptimisticLockType.DIRTY)
+@DynamicUpdate
 @Entity
 data class Account(
     @Id
