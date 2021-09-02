@@ -11,11 +11,11 @@ import com.naverfinancial.loanservice.enumclass.AccountRequestTypeStatus
 import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import com.naverfinancial.loanservice.exception.AccountException
 import com.naverfinancial.loanservice.utils.AccountNumberGenerators
-import com.naverfinancial.loanservice.utils.PagingUtil
+import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
@@ -33,19 +33,19 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
 
-    override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Int): Page<Account> {
+    override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Long): Page<Account> {
         return if (ndi != null && status == AccountTypeStatus.ALL) {
-            accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+            accountRepository.findAccountsByNdi(ndi, OffsetBasedPageRequest(limit, offset))
         } else if (ndi != null) {
             accountRepository.findAccountsByNdiAndStatus(
                 ndi,
                 status,
-                PageRequest.of(PagingUtil.getPage(limit, offset), limit)
+                OffsetBasedPageRequest(limit, offset)
             )
         } else if (status == AccountTypeStatus.ALL) {
-            accountRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+            accountRepository.findAll(OffsetBasedPageRequest(limit, offset))
         } else {
-            accountRepository.findAccountsByStatus(status, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+            accountRepository.findAccountsByStatus(status, OffsetBasedPageRequest(limit, offset))
         }
     }
 
@@ -152,6 +152,7 @@ class AccountServiceImpl : AccountService {
         )
     }
 
+    @Modifying(clearAutomatically = true)
     fun updateAccount(account: Account) : Account{
         return accountRepository.save(account)
     }

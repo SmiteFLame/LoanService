@@ -12,11 +12,10 @@ import com.naverfinancial.loanservice.exception.AccountException
 import com.naverfinancial.loanservice.exception.CommonException
 import com.naverfinancial.loanservice.exception.UserException
 import com.naverfinancial.loanservice.service.AccountService
-import com.naverfinancial.loanservice.utils.PagingUtil
+import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -114,12 +113,8 @@ class AccountController {
         ndi: String?,
         @RequestParam(defaultValue = "NORMAL") status: AccountTypeStatus,
         @RequestParam(defaultValue = "10") limit: Int,
-        @RequestParam(defaultValue = "0") offset: Int
+        @RequestParam(defaultValue = "0") offset: Long
     ): ResponseEntity<Page<Account>> {
-        if (!PagingUtil.checkIsValid(limit, offset)) {
-            throw CommonException.PagingArgumentException()
-        }
-
         val accounts = accountService.selectAccounts(ndi, status, limit, offset)
 
         if (!accounts.hasContent()) {
@@ -236,12 +231,9 @@ class AccountController {
     @GetMapping("transaction")
     fun selectAccountTransactionHistoryList(
         @RequestParam(defaultValue = "10") limit: Int,
-        @RequestParam(defaultValue = "0") offset: Int,
+        @RequestParam(defaultValue = "0") offset: Long,
         @RequestParam("account-id") accountId: Int?
     ): ResponseEntity<Page<AccountTransactionHistory>> {
-        if (!PagingUtil.checkIsValid(limit, offset)) {
-            throw CommonException.PagingArgumentException()
-        }
         val accountTransactionHistory: Page<AccountTransactionHistory> =
             if (accountId != null) {
                 if (accountRepository.findAccountByAccountId(accountId) == null) {
@@ -249,10 +241,10 @@ class AccountController {
                 }
                 accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
                     accountId,
-                    PageRequest.of(PagingUtil.getPage(limit, offset), limit)
+                    OffsetBasedPageRequest(limit, offset)
                 )
             } else {
-                accountTransactionHistoryRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+                accountTransactionHistoryRepository.findAll(OffsetBasedPageRequest(limit, offset))
             }
         if (accountTransactionHistory.content.size == 0) {
             throw AccountException.NullAccountTransactionHistoryException()

@@ -7,10 +7,9 @@ import com.naverfinancial.loanservice.exception.CommonException
 import com.naverfinancial.loanservice.exception.UserException
 import com.naverfinancial.loanservice.service.UserService
 import com.naverfinancial.loanservice.utils.EmailValiation
-import com.naverfinancial.loanservice.utils.PagingUtil
+import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -91,12 +90,9 @@ class UserController {
     @GetMapping
     fun selectUsers(
         @RequestParam(defaultValue = "10") limit: Int,
-        @RequestParam(defaultValue = "0") offset: Int
+        @RequestParam(defaultValue = "0") offset: Long
     ): ResponseEntity<Page<User>> {
-        if (!PagingUtil.checkIsValid(limit, offset)) {
-            throw CommonException.PagingArgumentException()
-        }
-        val users = userRepository.findAll(PageRequest.of(PagingUtil.getPage(limit, offset), limit))
+        val users = userRepository.findAll(OffsetBasedPageRequest(limit, offset))
         if (!users.hasContent()) {
             throw UserException.NullUserException()
         }
