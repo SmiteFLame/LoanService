@@ -33,8 +33,6 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
 
-    @Transactional(value = "accountTransactionManager")
-    @Lock(value = LockModeType.PESSIMISTIC_READ)
     override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Int): Page<Account> {
         return if (ndi != null && status == AccountTypeStatus.ALL) {
             accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
@@ -51,8 +49,6 @@ class AccountServiceImpl : AccountService {
         }
     }
 
-    @Transactional(value = "accountTransactionManager")
-    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     override fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account {
 
         // 통장번호 랜덤 생성
@@ -77,8 +73,6 @@ class AccountServiceImpl : AccountService {
         )
     }
 
-    @Transactional(value = "accountTransactionManager")
-    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     override fun withdrawLoan(accountId: Int, amount: Int): Account {
         val account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
@@ -103,7 +97,7 @@ class AccountServiceImpl : AccountService {
         )
 
         // 계좌 수정하기
-        return accountRepository.save(account)
+        return updateAccount(account)
     }
 
     override fun depositLoan(accountId: Int, amount: Int): Account {
@@ -111,17 +105,16 @@ class AccountServiceImpl : AccountService {
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         account.deposit(amount)
-        val newAccount = accountRepository.save(account)
 
         // 이미 마이너스 통장이 아닌 상태로 넣은 경우
-        if (newAccount.balance > amount) {
-            return newAccount
+        if (account.balance > amount) {
+            return updateAccount(account)
         }
 
         var translatedAmount = amount
         // 거래 금액이 초과된 경우
-        if (newAccount.balance > 0) {
-            translatedAmount -= newAccount.balance
+        if (account.balance > 0) {
+            translatedAmount -= account.balance
         }
 
         // 반납 기록 남기기
@@ -136,9 +129,11 @@ class AccountServiceImpl : AccountService {
             )
         )
 
-        return newAccount
+        return updateAccount(account)
     }
 
+    @Transactional(value = "accountTransactionManager")
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     override fun removeAccount(account: Account){
         if (account.balance != 0) {
             throw AccountException.RestLimitException()
@@ -155,5 +150,9 @@ class AccountServiceImpl : AccountService {
                 cancellationDate = Timestamp(System.currentTimeMillis())
             )
         )
+    }
+
+    fun updateAccount(account: Account) : Account{
+        return accountRepository.save(account)
     }
 }
