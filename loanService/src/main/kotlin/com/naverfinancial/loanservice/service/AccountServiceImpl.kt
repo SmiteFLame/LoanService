@@ -15,8 +15,11 @@ import com.naverfinancial.loanservice.utils.PagingUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
+import javax.persistence.LockModeType
 
 @Service
 class AccountServiceImpl : AccountService {
@@ -30,6 +33,8 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
 
+    @Transactional(value = "accountTransactionManager")
+    @Lock(value = LockModeType.PESSIMISTIC_READ)
     override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Int): Page<Account> {
         return if (ndi != null && status == AccountTypeStatus.ALL) {
             accountRepository.findAccountsByNdi(ndi, PageRequest.of(PagingUtil.getPage(limit, offset), limit))
@@ -46,6 +51,8 @@ class AccountServiceImpl : AccountService {
         }
     }
 
+    @Transactional(value = "accountTransactionManager")
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     override fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account {
 
         // 통장번호 랜덤 생성
@@ -70,7 +77,12 @@ class AccountServiceImpl : AccountService {
         )
     }
 
-    override fun withdrawLoan(account: Account, amount: Int): Account {
+    @Transactional(value = "accountTransactionManager")
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
+    override fun withdrawLoan(accountId: Int, amount: Int): Account {
+        val account =
+            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+
         // 대출 가능 조사하기
         if (account.balance - amount < account.loanLimit) {
             throw AccountException.OverLimitException()
@@ -94,7 +106,10 @@ class AccountServiceImpl : AccountService {
         return accountRepository.save(account)
     }
 
-    override fun depositLoan(account: Account, amount: Int): Account {
+    override fun depositLoan(accountId: Int, amount: Int): Account {
+        val account =
+            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+
         account.deposit(amount)
         val newAccount = accountRepository.save(account)
 
@@ -124,12 +139,10 @@ class AccountServiceImpl : AccountService {
         return newAccount
     }
 
-    override fun removeAccount(account: Account): Int {
-        if (account.balance < 0) {
+    override fun removeAccount(account: Account){
+        if (account.balance != 0) {
             throw AccountException.RestLimitException()
         }
-
-        val balance = account.balance
 
         // 계좌 상태 변경
         account.cancel(Timestamp(System.currentTimeMillis()))
@@ -142,7 +155,5 @@ class AccountServiceImpl : AccountService {
                 cancellationDate = Timestamp(System.currentTimeMillis())
             )
         )
-
-        return balance
     }
 }

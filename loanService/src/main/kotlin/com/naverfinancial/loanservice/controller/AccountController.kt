@@ -211,13 +211,13 @@ class AccountController {
 
         if (applymentLoanService.type == AccountRequestTypeStatus.DEPOSIT) {
             return ResponseEntity<Account>(
-                accountService.depositLoan(account, applymentLoanService.amount),
+                accountService.depositLoan(accountId, applymentLoanService.amount),
                 HttpStatus.CREATED
             )
         }
         if (applymentLoanService.type == AccountRequestTypeStatus.WITHDRAW) {
             return ResponseEntity<Account>(
-                accountService.withdrawLoan(account, applymentLoanService.amount),
+                accountService.withdrawLoan(accountId, applymentLoanService.amount),
                 HttpStatus.CREATED
             )
         } else {
@@ -269,13 +269,14 @@ class AccountController {
      * NOT_FOUND : 계좌가 이미 해지된 경우
      */
     @DeleteMapping("{account-id}")
-    fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Int> {
+    fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Nothing> {
         val account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         if (account.status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
         }
-        return ResponseEntity<Int>(accountService.removeAccount(account), HttpStatus.OK)
+        accountService.removeAccount(account)
+        return ResponseEntity<Nothing>(HttpStatus.OK)
     }
 }

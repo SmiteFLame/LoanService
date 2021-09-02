@@ -45,7 +45,7 @@ abstract class AccountException(string: String) : Exception(string) {
         override var status: HttpStatus = HttpStatus.OK
     }
 
-    class RestLimitException : AccountException("대출 잔고가 남았습니다") {
+    class RestLimitException : AccountException("잔고가 0이 아닙니다") {
         override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 }

@@ -13,11 +13,11 @@ interface AccountService {
     fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account
 
     // 대출 신청
-    fun depositLoan(account: Account, amount: Int): Account
+    fun depositLoan(accountId: Int, amount: Int): Account
 
     // 대출 반환
-    fun withdrawLoan(account: Account, amount: Int): Account
+    fun withdrawLoan(accountId: Int, amount: Int): Account
 
     // 통장 해지
-    fun removeAccount(account: Account): Int
+    fun removeAccount(account: Account)
 }
