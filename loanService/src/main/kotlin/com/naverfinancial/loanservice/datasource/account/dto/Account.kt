@@ -13,8 +13,6 @@ import javax.persistence.Id
 import javax.persistence.Table
 
 @Table(name = "account")
-@OptimisticLocking(type = OptimisticLockType.DIRTY)
-@DynamicUpdate
 @Entity
 data class Account(
     @Id

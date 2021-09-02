@@ -7,6 +7,7 @@ import com.naverfinancial.creditrating.datasource.creditRatingSearch.repository.
 import com.naverfinancial.creditrating.datasource.user.dto.User
 import com.naverfinancial.creditrating.exception.UserException
 import com.naverfinancial.creditrating.utils.JsonFormData
+import org.json.JSONException
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -32,7 +33,7 @@ class CreditRatingServiceImpl : CreditRatingService {
     override fun selectGrade(user: User): CreditRatingSearchResult {
         var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
         val grade = creditRatingSearchResult?.grade ?: getGrade(user)
-
+//        val grade = getGrade(user)
         val isPermit = evaluateLoanAvailability(grade)
 
         // CreditRatingSearchHistory 기록하기
@@ -79,6 +80,8 @@ class CreditRatingServiceImpl : CreditRatingService {
             return JSONObject(response.body()).getInt("grade")
         } catch (e: ConnectException) {
             throw UserException.FailConnectCBServerException()
+        } catch (e: JSONException){
+            throw UserException.FailRequestCBServerException()
         }
     }
 }

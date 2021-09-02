@@ -16,4 +16,8 @@ abstract class UserException(string: String) : Exception(string) {
     class FailConnectCBServerException : UserException("CB서버가 열리지 않았습니다.") {
         override var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
     }
+
+    class FailRequestCBServerException : UserException("CB서버 요청에 실패했습니다"){
+        override var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
+    }
 }

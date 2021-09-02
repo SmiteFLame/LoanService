@@ -6,6 +6,9 @@ import com.naverfinancial.loanservice.enumclass.AccountTypeStatus
 import org.springframework.data.domain.Page
 
 interface AccountService {
+    // 통장 아이디 조회
+    fun selectAccountByAccountID(accountId: Int) : Account
+
     // 통장 리스트 조회
     fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Long): Page<Account>
 

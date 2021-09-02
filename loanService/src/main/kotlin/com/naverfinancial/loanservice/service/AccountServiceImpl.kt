@@ -33,6 +33,13 @@ class AccountServiceImpl : AccountService {
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
 
     @Transactional(value = "accountTransactionManager")
+    override fun selectAccountByAccountID(accountId: Int): Account {
+        var account = accountRepository.findAccountByAccountId(accountId)
+            ?: throw AccountException.NullAccountException()
+        return account
+    }
+
+    @Transactional(value = "accountTransactionManager")
     override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Long): Page<Account> {
         return if (ndi != null && status == AccountTypeStatus.ALL) {
             accountRepository.findAccountsByNdi(ndi, OffsetBasedPageRequest(limit, offset))
@@ -51,7 +58,6 @@ class AccountServiceImpl : AccountService {
 
     @Transactional(value = "accountTransactionManager")
     override fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account {
-
         // 통장번호 랜덤 생성
         var newAccountNumbers: String
         while (true) {
@@ -75,7 +81,6 @@ class AccountServiceImpl : AccountService {
     }
 
     @Transactional(value = "accountTransactionManager")
-    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     override fun withdrawLoan(accountId: Int, amount: Int): Account {
         val account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
@@ -104,7 +109,6 @@ class AccountServiceImpl : AccountService {
     }
 
     @Transactional(value = "accountTransactionManager")
-    @Lock(value = LockModeType.PESSIMISTIC_FORCE_INCREMENT)
     override fun depositLoan(accountId: Int, amount: Int): Account {
         val account =
             accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
@@ -147,7 +151,7 @@ class AccountServiceImpl : AccountService {
 
         // 계좌 상태 변경
         account.cancel(Timestamp(System.currentTimeMillis()))
-        accountRepository.save(account)
+        updateAccount(account)
 
         // 취소 기록 저장
         accountCancellationHistoryRepository.save(

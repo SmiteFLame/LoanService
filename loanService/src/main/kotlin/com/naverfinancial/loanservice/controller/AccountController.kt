@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -139,9 +140,7 @@ class AccountController {
      */
     @GetMapping("{account-id}")
     fun selectAccountByAccountId(@PathVariable("account-id") accountId: Int): ResponseEntity<Account> {
-        val account: Account =
-            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
-        return ResponseEntity<Account>(account, HttpStatus.OK)
+        return ResponseEntity<Account>(accountService.selectAccountByAccountID(accountId), HttpStatus.OK)
     }
 
     /**
@@ -192,6 +191,7 @@ class AccountController {
      * OK - 한도보다 더 많은 금액을 대출 신청 한 경우
      * CREATED - 성공
      */
+    @Transactional(value = "accountTransactionManager")
     @PostMapping("{account-id}/applyments")
     fun updateAccount(
         @PathVariable("account-id") accountId: Int,
@@ -203,10 +203,8 @@ class AccountController {
         if (applymentLoanService.amount <= 0) {
             throw AccountException.WrongAmountInput()
         }
-        val account =
-            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
-        if (account.status == AccountTypeStatus.CANCELLED) {
+        if (accountService.selectAccountByAccountID(accountId).status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
         }
 
@@ -242,9 +240,7 @@ class AccountController {
     ): ResponseEntity<Page<AccountTransactionHistory>> {
         val accountTransactionHistory: Page<AccountTransactionHistory> =
             if (accountId != null) {
-                if (accountRepository.findAccountByAccountId(accountId) == null) {
-                    throw AccountException.NullAccountException()
-                }
+                accountService.selectAccountByAccountID(accountId)
                 accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
                     accountId,
                     OffsetBasedPageRequest(limit, offset)
@@ -268,10 +264,7 @@ class AccountController {
      */
     @DeleteMapping("{account-id}")
     fun removeAccount(@PathVariable("account-id") accountId: Int): ResponseEntity<Nothing> {
-        val account =
-            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
-
-        if (account.status == AccountTypeStatus.CANCELLED) {
+        if (accountService.selectAccountByAccountID(accountId).status == AccountTypeStatus.CANCELLED) {
             throw AccountException.CancelledAccountException()
         }
         accountService.removeAccount(accountId)
