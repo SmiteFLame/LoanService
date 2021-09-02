@@ -13,7 +13,7 @@ abstract class UserException(string: String) : Exception(string) {
         override var status: HttpStatus = HttpStatus.NOT_FOUND
     }
 
-    class DuplicationEmailException : UserException("이미 이메일에 해당되는 유저가 존재합니다") {
+    class DuplicationEmailException : UserException("이메일 조건이 정확하지 않습니다") {
         override var status: HttpStatus = HttpStatus.BAD_REQUEST
     }
 
