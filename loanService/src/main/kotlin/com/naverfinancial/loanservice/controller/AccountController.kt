@@ -15,7 +15,6 @@ import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
@@ -60,9 +59,15 @@ class AccountController {
         ndi: String?,
         @RequestParam(defaultValue = "NORMAL") status: AccountTypeStatus,
         @RequestParam(defaultValue = "10") limit: Int,
-        @RequestParam(defaultValue = "0") offset: Long
+        @RequestParam(defaultValue = "0") offset: Long,
+        @RequestParam(value = "sort-by") sortBy: String?,
+        @RequestParam(value = "order-by") orderBy: String?,
     ): ResponseEntity<Page<Account>> {
-        val accounts = accountService.selectAccounts(ndi, status, limit, offset)
+        val accounts = accountService.selectAccounts(
+            ndi,
+            status,
+            OffsetBasedPageRequest(limit, offset, sortBy, orderBy, Account.getPrimaryKey())
+        )
 
         if (!accounts.hasContent()) {
             throw AccountException.NullAccountException()
@@ -176,6 +181,8 @@ class AccountController {
     fun selectAccountTransactionHistoryList(
         @RequestParam(defaultValue = "10") limit: Int,
         @RequestParam(defaultValue = "0") offset: Long,
+        @RequestParam(value = "sort-by") sortBy: String?,
+        @RequestParam(value = "order-by") orderBy: String?,
         @RequestParam("account-id") accountId: Int?
     ): ResponseEntity<Page<AccountTransactionHistory>> {
         val accountTransactionHistory: Page<AccountTransactionHistory> =
@@ -183,15 +190,11 @@ class AccountController {
                 accountService.selectAccountByAccountID(accountId)
                 accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
                     accountId,
-                    OffsetBasedPageRequest(limit, offset, Sort.by(AccountTransactionHistory.getPrimaryKey()))
+                    OffsetBasedPageRequest(limit, offset, sortBy, orderBy, Account.getPrimaryKey())
                 )
             } else {
                 accountTransactionHistoryRepository.findAll(
-                    OffsetBasedPageRequest(
-                        limit,
-                        offset,
-                        Sort.by(AccountTransactionHistory.getPrimaryKey())
-                    )
+                    OffsetBasedPageRequest(limit, offset, sortBy, orderBy, Account.getPrimaryKey())
                 )
             }
         if (accountTransactionHistory.content.size == 0) {

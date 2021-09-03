@@ -14,7 +14,6 @@ import com.naverfinancial.loanservice.utils.AccountNumberGenerators
 import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
@@ -38,25 +37,19 @@ class AccountServiceImpl : AccountService {
     }
 
     @Transactional(value = "accountTransactionManager")
-    override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Long): Page<Account> {
+    override fun selectAccounts(
+        ndi: String?,
+        status: AccountTypeStatus,
+        offsetBasedPageRequest: OffsetBasedPageRequest
+    ): Page<Account> {
         return if (ndi != null && status == AccountTypeStatus.ALL) {
-            accountRepository.findAccountsByNdi(
-                ndi,
-                OffsetBasedPageRequest(limit, offset, Sort.by(Account.getPrimaryKey()))
-            )
+            accountRepository.findAccountsByNdi(ndi, offsetBasedPageRequest)
         } else if (ndi != null) {
-            accountRepository.findAccountsByNdiAndStatus(
-                ndi,
-                status,
-                OffsetBasedPageRequest(limit, offset, Sort.by(Account.getPrimaryKey()))
-            )
+            accountRepository.findAccountsByNdiAndStatus(ndi, status, offsetBasedPageRequest)
         } else if (status == AccountTypeStatus.ALL) {
-            accountRepository.findAll(OffsetBasedPageRequest(limit, offset, Sort.by(Account.getPrimaryKey())))
+            accountRepository.findAll(offsetBasedPageRequest)
         } else {
-            accountRepository.findAccountsByStatus(
-                status,
-                OffsetBasedPageRequest(limit, offset, Sort.by(Account.getPrimaryKey()))
-            )
+            accountRepository.findAccountsByStatus(status, offsetBasedPageRequest)
         }
     }
 

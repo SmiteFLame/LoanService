@@ -1,6 +1,7 @@
 package com.naverfinancial.loanservice.exception
 
 import org.springframework.dao.CannotAcquireLockException
+import org.springframework.data.mapping.PropertyReferenceException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -70,6 +71,10 @@ class ExceptionHandler {
             is CannotCreateTransactionException -> {
                 message = "데이터베이스에 접속할 수 없습니다"
                 status = HttpStatus.INTERNAL_SERVER_ERROR
+            }
+            is PropertyReferenceException -> {
+                message = "정렬할 수 없는 속성 값입니다"
+                status = HttpStatus.BAD_REQUEST
             }
         }
 

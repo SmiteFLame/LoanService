@@ -17,6 +17,13 @@ class OffsetBasedPageRequest : Pageable {
         checkValid()
     }
 
+    constructor(limit: Int, offset: Long, sortBy: String?, orderBy: String?, primaryKey: String) {
+        this.limit = limit
+        this.offset = offset
+        this.sort = getSort(sortBy, orderBy, primaryKey)
+        checkValid()
+    }
+
     private fun checkValid() {
         if (limit > MAX) {
             this.limit = MAX
@@ -25,6 +32,19 @@ class OffsetBasedPageRequest : Pageable {
         }
         if (offset < 0) {
             this.offset = 0
+        }
+    }
+
+    private fun getSort(sortBy: String?, orderBy: String?, primaryKey: String): Sort {
+        val order = if (orderBy == "desc") {
+            Sort.Direction.DESC
+        } else {
+            Sort.Direction.ASC
+        }
+        return if (sortBy == null) {
+            Sort.by(order, primaryKey)
+        } else {
+            Sort.by(order, sortBy)
         }
     }
 
