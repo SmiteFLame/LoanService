@@ -7,26 +7,31 @@ class OffsetBasedPageRequest : Pageable {
 
     private val MAX = 10
     private var limit: Int
-    private val offset: Long
+    private var offset: Long
     private val sort: Sort
 
     constructor(limit: Int, offset: Long, sort: Sort) {
         this.limit = limit
         this.offset = offset
         this.sort = sort
-        checkLimit()
+        checkValid()
     }
 
     constructor(limit: Int, offset: Long) {
         this.limit = limit
         this.offset = offset
         this.sort = Sort.unsorted()
-        checkLimit()
+        checkValid()
     }
 
-    private fun checkLimit(){
+    private fun checkValid(){
         if(limit > MAX){
             this.limit = MAX
+        } else if(limit <= 0){
+            this.limit = 1
+        }
+        if(offset < 0){
+            this.offset = 0
         }
     }
 
