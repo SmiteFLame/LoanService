@@ -17,5 +17,6 @@ interface AccountRepository : JpaRepository<Account, Int> {
     fun findAccountByNdiAndStatus(ndi: String, status: AccountTypeStatus): Account?
     fun findAccountsByNdiAndStatus(ndi: String, status: AccountTypeStatus, pageable: Pageable): Page<Account>
     fun findAccountsByNdi(ndi: String, pageable: Pageable): Page<Account>
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun findAccountsByStatus(status: AccountTypeStatus, pageable: Pageable): Page<Account>
 }

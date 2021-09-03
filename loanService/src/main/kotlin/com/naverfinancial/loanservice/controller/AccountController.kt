@@ -190,11 +190,11 @@ class AccountController {
                 accountService.selectAccountByAccountID(accountId)
                 accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
                     accountId,
-                    OffsetBasedPageRequest(limit, offset, sortBy, orderBy, Account.getPrimaryKey())
+                    OffsetBasedPageRequest(limit, offset, sortBy, orderBy, AccountTransactionHistory.getPrimaryKey())
                 )
             } else {
                 accountTransactionHistoryRepository.findAll(
-                    OffsetBasedPageRequest(limit, offset, sortBy, orderBy, Account.getPrimaryKey())
+                    OffsetBasedPageRequest(limit, offset, sortBy, orderBy, AccountTransactionHistory.getPrimaryKey())
                 )
             }
         if (accountTransactionHistory.content.size == 0) {

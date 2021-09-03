@@ -42,7 +42,7 @@ data class Account(
     var cancelledDate: Timestamp? = null
 
     companion object {
-        fun getPrimaryKey() = "account-id"
+        fun getPrimaryKey() = "accountId"
     }
 
     fun withdraw(amount: Int) {

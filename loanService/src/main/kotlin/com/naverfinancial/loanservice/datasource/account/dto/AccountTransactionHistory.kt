@@ -33,6 +33,6 @@ data class AccountTransactionHistory(
     val accountNumber: String,
 ) {
     companion object {
-        fun getPrimaryKey() = "history-id"
+        fun getPrimaryKey() = "historyId"
     }
 }
