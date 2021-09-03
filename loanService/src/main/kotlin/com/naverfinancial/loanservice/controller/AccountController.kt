@@ -15,6 +15,7 @@ import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import com.naverfinancial.loanservice.wrapper.ApplymentLoanService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
@@ -182,10 +183,16 @@ class AccountController {
                 accountService.selectAccountByAccountID(accountId)
                 accountTransactionHistoryRepository.findAccountTransactionHistoriesByAccountId(
                     accountId,
-                    OffsetBasedPageRequest(limit, offset)
+                    OffsetBasedPageRequest(limit, offset, Sort.by("account-id"))
                 )
             } else {
-                accountTransactionHistoryRepository.findAll(OffsetBasedPageRequest(limit, offset))
+                accountTransactionHistoryRepository.findAll(
+                    OffsetBasedPageRequest(
+                        limit,
+                        offset,
+                        Sort.by("account-id")
+                    )
+                )
             }
         if (accountTransactionHistory.content.size == 0) {
             throw AccountException.NullAccountTransactionHistoryException()

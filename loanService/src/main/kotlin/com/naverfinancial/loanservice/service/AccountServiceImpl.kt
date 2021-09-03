@@ -14,6 +14,7 @@ import com.naverfinancial.loanservice.utils.AccountNumberGenerators
 import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
@@ -39,17 +40,17 @@ class AccountServiceImpl : AccountService {
     @Transactional(value = "accountTransactionManager")
     override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Long): Page<Account> {
         return if (ndi != null && status == AccountTypeStatus.ALL) {
-            accountRepository.findAccountsByNdi(ndi, OffsetBasedPageRequest(limit, offset))
+            accountRepository.findAccountsByNdi(ndi, OffsetBasedPageRequest(limit, offset, Sort.by("account-id")))
         } else if (ndi != null) {
             accountRepository.findAccountsByNdiAndStatus(
                 ndi,
                 status,
-                OffsetBasedPageRequest(limit, offset)
+                OffsetBasedPageRequest(limit, offset, Sort.by("account-id"))
             )
         } else if (status == AccountTypeStatus.ALL) {
-            accountRepository.findAll(OffsetBasedPageRequest(limit, offset))
+            accountRepository.findAll(OffsetBasedPageRequest(limit, offset, Sort.by("account-id")))
         } else {
-            accountRepository.findAccountsByStatus(status, OffsetBasedPageRequest(limit, offset))
+            accountRepository.findAccountsByStatus(status, OffsetBasedPageRequest(limit, offset, Sort.by("account-id")))
         }
     }
 

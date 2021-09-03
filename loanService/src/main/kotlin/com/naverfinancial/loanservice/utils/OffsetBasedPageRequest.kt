@@ -17,13 +17,6 @@ class OffsetBasedPageRequest : Pageable {
         checkValid()
     }
 
-    constructor(limit: Int, offset: Long) {
-        this.limit = limit
-        this.offset = offset
-        this.sort = Sort.unsorted()
-        checkValid()
-    }
-
     private fun checkValid() {
         if (limit > MAX) {
             this.limit = MAX

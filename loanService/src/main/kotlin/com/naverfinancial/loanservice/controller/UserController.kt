@@ -10,6 +10,7 @@ import com.naverfinancial.loanservice.utils.EmailValiation
 import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -43,7 +44,7 @@ class UserController {
         @RequestParam(defaultValue = "10") limit: Int,
         @RequestParam(defaultValue = "0") offset: Long
     ): ResponseEntity<Page<User>> {
-        val users = userRepository.findAll(OffsetBasedPageRequest(limit, offset))
+        val users = userRepository.findAll(OffsetBasedPageRequest(limit, offset, Sort.by("ndi")))
         if (!users.hasContent()) {
             throw UserException.NullUserException()
         }
