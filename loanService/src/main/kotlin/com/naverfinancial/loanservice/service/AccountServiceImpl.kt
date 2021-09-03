@@ -14,11 +14,9 @@ import com.naverfinancial.loanservice.utils.AccountNumberGenerators
 import com.naverfinancial.loanservice.utils.OffsetBasedPageRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
-import org.springframework.data.jpa.repository.Lock
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
-import javax.persistence.LockModeType
 
 @Service
 class AccountServiceImpl : AccountService {
@@ -34,9 +32,8 @@ class AccountServiceImpl : AccountService {
 
     @Transactional(value = "accountTransactionManager")
     override fun selectAccountByAccountID(accountId: Int): Account {
-        var account = accountRepository.findAccountByAccountId(accountId)
+        return accountRepository.findAccountByAccountId(accountId)
             ?: throw AccountException.NullAccountException()
-        return account
     }
 
     @Transactional(value = "accountTransactionManager")
