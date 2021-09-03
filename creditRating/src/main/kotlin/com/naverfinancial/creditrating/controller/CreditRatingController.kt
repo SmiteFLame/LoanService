@@ -25,29 +25,6 @@ class CreditRatingController {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    @ExceptionHandler(UserException::class)
-    fun userExceptionHandler(error: UserException): ResponseEntity<String> {
-        return ResponseEntity<String>(error.message, error.status)
-    }
-
-    @ExceptionHandler
-    fun exceptionHandler(error: Exception): ResponseEntity<String> {
-        var message = error.message
-        var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
-        when (error) {
-            is HttpMessageNotReadableException -> {
-                message = "일부 입력값이 없습니다"
-                status = HttpStatus.BAD_REQUEST
-            }
-            is HttpTimeoutException -> {
-                message = "CB서버의 제한시간이 초과되었습니다"
-                status = HttpStatus.GATEWAY_TIMEOUT
-            }
-        }
-
-        return ResponseEntity<String>(message, status)
-    }
-
     /**
      * NDI을 입력받아서 유저 정보를 가져온 후 신용등급 및 대출 가능 여부 파악한다
      *
