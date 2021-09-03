@@ -41,6 +41,10 @@ data class Account(
     @Column(name = "cancelled_date")
     var cancelledDate: Timestamp? = null
 
+    companion object {
+        fun getPrimaryKey() = "account-id"
+    }
+
     fun withdraw(amount: Int) {
         this.balance -= amount
     }

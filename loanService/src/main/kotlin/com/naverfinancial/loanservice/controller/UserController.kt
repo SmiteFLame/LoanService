@@ -44,7 +44,7 @@ class UserController {
         @RequestParam(defaultValue = "10") limit: Int,
         @RequestParam(defaultValue = "0") offset: Long
     ): ResponseEntity<Page<User>> {
-        val users = userRepository.findAll(OffsetBasedPageRequest(limit, offset, Sort.by("ndi")))
+        val users = userRepository.findAll(OffsetBasedPageRequest(limit, offset, Sort.by(User.getPrimaryKey())))
         if (!users.hasContent()) {
             throw UserException.NullUserException()
         }

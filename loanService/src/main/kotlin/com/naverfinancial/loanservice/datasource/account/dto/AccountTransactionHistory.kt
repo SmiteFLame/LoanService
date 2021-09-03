@@ -31,4 +31,8 @@ data class AccountTransactionHistory(
 
     @Column(name = "account_number", nullable = false)
     val accountNumber: String,
-)
+) {
+    companion object {
+        fun getPrimaryKey() = "history-id"
+    }
+}

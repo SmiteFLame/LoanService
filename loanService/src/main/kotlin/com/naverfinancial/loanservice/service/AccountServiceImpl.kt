@@ -40,17 +40,23 @@ class AccountServiceImpl : AccountService {
     @Transactional(value = "accountTransactionManager")
     override fun selectAccounts(ndi: String?, status: AccountTypeStatus, limit: Int, offset: Long): Page<Account> {
         return if (ndi != null && status == AccountTypeStatus.ALL) {
-            accountRepository.findAccountsByNdi(ndi, OffsetBasedPageRequest(limit, offset, Sort.by("account-id")))
+            accountRepository.findAccountsByNdi(
+                ndi,
+                OffsetBasedPageRequest(limit, offset, Sort.by(Account.getPrimaryKey()))
+            )
         } else if (ndi != null) {
             accountRepository.findAccountsByNdiAndStatus(
                 ndi,
                 status,
-                OffsetBasedPageRequest(limit, offset, Sort.by("account-id"))
+                OffsetBasedPageRequest(limit, offset, Sort.by(Account.getPrimaryKey()))
             )
         } else if (status == AccountTypeStatus.ALL) {
-            accountRepository.findAll(OffsetBasedPageRequest(limit, offset, Sort.by("account-id")))
+            accountRepository.findAll(OffsetBasedPageRequest(limit, offset, Sort.by(Account.getPrimaryKey())))
         } else {
-            accountRepository.findAccountsByStatus(status, OffsetBasedPageRequest(limit, offset, Sort.by("account-id")))
+            accountRepository.findAccountsByStatus(
+                status,
+                OffsetBasedPageRequest(limit, offset, Sort.by(Account.getPrimaryKey()))
+            )
         }
     }
 

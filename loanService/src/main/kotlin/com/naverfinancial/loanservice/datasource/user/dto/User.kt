@@ -22,4 +22,8 @@ data class User(
 
     @Column(nullable = false)
     val salary: Int
-)
+) {
+    companion object {
+        fun getPrimaryKey() = "ndi"
+    }
+}
