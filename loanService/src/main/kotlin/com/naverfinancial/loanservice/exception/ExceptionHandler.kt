@@ -17,16 +17,19 @@ class ExceptionHandler {
 
     @ExceptionHandler
     fun accountExceptionHandler(error: AccountException): ResponseEntity<String> {
+        println(error.message)
         return ResponseEntity<String>(error.message, error.status)
     }
 
     @ExceptionHandler
     fun commonExceptionHandler(error: CommonException): ResponseEntity<String> {
+        println(error.message)
         return ResponseEntity<String>(error.message, error.status)
     }
 
     @ExceptionHandler
     fun userExceptionHandler(error: UserException): ResponseEntity<String> {
+        println(error.message)
         return ResponseEntity<String>(error.message, error.status)
     }
 
@@ -70,6 +73,7 @@ class ExceptionHandler {
             }
         }
 
+        println(message)
         return ResponseEntity<String>(message, status)
     }
 }

@@ -24,13 +24,13 @@ class OffsetBasedPageRequest : Pageable {
         checkValid()
     }
 
-    private fun checkValid(){
-        if(limit > MAX){
+    private fun checkValid() {
+        if (limit > MAX) {
             this.limit = MAX
-        } else if(limit <= 0){
+        } else if (limit <= 0) {
             this.limit = 1
         }
-        if(offset < 0){
+        if (offset < 0) {
             this.offset = 0
         }
     }
