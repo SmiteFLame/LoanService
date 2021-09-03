@@ -5,7 +5,8 @@ import org.springframework.data.domain.Sort
 
 class OffsetBasedPageRequest : Pageable {
 
-    private val limit: Int
+    private val MAX = 10
+    private var limit: Int
     private val offset: Long
     private val sort: Sort
 
@@ -13,12 +14,20 @@ class OffsetBasedPageRequest : Pageable {
         this.limit = limit
         this.offset = offset
         this.sort = sort
+        checkLimit()
     }
 
     constructor(limit: Int, offset: Long) {
         this.limit = limit
         this.offset = offset
         this.sort = Sort.unsorted()
+        checkLimit()
+    }
+
+    private fun checkLimit(){
+        if(limit > MAX){
+            this.limit = MAX
+        }
     }
 
     override fun getPageNumber(): Int {
