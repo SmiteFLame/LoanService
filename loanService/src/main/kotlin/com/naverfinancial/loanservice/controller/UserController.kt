@@ -36,49 +36,6 @@ class UserController {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    @ExceptionHandler
-    fun commonExceptionHandler(error: CommonException): ResponseEntity<String> {
-        return ResponseEntity<String>(error.message, error.status)
-    }
-
-    @ExceptionHandler
-    fun userExceptionHandler(error: UserException): ResponseEntity<String> {
-        return ResponseEntity<String>(error.message, error.status)
-    }
-
-    @ExceptionHandler
-    fun exceptionHandler(error: Exception): ResponseEntity<String> {
-        var message = error.message
-        var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
-        when (error) {
-            is HttpMessageNotReadableException -> {
-                message = "입력값이 잘못 들어왔습니다"
-                status = HttpStatus.BAD_REQUEST
-            }
-            is HttpTimeoutException -> {
-                message = "제한시간이 초과되었습니다"
-                status = HttpStatus.GATEWAY_TIMEOUT
-            }
-            // RequestParam이 존재하지 않는 경우
-            is MissingServletRequestParameterException -> {
-                message = "필요한 파라미터 조건이 없습니다"
-                status = HttpStatus.BAD_REQUEST
-            }
-            // RequestParam 일부 입력값만 입력이 되지 않은 경우
-            is IllegalStateException -> {
-                message = "필요한 파라미터 조건이 없습니다"
-                status = HttpStatus.BAD_REQUEST
-            }
-            // RequestParam 타입이 잘못 들어온 경우
-            is MethodArgumentTypeMismatchException -> {
-                message = "파라미터 입력값이 잘못되었습니다"
-                status = HttpStatus.BAD_REQUEST
-            }
-        }
-
-        return ResponseEntity<String>(message, status)
-    }
-
     /**
      * 모든 유저 정보를 가져온 후 출력
      *
