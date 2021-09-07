@@ -31,13 +31,13 @@ class UserServiceImpl : UserService {
 
     @Transactional(value = "userTransactionManager")
     override fun saveCreditRating(ndi: String): UserCreditRating {
-//        테스트를 위해서 잠시 데이터 저장 X
-//
-//        val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
-//
-//        if (userCreditRating != null) {
-//            return userCreditRating
-//        }
+
+        val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
+
+        if (userCreditRating != null) {
+            return userCreditRating
+        }
+
         val creditRatingSearchResult = searchGrade(ndi)
 
         val newUserCreditRating = UserCreditRating(
