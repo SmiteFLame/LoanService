@@ -10,6 +10,8 @@ import com.naverfinancial.loanservice.wrapper.CreditRatingSearchResult
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.retry.annotation.EnableRetry
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.net.ConnectException
@@ -21,6 +23,7 @@ import java.sql.Timestamp
 import java.util.UUID
 
 @Service
+@EnableRetry
 class UserServiceImpl : UserService {
 
     @Autowired
@@ -29,15 +32,16 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
-    @Transactional(value = "userTransactionManager")
+    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
+    @Transactional(value = "userTransactionManager", )
     override fun saveCreditRating(ndi: String): UserCreditRating {
 
-        val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
-
-        if (userCreditRating != null) {
-            return userCreditRating
-        }
-
+//        val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
+//
+//        if (userCreditRating != null) {
+//            return userCreditRating
+//        }
+//
         val creditRatingSearchResult = searchGrade(ndi)
 
         val newUserCreditRating = UserCreditRating(
@@ -71,6 +75,11 @@ class UserServiceImpl : UserService {
                 return CreditRatingSearchResult(
                     JSONObject(response.body()).getInt("grade"),
                     JSONObject(response.body()).getBoolean("isPermit")
+                )
+            } else if(response.statusCode() == 502){
+                throw UserException.CreditRatingTimeoutException(
+                    response.body().toString(),
+                    HttpStatus.valueOf(response.statusCode())
                 )
             } else {
                 throw UserException.CreditRatingException(

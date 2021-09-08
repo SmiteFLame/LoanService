@@ -31,9 +31,9 @@ class CreditRatingServiceImpl : CreditRatingService {
 
     @Transactional(value = "creditRatingSearchTransactionManager")
     override fun selectGrade(user: User): CreditRatingSearchResult {
-        var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
-        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
-//        val grade = getGrade(user)
+//        var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
+//        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
+        val grade = getGrade(user)
         val isPermit = evaluateLoanAvailability(grade)
 
         // CreditRatingSearchHistory 기록하기
@@ -48,7 +48,7 @@ class CreditRatingServiceImpl : CreditRatingService {
         val resultOfCreditRatingSearchHistory = creditRatingSearchHistoryRepository.save(newCreditRatingSearchHistory)
 
         // CreditRatingSearchResult 기록하기
-        creditRatingSearchResult =
+        var creditRatingSearchResult =
             CreditRatingSearchResult(
                 ndi = user.ndi,
                 grade = grade,
@@ -73,7 +73,6 @@ class CreditRatingServiceImpl : CreditRatingService {
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8888/api/cb/grade"))
                 .POST(JsonFormData.formData(values))
-                .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
