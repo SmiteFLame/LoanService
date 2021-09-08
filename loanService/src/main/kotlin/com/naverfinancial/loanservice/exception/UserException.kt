@@ -29,6 +29,10 @@ abstract class UserException(string: String) : Exception(string) {
         override var status: HttpStatus = status
     }
 
+    class CreditRatingTimeoutException(message: String, status: HttpStatus) : UserException(message) {
+        override var status: HttpStatus = status
+    }
+
     class FailConnectCreditRatingServerException : UserException("신용 등급 서버가 열리지 않았습니다") {
         override var status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
     }
