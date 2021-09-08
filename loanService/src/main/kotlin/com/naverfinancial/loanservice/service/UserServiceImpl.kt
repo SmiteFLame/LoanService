@@ -20,7 +20,10 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.sql.Timestamp
+import java.util.LinkedList
 import java.util.UUID
+import java.util.Queue
+import javax.annotation.PostConstruct
 
 @Service
 @EnableRetry
@@ -32,10 +35,21 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
-    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
-    @Transactional(value = "userTransactionManager", )
-    override fun saveCreditRating(ndi: String): UserCreditRating {
+    lateinit var cacheListUserCreditRating: Queue<UserCreditRating>
 
+    @PostConstruct
+    fun init() {
+        cacheListUserCreditRating = LinkedList()
+    }
+
+    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
+    @Transactional(value = "userTransactionManager")
+    override fun saveCreditRating(ndi: String): UserCreditRating {
+//        cacheListUserCreditRating.forEach { userCreditRating ->
+//            if (userCreditRating.ndi == ndi) {
+//                return userCreditRating
+//            }
+//        }
 //        val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
 //
 //        if (userCreditRating != null) {
@@ -51,6 +65,11 @@ class UserServiceImpl : UserService {
             createdDate = Timestamp(System.currentTimeMillis())
         )
 
+//        cacheListUserCreditRating.offer(newUserCreditRating)
+//        if (cacheListUserCreditRating.size > 3) {
+//            cacheListUserCreditRating.poll()
+//        }
+
         return userCreditRatingRepository.save(newUserCreditRating)
     }
 
@@ -60,7 +79,6 @@ class UserServiceImpl : UserService {
         return userRepository.save(user)
     }
 
-    @Transactional(value = "userTransactionManager")
     override fun searchGrade(ndi: String): CreditRatingSearchResult {
         try {
             val values = mapOf("ndi" to ndi)
@@ -76,7 +94,7 @@ class UserServiceImpl : UserService {
                     JSONObject(response.body()).getInt("grade"),
                     JSONObject(response.body()).getBoolean("isPermit")
                 )
-            } else if(response.statusCode() == 502){
+            } else if (response.statusCode() == 502) {
                 throw UserException.CreditRatingTimeoutException(
                     response.body().toString(),
                     HttpStatus.valueOf(response.statusCode())
