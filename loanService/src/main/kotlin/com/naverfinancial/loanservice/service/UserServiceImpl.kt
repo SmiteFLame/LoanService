@@ -42,20 +42,37 @@ class UserServiceImpl : UserService {
         cacheListUserCreditRating = LinkedList()
     }
 
+    @Synchronized
+    fun findUserCreditRating(ndi : String) : UserCreditRating?{
+        cacheListUserCreditRating.forEach { userCreditRating ->
+            if (userCreditRating.ndi == ndi) {
+                return userCreditRating
+            }
+        }
+        return null
+    }
+
+    @Synchronized
+    fun saveUserCreditRating(newUserCreditRating : UserCreditRating) {
+        cacheListUserCreditRating.offer(newUserCreditRating)
+        if (cacheListUserCreditRating.size > 3) {
+            cacheListUserCreditRating.poll()
+        }
+    }
+
     @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
     @Transactional(value = "userTransactionManager")
     override fun saveCreditRating(ndi: String): UserCreditRating {
-//        cacheListUserCreditRating.forEach { userCreditRating ->
-//            if (userCreditRating.ndi == ndi) {
-//                return userCreditRating
-//            }
-//        }
-//        val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
-//
-//        if (userCreditRating != null) {
-//            return userCreditRating
-//        }
-//
+        var userCreditRating = findUserCreditRating(ndi)
+        if(userCreditRating != null){
+            return userCreditRating
+        }
+        userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
+
+        if (userCreditRating != null) {
+            return userCreditRating
+        }
+
         val creditRatingSearchResult = searchGrade(ndi)
 
         val newUserCreditRating = UserCreditRating(
@@ -65,10 +82,7 @@ class UserServiceImpl : UserService {
             createdDate = Timestamp(System.currentTimeMillis())
         )
 
-//        cacheListUserCreditRating.offer(newUserCreditRating)
-//        if (cacheListUserCreditRating.size > 3) {
-//            cacheListUserCreditRating.poll()
-//        }
+        saveUserCreditRating(newUserCreditRating)
 
         return userCreditRatingRepository.save(newUserCreditRating)
     }
