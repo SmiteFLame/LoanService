@@ -15,6 +15,11 @@ import java.lang.IllegalStateException
 
 @RestControllerAdvice
 class ExceptionHandler {
+    var errorConnection : Int = 0
+    var errorTimeout : Int = 0
+    var errorCredit : Int = 0
+    var errorFailCB : Int = 0
+    var errorTotal: Int = 0
 
     @ExceptionHandler
     fun accountExceptionHandler(error: AccountException): ResponseEntity<String> {
@@ -30,6 +35,19 @@ class ExceptionHandler {
 
     @ExceptionHandler
     fun userExceptionHandler(error: UserException): ResponseEntity<String> {
+        when(error){
+            is UserException.CreditRatingException ->{
+                if(error.message == "CB서버 요청에 실패했습니다"){
+                    errorFailCB++
+                } else if(error.message == "데이터베이스에 접속할 수 없습니다"){
+                    errorTimeout++
+                } else if(error.message == "CB서버의 제한시간이 초과되었습니다"){
+                    errorCredit++
+                }
+                errorTotal++
+            }
+        }
+        println("접속 불가: $errorTimeout 제한 시간: $errorCredit 요청 실패 : $errorFailCB 총합 : $errorTotal")
         println(error.message)
         return ResponseEntity<String>(error.message, error.status)
     }
@@ -69,6 +87,7 @@ class ExceptionHandler {
             }
             // 데이터베이스에 접속할 수 없는 경우
             is CannotCreateTransactionException -> {
+                println(errorConnection++)
                 message = "데이터베이스에 접속할 수 없습니다"
                 status = HttpStatus.INTERNAL_SERVER_ERROR
             }
