@@ -29,18 +29,22 @@ class CreditRatingServiceImpl : CreditRatingService {
     @Autowired
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
-    @Transactional(value = "creditRatingSearchTransactionManager")
     override fun selectGrade(user: User): CreditRatingSearchResult {
 //        var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
 //        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
         val grade = getGrade(user)
         val isPermit = evaluateLoanAvailability(grade)
 
+        return saveGrade(user.ndi, grade, isPermit)
+    }
+
+    @Transactional(value = "creditRatingSearchTransactionManager")
+    override fun saveGrade(ndi : String, grade : Int, isPermit : Boolean): CreditRatingSearchResult {
         // CreditRatingSearchHistory 기록하기
         val newCreditRatingSearchHistory =
             CreditRatingSearchHistory(
                 historyId = -1, // AUTO_INCREASED
-                ndi = user.ndi,
+                ndi = ndi,
                 grade = grade,
                 createdDate = Timestamp(System.currentTimeMillis())
             )
@@ -50,14 +54,12 @@ class CreditRatingServiceImpl : CreditRatingService {
         // CreditRatingSearchResult 기록하기
         var creditRatingSearchResult =
             CreditRatingSearchResult(
-                ndi = user.ndi,
+                ndi = ndi,
                 grade = grade,
                 isPermit = isPermit,
                 historyId = resultOfCreditRatingSearchHistory.historyId
             )
-        creditRatingSearchResultRepository.save(creditRatingSearchResult)
-
-        return creditRatingSearchResult
+        return creditRatingSearchResultRepository.save(creditRatingSearchResult)
     }
 
     @Transactional(value = "userTransactionManager")
@@ -73,6 +75,7 @@ class CreditRatingServiceImpl : CreditRatingService {
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8888/api/cb/grade"))
                 .POST(JsonFormData.formData(values))
+                .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
