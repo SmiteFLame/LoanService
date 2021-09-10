@@ -107,6 +107,6 @@ class UserController {
      */
     @GetMapping("/credit-rating/{ndi}")
     fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
-        return ResponseEntity<UserCreditRating>(userService.saveCreditRating(ndi), HttpStatus.CREATED)
+        return ResponseEntity<UserCreditRating>(userService.searchCreditRating(ndi), HttpStatus.CREATED)
     }
 }

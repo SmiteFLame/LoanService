@@ -35,46 +35,49 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
-    lateinit var cacheListUserCreditRating: Queue<UserCreditRating>
 
-    @PostConstruct
-    fun init() {
-        cacheListUserCreditRating = LinkedList()
-    }
-
-    @Synchronized
-    fun findUserCreditRating(ndi : String) : UserCreditRating?{
-        cacheListUserCreditRating.forEach { userCreditRating ->
-            if (userCreditRating.ndi == ndi) {
-                return userCreditRating
-            }
-        }
-        return null
-    }
-
-    @Synchronized
-    fun saveUserCreditRating(newUserCreditRating : UserCreditRating) {
-        cacheListUserCreditRating.offer(newUserCreditRating)
-        if (cacheListUserCreditRating.size > 3) {
-            cacheListUserCreditRating.poll()
-        }
-    }
+//    lateinit var cacheListUserCreditRating: Queue<UserCreditRating>
+//
+//    @PostConstruct
+//    fun init() {
+//        cacheListUserCreditRating = LinkedList()
+//    }
+//
+//    @Synchronized
+//    fun findUserCreditRating(ndi : String) : UserCreditRating?{
+//        cacheListUserCreditRating.forEach { userCreditRating ->
+//            if (userCreditRating.ndi == ndi) {
+//                return userCreditRating
+//            }
+//        }
+//        return null
+//    }
+//
+//    @Synchronized
+//    fun saveUserCreditRating(newUserCreditRating : UserCreditRating) {
+//        cacheListUserCreditRating.offer(newUserCreditRating)
+//        if (cacheListUserCreditRating.size > 3) {
+//            cacheListUserCreditRating.poll()
+//        }
+//    }
 
     @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
+    override fun searchCreditRating(ndi: String): UserCreditRating {
+        //        var userCreditRating = findUserCreditRating(ndi)
+//        if(userCreditRating != null){
+//            return userCreditRating
+//        }
+
+//        var userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
+
+//        if (userCreditRating != null) {
+//            return userCreditRating
+//        }
+        return saveCreditRating(ndi, searchGrade(ndi))
+    }
+
     @Transactional(value = "userTransactionManager")
-    override fun saveCreditRating(ndi: String): UserCreditRating {
-        var userCreditRating = findUserCreditRating(ndi)
-        if(userCreditRating != null){
-            return userCreditRating
-        }
-        userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
-
-        if (userCreditRating != null) {
-            return userCreditRating
-        }
-
-        val creditRatingSearchResult = searchGrade(ndi)
-
+    override fun saveCreditRating(ndi: String, creditRatingSearchResult: CreditRatingSearchResult): UserCreditRating {
         val newUserCreditRating = UserCreditRating(
             ndi = ndi,
             grade = creditRatingSearchResult.grade,
@@ -82,7 +85,7 @@ class UserServiceImpl : UserService {
             createdDate = Timestamp(System.currentTimeMillis())
         )
 
-        saveUserCreditRating(newUserCreditRating)
+//        saveUserCreditRating(newUserCreditRating)
 
         return userCreditRatingRepository.save(newUserCreditRating)
     }
