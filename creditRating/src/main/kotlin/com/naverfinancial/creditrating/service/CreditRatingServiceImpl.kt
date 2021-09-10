@@ -10,6 +10,7 @@ import com.naverfinancial.creditrating.utils.JsonFormData
 import org.json.JSONException
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.net.ConnectException
@@ -29,6 +30,7 @@ class CreditRatingServiceImpl : CreditRatingService {
     @Autowired
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
+    @Cacheable(value = ["creditRatingSearchResults"], key="#user.ndi")
     override fun selectGrade(user: User): CreditRatingSearchResult {
 //        var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
 //        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
