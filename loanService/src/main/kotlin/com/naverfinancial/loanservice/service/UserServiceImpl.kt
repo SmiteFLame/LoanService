@@ -35,44 +35,45 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
+    lateinit var cacheListUserCreditRating: Queue<UserCreditRating>
 
-//    lateinit var cacheListUserCreditRating: Queue<UserCreditRating>
-//
-//    @PostConstruct
-//    fun init() {
-//        cacheListUserCreditRating = LinkedList()
-//    }
-//
-//    @Synchronized
-//    fun findUserCreditRating(ndi : String) : UserCreditRating?{
-//        cacheListUserCreditRating.forEach { userCreditRating ->
-//            if (userCreditRating.ndi == ndi) {
-//                return userCreditRating
-//            }
-//        }
-//        return null
-//    }
-//
-//    @Synchronized
-//    fun saveUserCreditRating(newUserCreditRating : UserCreditRating) {
-//        cacheListUserCreditRating.offer(newUserCreditRating)
-//        if (cacheListUserCreditRating.size > 3) {
-//            cacheListUserCreditRating.poll()
-//        }
-//    }
+    @PostConstruct
+    fun init() {
+        cacheListUserCreditRating = LinkedList()
+    }
+
+    @Synchronized
+    fun findUserCreditRating(ndi: String): UserCreditRating? {
+        cacheListUserCreditRating.forEach { userCreditRating ->
+            if (userCreditRating.ndi == ndi) {
+                return userCreditRating
+            }
+        }
+        return null
+    }
+
+    @Synchronized
+    fun saveUserCreditRating(newUserCreditRating: UserCreditRating) {
+        cacheListUserCreditRating.offer(newUserCreditRating)
+        if (cacheListUserCreditRating.size > 3) {
+            cacheListUserCreditRating.poll()
+        }
+    }
 
     @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
     override fun searchCreditRating(ndi: String): UserCreditRating {
-        //        var userCreditRating = findUserCreditRating(ndi)
-//        if(userCreditRating != null){
+        // 캐시 메모리에서 UserCreditRating 존재하는지 확인
+        var userCreditRating = findUserCreditRating(ndi)
+        if (userCreditRating != null) {
 //            return userCreditRating
-//        }
+        }
 
-//        var userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
+        // 데이터베이스에서 UserCreditRating 존재하는지 확인
+        userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
 
-//        if (userCreditRating != null) {
+        if (userCreditRating != null) {
 //            return userCreditRating
-//        }
+        }
         return saveCreditRating(ndi, searchGrade(ndi))
     }
 
@@ -85,7 +86,7 @@ class UserServiceImpl : UserService {
             createdDate = Timestamp(System.currentTimeMillis())
         )
 
-//        saveUserCreditRating(newUserCreditRating)
+        saveUserCreditRating(newUserCreditRating)
 
         return userCreditRatingRepository.save(newUserCreditRating)
     }
