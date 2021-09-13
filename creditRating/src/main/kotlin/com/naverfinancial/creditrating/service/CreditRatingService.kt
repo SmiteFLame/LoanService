@@ -4,6 +4,9 @@ import com.naverfinancial.creditrating.datasource.creditRatingSearch.dto.CreditR
 import com.naverfinancial.creditrating.datasource.user.dto.User
 
 interface CreditRatingService {
+    // 해당하는 ndi에 데이터가 존재하는 지 확인
+    fun findCreditRatingSearchResultByNdi(ndi: String) : CreditRatingSearchResult?
+
     // CB 서버에서 등급을 받아오기
     fun selectGrade(user: User): CreditRatingSearchResult
 

@@ -30,9 +30,15 @@ class CreditRatingServiceImpl : CreditRatingService {
     @Autowired
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
+
+    @Transactional(value = "creditRatingSearchTransactionManager")
+    override fun findCreditRatingSearchResultByNdi(ndi: String) : CreditRatingSearchResult? {
+        return creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(ndi)
+    }
+
     @Cacheable(value = ["creditRatingSearchResults"], key="#user.ndi")
     override fun selectGrade(user: User): CreditRatingSearchResult {
-//        var creditRatingSearchResult = creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(user.ndi)
+//        var creditRatingSearchResult = findCreditRatingSearchResultByNdi(user.ndi)
 //        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
         val grade = getGrade(user)
         val isPermit = evaluateLoanAvailability(grade)
@@ -64,7 +70,6 @@ class CreditRatingServiceImpl : CreditRatingService {
         return creditRatingSearchResultRepository.save(creditRatingSearchResult)
     }
 
-    @Transactional(value = "userTransactionManager")
     override fun evaluateLoanAvailability(grade: Int): Boolean {
         // 연체 기록은 현재 없으므로 4단계 아래면 바로 전달
         return grade <= 4
