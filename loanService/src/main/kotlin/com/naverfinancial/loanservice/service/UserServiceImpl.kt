@@ -65,14 +65,14 @@ class UserServiceImpl : UserService {
         // 캐시 메모리에서 UserCreditRating 존재하는지 확인
         var userCreditRating = findUserCreditRating(ndi)
         if (userCreditRating != null) {
-//            return userCreditRating
+            return userCreditRating
         }
 
         // 데이터베이스에서 UserCreditRating 존재하는지 확인
         userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
 
         if (userCreditRating != null) {
-//            return userCreditRating
+            return userCreditRating
         }
         return saveCreditRating(ndi, searchGrade(ndi))
     }
