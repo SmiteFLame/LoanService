@@ -12,7 +12,6 @@ import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.net.ConnectException
 import java.net.URI
 import java.net.http.HttpClient
@@ -30,7 +29,6 @@ class CreditRatingServiceImpl : CreditRatingService {
     @Autowired
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
-    @Transactional(value = "creditRatingSearchTransactionManager")
     override fun findCreditRatingSearchResultByNdi(ndi: String): CreditRatingSearchResult? {
         return creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(ndi)
     }
@@ -49,7 +47,6 @@ class CreditRatingServiceImpl : CreditRatingService {
         return saveGrade(user.ndi, grade, isPermit)
     }
 
-    @Transactional(value = "creditRatingSearchTransactionManager")
     override fun saveGrade(ndi: String, grade: Int, isPermit: Boolean): CreditRatingSearchResult {
         // CreditRatingSearchHistory 기록하기
         val newCreditRatingSearchHistory =
