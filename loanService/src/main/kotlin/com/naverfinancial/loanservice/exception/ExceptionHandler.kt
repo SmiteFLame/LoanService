@@ -68,7 +68,6 @@ class ExceptionHandler {
             }
             // 데이터베이스에 접속할 수 없는 경우
             is CannotCreateTransactionException -> {
-                println(errorConnection++)
                 message = "데이터베이스에 접속할 수 없습니다"
                 status = HttpStatus.INTERNAL_SERVER_ERROR
             }
