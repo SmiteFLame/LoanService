@@ -30,13 +30,11 @@ class AccountServiceImpl : AccountService {
     @Autowired
     lateinit var accountCancellationHistoryRepository: AccountCancellationHistoryRepository
 
-    @Transactional(value = "accountTransactionManager")
     override fun selectAccountByAccountID(accountId: Int): Account {
         return accountRepository.findAccountByAccountId(accountId)
             ?: throw AccountException.NullAccountException()
     }
 
-    @Transactional(value = "accountTransactionManager")
     override fun selectAccounts(
         ndi: String?,
         status: AccountTypeStatus,
