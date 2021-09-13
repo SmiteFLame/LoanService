@@ -30,9 +30,8 @@ class CreditRatingServiceImpl : CreditRatingService {
     @Autowired
     lateinit var creditRatingSearchResultRepository: CreditRatingSearchResultRepository
 
-
     @Transactional(value = "creditRatingSearchTransactionManager")
-    override fun findCreditRatingSearchResultByNdi(ndi: String) : CreditRatingSearchResult? {
+    override fun findCreditRatingSearchResultByNdi(ndi: String): CreditRatingSearchResult? {
         return creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(ndi)
     }
 
@@ -40,7 +39,7 @@ class CreditRatingServiceImpl : CreditRatingService {
      * @CachePut : cache를 갱신할 때 사용
      * @CacheEvict : cache를 삭제할 때 사용
      */
-    @Cacheable(value = ["creditRatingSearchResults"], key="#user.ndi")
+    @Cacheable(value = ["creditRatingSearchResults"], key = "#user.ndi")
     override fun selectGrade(user: User): CreditRatingSearchResult {
         var creditRatingSearchResult = findCreditRatingSearchResultByNdi(user.ndi)
         val grade = creditRatingSearchResult?.grade ?: getGrade(user)
@@ -51,7 +50,7 @@ class CreditRatingServiceImpl : CreditRatingService {
     }
 
     @Transactional(value = "creditRatingSearchTransactionManager")
-    override fun saveGrade(ndi : String, grade : Int, isPermit : Boolean): CreditRatingSearchResult {
+    override fun saveGrade(ndi: String, grade: Int, isPermit: Boolean): CreditRatingSearchResult {
         // CreditRatingSearchHistory 기록하기
         val newCreditRatingSearchHistory =
             CreditRatingSearchHistory(

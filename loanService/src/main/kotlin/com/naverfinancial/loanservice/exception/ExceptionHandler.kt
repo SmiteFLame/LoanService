@@ -15,12 +15,6 @@ import java.lang.IllegalStateException
 
 @RestControllerAdvice
 class ExceptionHandler {
-    var errorConnection : Int = 0
-    var errorTimeout : Int = 0
-    var errorCredit : Int = 0
-    var errorFailCB : Int = 0
-    var errorTotal: Int = 0
-
     @ExceptionHandler
     fun accountExceptionHandler(error: AccountException): ResponseEntity<String> {
         println(error.message)
