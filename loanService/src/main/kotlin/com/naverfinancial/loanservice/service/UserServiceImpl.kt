@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.net.ConnectException
 import java.net.URI
 import java.net.http.HttpClient
