@@ -136,7 +136,6 @@ class AccountController {
      * OK - 한도보다 더 많은 금액을 대출 신청 한 경우
      * CREATED - 성공
      */
-    @Transactional(value = "accountTransactionManager")
     @PostMapping("{account-id}/applyments")
     fun updateAccount(
         @PathVariable("account-id") accountId: Int,

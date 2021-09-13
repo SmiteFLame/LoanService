@@ -4,6 +4,7 @@ import com.naverfinancial.loanservice.datasource.account.dto.Account
 import com.naverfinancial.loanservice.datasource.account.dto.AccountCancellationHistory
 import com.naverfinancial.loanservice.datasource.account.dto.AccountTransactionHistory
 import com.naverfinancial.loanservice.datasource.account.repository.AccountCancellationHistoryRepository
+import com.naverfinancial.loanservice.datasource.account.repository.AccountLockRepository
 import com.naverfinancial.loanservice.datasource.account.repository.AccountRepository
 import com.naverfinancial.loanservice.datasource.account.repository.AccountTransactionHistoryRepository
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
@@ -23,6 +24,9 @@ class AccountServiceImpl : AccountService {
 
     @Autowired
     lateinit var accountRepository: AccountRepository
+
+    @Autowired
+    lateinit var accountLockRepository: AccountLockRepository
 
     @Autowired
     lateinit var accountTransactionHistoryRepository: AccountTransactionHistoryRepository
@@ -51,7 +55,6 @@ class AccountServiceImpl : AccountService {
         }
     }
 
-    @Transactional(value = "accountTransactionManager")
     override fun openAccount(ndi: String, userCreditRating: UserCreditRating): Account {
         // 통장번호 랜덤 생성
         var newAccountNumbers: String
@@ -78,7 +81,7 @@ class AccountServiceImpl : AccountService {
     @Transactional(value = "accountTransactionManager")
     override fun withdrawLoan(accountId: Int, amount: Int): Account {
         val account =
-            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+            accountLockRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         // 대출 가능 조사하기
         if (account.balance - amount < account.loanLimit) {
@@ -106,7 +109,7 @@ class AccountServiceImpl : AccountService {
     @Transactional(value = "accountTransactionManager")
     override fun depositLoan(accountId: Int, amount: Int): Account {
         val account =
-            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+            accountLockRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
 
         account.deposit(amount)
 
@@ -139,7 +142,7 @@ class AccountServiceImpl : AccountService {
     @Transactional(value = "accountTransactionManager")
     override fun removeAccount(accountId: Int) {
         val account =
-            accountRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
+            accountLockRepository.findAccountByAccountId(accountId) ?: throw AccountException.NullAccountException()
         if (account.balance != 0) {
             throw AccountException.RestLimitException()
         }
@@ -158,6 +161,6 @@ class AccountServiceImpl : AccountService {
     }
 
     fun updateAccount(account: Account): Account {
-        return accountRepository.save(account)
+        return accountLockRepository.save(account)
     }
 }

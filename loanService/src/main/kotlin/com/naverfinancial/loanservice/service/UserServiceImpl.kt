@@ -77,7 +77,6 @@ class UserServiceImpl : UserService {
         return saveCreditRating(ndi, searchGrade(ndi))
     }
 
-    @Transactional(value = "userTransactionManager")
     override fun saveCreditRating(ndi: String, creditRatingSearchResult: CreditRatingSearchResult): UserCreditRating {
         val newUserCreditRating = UserCreditRating(
             ndi = ndi,
@@ -91,7 +90,6 @@ class UserServiceImpl : UserService {
         return userCreditRatingRepository.save(newUserCreditRating)
     }
 
-    @Transactional(value = "userTransactionManager")
     override fun insertUser(user: User): User {
         user.ndi = UUID.randomUUID().toString()
         return userRepository.save(user)
