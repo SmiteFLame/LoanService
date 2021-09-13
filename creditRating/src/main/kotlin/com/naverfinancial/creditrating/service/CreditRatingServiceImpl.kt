@@ -36,11 +36,15 @@ class CreditRatingServiceImpl : CreditRatingService {
         return creditRatingSearchResultRepository.findCreditRatingSearchResultByNdi(ndi)
     }
 
+    /**
+     * @CachePut : cache를 갱신할 때 사용
+     * @CacheEvict : cache를 삭제할 때 사용
+     */
     @Cacheable(value = ["creditRatingSearchResults"], key="#user.ndi")
     override fun selectGrade(user: User): CreditRatingSearchResult {
-//        var creditRatingSearchResult = findCreditRatingSearchResultByNdi(user.ndi)
-//        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
-        val grade = getGrade(user)
+        var creditRatingSearchResult = findCreditRatingSearchResultByNdi(user.ndi)
+        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
+//        val grade = getGrade(user)
         val isPermit = evaluateLoanAvailability(grade)
 
         return saveGrade(user.ndi, grade, isPermit)
