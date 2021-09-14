@@ -17,7 +17,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.sql.Timestamp
-import java.time.Duration
 
 @Service
 class CreditRatingServiceImpl : CreditRatingService {
