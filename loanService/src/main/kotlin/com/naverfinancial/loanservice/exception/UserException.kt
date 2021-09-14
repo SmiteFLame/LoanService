@@ -29,7 +29,10 @@ abstract class UserException(string: String) : Exception(string) {
         override var status: HttpStatus = status
     }
 
-    class CreditRatingTimeoutException(message: String, status: HttpStatus) : UserException(message) {
+    class CreditRatingTimeoutException(
+        message: String = "CB서버의 제한시간이 초과되었습니다",
+        status: HttpStatus = HttpStatus.GATEWAY_TIMEOUT
+    ) : UserException(message) {
         override var status: HttpStatus = status
     }
 
