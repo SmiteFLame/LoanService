@@ -23,7 +23,7 @@ object UserCreditRatingCache {
 
         Thread {
             val uuid = cacheVersion[ndi]
-            Thread.sleep(10000)
+            Thread.sleep(1000)
             if(cacheVersion[ndi] == uuid){
                 cache.remove(ndi)
                 cacheVersion.remove(ndi)

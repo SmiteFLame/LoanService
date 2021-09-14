@@ -54,7 +54,7 @@ class UserServiceImpl : UserService {
         return userRepository.save(user)
     }
 
-    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
+    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class, HttpTimeoutException::class])
     override fun searchGrade(ndi: String): CreditRatingSearchResult {
         try {
             val values = mapOf("ndi" to ndi)
@@ -65,6 +65,7 @@ class UserServiceImpl : UserService {
                 .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json")
                 .build()
+            // "chunked transfer encoding, state: READING_LENGTH" 에러가 발생하는 지역
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
             if (response.statusCode() == 200) {
                 return CreditRatingSearchResult(
