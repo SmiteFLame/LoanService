@@ -114,7 +114,7 @@ class UserController {
     fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
         var userCreditRating = UserCreditRatingCache.getCache(ndi)
         if (userCreditRating == null) {
-            userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
+//            userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
             if (userCreditRating == null) {
                 userCreditRating = userService.searchCreditRating(ndi)
             }

@@ -19,7 +19,9 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.net.http.HttpTimeoutException
 import java.sql.Timestamp
+import java.time.Duration
 import java.util.UUID
 
 @Service
@@ -52,7 +54,7 @@ class UserServiceImpl : UserService {
         return userRepository.save(user)
     }
 
-//    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
+    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
     override fun searchGrade(ndi: String): CreditRatingSearchResult {
         try {
             val values = mapOf("ndi" to ndi)
@@ -82,7 +84,7 @@ class UserServiceImpl : UserService {
             }
         } catch (e: ConnectException) {
             throw UserException.FailConnectCreditRatingServerException()
-        } catch (e : HttpTimeoutException){
+        } catch (e: HttpTimeoutException) {
             throw UserException.CreditRatingTimeoutException()
         }
     }
