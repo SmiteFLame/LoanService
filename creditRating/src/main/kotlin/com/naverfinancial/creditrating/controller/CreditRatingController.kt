@@ -31,6 +31,8 @@ class CreditRatingController {
      * NOT_FOUND - User에 해당되는 ndi가 없는 경우
      * GATEWAY_TIMEOUT - 10초 이내로 데이터 요청을 신용등급을 못 가져온 경우
      */
+
+    @Cacheable(value = ["creditRatingSearchResults"], key = "#ndi")
     @PostMapping
     fun selectGrade(@RequestBody map: Map<String, String>): ResponseEntity<CreditRatingSearchResult> {
         if (!map.containsKey("ndi")) {
