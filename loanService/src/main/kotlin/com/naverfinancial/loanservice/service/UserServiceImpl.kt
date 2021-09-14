@@ -52,7 +52,7 @@ class UserServiceImpl : UserService {
         return userRepository.save(user)
     }
 
-    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
+//    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
     override fun searchGrade(ndi: String): CreditRatingSearchResult {
         try {
             val values = mapOf("ndi" to ndi)
@@ -60,6 +60,7 @@ class UserServiceImpl : UserService {
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8081/credits"))
                 .POST(JsonFormData.formData(values))
+                .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json")
                 .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
@@ -81,6 +82,8 @@ class UserServiceImpl : UserService {
             }
         } catch (e: ConnectException) {
             throw UserException.FailConnectCreditRatingServerException()
+        } catch (e : HttpTimeoutException){
+            throw UserException.CreditRatingTimeoutException()
         }
     }
 }

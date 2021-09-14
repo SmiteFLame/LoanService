@@ -82,7 +82,6 @@ class CreditRatingServiceImpl : CreditRatingService {
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8888/api/cb/grade"))
                 .POST(JsonFormData.formData(values))
-                .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
