@@ -32,7 +32,6 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
-
     override fun searchCreditRating(ndi: String): UserCreditRating {
         val creditRatingSearchResult = searchGrade(ndi)
 

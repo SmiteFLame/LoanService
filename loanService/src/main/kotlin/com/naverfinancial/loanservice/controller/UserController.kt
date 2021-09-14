@@ -113,11 +113,11 @@ class UserController {
     @GetMapping("/credit-rating/{ndi}")
     fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
         var userCreditRating = UserCreditRatingCache.getCache(ndi)
-        if(userCreditRating == null){
-            userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
-        }
         if (userCreditRating == null) {
-            userCreditRating = userService.searchCreditRating(ndi)
+            userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
+            if (userCreditRating == null) {
+                userCreditRating = userService.searchCreditRating(ndi)
+            }
         }
         return ResponseEntity<UserCreditRating>(userCreditRating, HttpStatus.CREATED)
     }
