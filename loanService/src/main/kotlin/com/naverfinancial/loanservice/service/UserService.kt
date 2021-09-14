@@ -8,9 +8,6 @@ interface UserService {
     // 사용자 신용 등급 조회
     fun searchCreditRating(ndi: String): UserCreditRating
 
-    // 사용자 신용 등급 저장
-    fun saveCreditRating(ndi: String, creditRatingSearchResult: CreditRatingSearchResult): UserCreditRating
-
     // 사용자 추가하기
     fun insertUser(user: User): User
 

@@ -1,5 +1,6 @@
 package com.naverfinancial.loanservice.service
 
+import com.naverfinancial.loanservice.cache.UserCreditRatingCache
 import com.naverfinancial.loanservice.datasource.user.dto.User
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.datasource.user.repository.UserCreditRatingRepository
@@ -32,34 +33,19 @@ class UserServiceImpl : UserService {
     lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
 
-    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
     override fun searchCreditRating(ndi: String): UserCreditRating {
-        // 캐시 메모리에서 UserCreditRating 존재하는지 확인
-//        var userCreditRating = findUserCreditRating(ndi)
-//        if (userCreditRating != null) {
-//            return userCreditRating
-//        }
+        val creditRatingSearchResult = searchGrade(ndi)
 
-        // 데이터베이스에서 UserCreditRating 존재하는지 확인
-        val userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
-
-        if (userCreditRating != null) {
-            return userCreditRating
-        }
-        return saveCreditRating(ndi, searchGrade(ndi))
-    }
-
-    override fun saveCreditRating(ndi: String, creditRatingSearchResult: CreditRatingSearchResult): UserCreditRating {
-        val newUserCreditRating = UserCreditRating(
+        val userCreditRating = UserCreditRating(
             ndi = ndi,
             grade = creditRatingSearchResult.grade,
             isPermit = creditRatingSearchResult.isPermit,
             createdDate = Timestamp(System.currentTimeMillis())
         )
 
-//        saveUserCreditRating(newUserCreditRating)
+        UserCreditRatingCache.insertCache(ndi, userCreditRating)
 
-        return userCreditRatingRepository.save(newUserCreditRating)
+        return userCreditRatingRepository.save(userCreditRating)
     }
 
     override fun insertUser(user: User): User {
@@ -67,6 +53,7 @@ class UserServiceImpl : UserService {
         return userRepository.save(user)
     }
 
+    @Retryable(maxAttempts = 2, exclude = [UserException.CreditRatingTimeoutException::class])
     override fun searchGrade(ndi: String): CreditRatingSearchResult {
         try {
             val values = mapOf("ndi" to ndi)

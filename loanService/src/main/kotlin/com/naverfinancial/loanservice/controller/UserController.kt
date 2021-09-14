@@ -1,7 +1,9 @@
 package com.naverfinancial.loanservice.controller
 
+import com.naverfinancial.loanservice.cache.UserCreditRatingCache
 import com.naverfinancial.loanservice.datasource.user.dto.User
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
+import com.naverfinancial.loanservice.datasource.user.repository.UserCreditRatingRepository
 import com.naverfinancial.loanservice.datasource.user.repository.UserRepository
 import com.naverfinancial.loanservice.exception.CommonException
 import com.naverfinancial.loanservice.exception.UserException
@@ -29,6 +31,9 @@ class UserController {
 
     @Autowired
     lateinit var userRepository: UserRepository
+
+    @Autowired
+    lateinit var userCreditRatingRepository: UserCreditRatingRepository
 
     /**
      * 모든 유저 정보를 가져온 후 출력
@@ -107,6 +112,13 @@ class UserController {
      */
     @GetMapping("/credit-rating/{ndi}")
     fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
-        return ResponseEntity<UserCreditRating>(userService.searchCreditRating(ndi), HttpStatus.CREATED)
+        var userCreditRating = UserCreditRatingCache.getCache(ndi)
+        if(userCreditRating == null){
+            userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
+        }
+        if (userCreditRating == null) {
+            userCreditRating = userService.searchCreditRating(ndi)
+        }
+        return ResponseEntity<UserCreditRating>(userCreditRating, HttpStatus.CREATED)
     }
 }
