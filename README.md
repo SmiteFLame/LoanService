@@ -450,8 +450,11 @@ CREATE TABLE account_cancellation_history(
 |14-2|1번|0개|1개|2000개|100개|Default(10개)|약 1416개|1136개|약 20%|246개|890개|트랜잭션 완전 제거|
 |15-1|1번|3개|5개|2000개|100개|Default(10개)|약 1416개|293개|약 79%|87개|204개|트랜잭션 완전 제거|
 |15-2|1번|3개|5개|2000개|100개|Default(10개)|약 1416개|483개|약 66%|128개|355개|트랜잭션 완전 제거|
-|16-1|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|491개|약 79%|140개|349개|트랜잭션 완전 제거|
-|16-2|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|479개|약 65%|116개|363개|트랜잭션 완전 제거|
+|16-1|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|491개|약 61%|140개|349개|Retry 2번 제한|
+|16-2|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|479개|약 62%|116개|363개|Retry 2번 제한|
+|17-1|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|373개|약 70%|110개|256개|캐시 타임아웃 10초 -> 1초, 9개 IOException 에러|
+|17-2|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|402개|약 68%|90개|360개|캐시 타임아웃 10초 -> 1초, 42개 IOException 에러|
+
 
 트랜잭션 분리
 - 트랜잭션을 분리하였더니 예상 성능보다 훨씬 더 좋은 성능이 나옴
@@ -461,13 +464,12 @@ CREATE TABLE account_cancellation_history(
 - 캐시를 사용하여 오류를 최대한 감소
 - 캐시를 사용하면 Retry의 수와 상관 없이 에러개수거 비슷함 완료됨..?
 
-에러
 - 두가지의 추가 오류 발생 (java.io.IOException)
-    - chunked transfer encoding, state: READING_LENGTH
+    - chunked transfer encoding, state: READING_LENGTH -> connection closed locally 실행
         - LoanService의 ```searchGrade``` 함수
         -  ```val response = client.send(request, HttpResponse.BodyHandlers.ofString())``` 위치에서 발생이 되는중
-    - connection closed locally
-        - 위치 파악중
+    - unable to create native thread: possibly out of memory or process/resource limits reached
+        - CreditRating의 @Cacheable에서 발생하는 문제
 
 ### TC2
 - 에러율 20%, 딜레이 0 ~ 2초
