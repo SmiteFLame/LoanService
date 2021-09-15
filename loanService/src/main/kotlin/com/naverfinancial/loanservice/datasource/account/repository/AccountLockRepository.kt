@@ -11,6 +11,6 @@ import javax.persistence.QueryHint
 @Repository
 interface AccountLockRepository : JpaRepository<Account, Int> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints(value = [QueryHint(name = "javax.persistence.lock.timeout", value = "10000")])
+    @QueryHints(value = [QueryHint(name = "javax.persistence.lock.timeout", value = "1000")])
     fun findAccountByAccountId(accountId: Int): Account?
 }
