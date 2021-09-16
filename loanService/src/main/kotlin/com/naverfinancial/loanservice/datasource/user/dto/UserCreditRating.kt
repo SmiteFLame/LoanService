@@ -20,4 +20,7 @@ data class UserCreditRating(
 
     @Column(name = "created_date", nullable = false)
     val createdDate: Timestamp,
-)
+){
+    @Transient
+    var cacheTimestamp : Timestamp? = null
+}

@@ -29,7 +29,7 @@ object UserCreditRatingCache {
     }
 
     // Cache 시간 변경
-    private fun updateCache(ndi : String){
+    private fun updateCache(ndi: String) {
         cache[ndi]!!.cacheTimestamp = Timestamp(System.currentTimeMillis())
     }
 
