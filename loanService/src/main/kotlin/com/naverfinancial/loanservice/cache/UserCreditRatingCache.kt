@@ -10,27 +10,33 @@ object UserCreditRatingCache {
 
     // Cache 가져오기
     fun getCache(ndi: String): UserCreditRating? {
+        // 캐시가 없으면 null 전송
         if (cache[ndi] == null) {
             return null
-        } else if (cache[ndi]!!.cacheTimestamp!!.time + cacheTime <= Timestamp(System.currentTimeMillis()).time) {
+        }
+        // 현재 캐시가 1초 이상 지난 상태이면 null 전송
+        else if (cache[ndi]!!.cacheTimestamp!!.time + cacheTime < Timestamp(System.currentTimeMillis()).time) {
             return null
         }
-        updateCache(ndi)
+
+        // 현재 cache 가장 앞으로 최신화
+        insertCache(ndi, cache[ndi]!!)
         return cache[ndi]
     }
 
     // Cache 추가
     fun insertCache(ndi: String, userCreditRating: UserCreditRating) {
+        // 현재 cache 존재하면 삭제
         if (cache[ndi] != null) {
             cache.remove(ndi)
         }
-        cache[ndi] = userCreditRating
-        updateCache(ndi)
-    }
 
-    // Cache 시간 변경
-    private fun updateCache(ndi: String) {
-        cache[ndi]!!.cacheTimestamp = Timestamp(System.currentTimeMillis())
+        // 현재 캐시에 TimeStamp 최신화
+        userCreditRating.cacheTimestamp = Timestamp(System.currentTimeMillis())
+
+        // 캐시 추가
+        // LinkedListMap 이용해서 가장 오래된 캐쉬는 자동으로 삭제
+        cache[ndi] = userCreditRating
     }
 
     // Cache 삭제
