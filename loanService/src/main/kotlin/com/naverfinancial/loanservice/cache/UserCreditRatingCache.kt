@@ -12,7 +12,7 @@ object UserCreditRatingCache {
     fun getCache(ndi: String): UserCreditRating? {
         if (cache[ndi] == null) {
             return null
-        } else if (cache[ndi]!!.cacheTimestamp.time + cacheTime <= Timestamp(System.currentTimeMillis()).time) {
+        } else if (cache[ndi]!!.cacheTimestamp!!.time + cacheTime <= Timestamp(System.currentTimeMillis()).time) {
             return null
         }
         updateCache(ndi)
