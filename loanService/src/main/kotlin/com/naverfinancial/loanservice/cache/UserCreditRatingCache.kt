@@ -2,35 +2,31 @@ package com.naverfinancial.loanservice.cache
 
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.wrapper.LRUCache
-import java.util.*
-import kotlin.collections.HashMap
-import kotlin.concurrent.timer
+import java.sql.Timestamp
 
 object UserCreditRatingCache {
     private val cache = LRUCache<String, UserCreditRating>(3)
-    private val cacheVersion = HashMap<String, UUID>()
+    private const val cacheTime: Int = 1000
 
+    // Cache 가져오기
     fun getCache(ndi: String): UserCreditRating? {
+        if (cache[ndi] == null) {
+            return null
+        } else if (cache[ndi]!!.createdDate.time + cacheTime <= Timestamp(System.currentTimeMillis()).time) {
+            return null
+        }
         return cache[ndi]
     }
 
+    // Cache 추가
     fun insertCache(ndi: String, userCreditRating: UserCreditRating) {
         if (cache[ndi] != null) {
             cache.remove(ndi)
         }
-        cacheVersion[ndi] = UUID.randomUUID()
         cache[ndi] = userCreditRating
-
-        Thread {
-            val uuid = cacheVersion[ndi]
-            Thread.sleep(1000)
-            if(cacheVersion[ndi] == uuid){
-                cache.remove(ndi)
-                cacheVersion.remove(ndi)
-            }
-        }.start()
     }
 
+    // Cache 삭제
     fun removeCache(ndi: String) {
         cache.remove(ndi)
     }
