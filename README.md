@@ -454,6 +454,9 @@ CREATE TABLE account_cancellation_history(
 |16-2|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|479개|약 62%|116개|363개|Retry 2번 제한|
 |17-1|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|373개|약 70%|110개|256개|캐시 타임아웃 10초 -> 1초, 9개 IOException 에러|
 |17-2|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|402개|약 68%|90개|360개|캐시 타임아웃 10초 -> 1초, 42개 IOException 에러|
+|18-1|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|293개|약 76%|82개|208개|캐시 스레드 제거, TimeStamp 사용, 2개 IOException 에러|
+|18-2|2번|3개|5개|2000개|100개|Default(10개)|약 1246개|291개|약 76%|65개|219개|캐시 스레드 제거, TimeStamp 사용, 5개 IOException 에러|
+
 
 
 트랜잭션 분리
@@ -463,13 +466,6 @@ CREATE TABLE account_cancellation_history(
 캐시
 - 캐시를 사용하여 오류를 최대한 감소
 - 캐시를 사용하면 Retry의 수와 상관 없이 에러개수거 비슷함 완료됨..?
-
-- 두가지의 추가 오류 발생 (java.io.IOException)
-    - chunked transfer encoding, state: READING_LENGTH -> connection closed locally 실행
-        - LoanService의 ```searchGrade``` 함수
-        -  ```val response = client.send(request, HttpResponse.BodyHandlers.ofString())``` 위치에서 발생이 되는중
-    - unable to create native thread: possibly out of memory or process/resource limits reached
-        - CreditRating의 @Cacheable에서 발생하는 문제
 
 ### TC2
 - 에러율 20%, 딜레이 0 ~ 2초
