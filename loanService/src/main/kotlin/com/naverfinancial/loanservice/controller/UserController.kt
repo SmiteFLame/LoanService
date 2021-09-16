@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import kotlin.random.Random
 
 @RestController
 @RequestMapping("/users")
@@ -122,35 +121,4 @@ class UserController {
         }
         return ResponseEntity<UserCreditRating>(userCreditRating, HttpStatus.CREATED)
     }
-
-    var ndilist = arrayOf(
-        "33eb088d-c11b-45d3-833d-f388f448345f",
-        "0b1051f7-ff90-4d3b-baa9-db115972d05b",
-        "00cb967c-ff9d-4fee-8e4f-669b39ed121e",
-        "13fcb7c5-ff25-42b3-88bc-c4305e7b1f66",
-        "32ad9ce6-ed9c-498a-a005-b123572b72e2"
-    )
-
-    var success = 0
-
-    @GetMapping("/test")
-    fun selectCreditRatingTest(): ResponseEntity<UserCreditRating> {
-        val cnt = Random(System.currentTimeMillis()).nextInt(5)
-        var userCreditRating = UserCreditRatingCache.getCache(ndilist[cnt])
-        if (userCreditRating == null) {
-//            userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndilist[cnt])
-            if (userCreditRating == null) {
-                userCreditRating = userService.searchCreditRating(ndilist[cnt])
-            }
-        }
-        successUp()
-        return ResponseEntity<UserCreditRating>(userCreditRating, HttpStatus.CREATED)
-    }
-
-    @Synchronized
-    fun successUp(){
-        success++
-        println(success)
-    }
-
 }

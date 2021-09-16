@@ -11,72 +11,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.server.MethodNotAllowedException
-import java.io.IOException
 import java.lang.IllegalStateException
 
 @RestControllerAdvice
 class ExceptionHandler {
-    var errorTimeout: Int = 0
-    var errorCredit: Int = 0
-    var errorFailCB: Int = 0
-    var errorTotal: Int = 0
-    var errorIO: Int = 0
-
-    @ExceptionHandler
-    fun accountExceptionHandler(error: AccountException): ResponseEntity<String> {
-        println(error.message)
-        return ResponseEntity<String>(error.message, error.status)
-    }
-
-    @ExceptionHandler
-    fun commonExceptionHandler(error: CommonException): ResponseEntity<String> {
-        println(error.message)
-        return ResponseEntity<String>(error.message, error.status)
-    }
-
-    @Synchronized
-    fun errorFailCBplus() {
-        errorFailCB++
-    }
-
-    @Synchronized
-    fun errorCreditPlus() {
-        errorCredit++
-    }
-
-    @Synchronized
-    fun errorTimeoutPlus() {
-        errorTimeout++
-    }
-
-    @Synchronized
-    fun errorTotalPlus() {
-        errorTotal++
-    }
-
-    @Synchronized
-    fun errorIOPlus() {
-        errorIO++
-    }
-
     @ExceptionHandler
     fun userExceptionHandler(error: UserException): ResponseEntity<String> {
-        when (error) {
-            is UserException.CreditRatingException -> {
-                if (error.message == "CB서버 요청에 실패했습니다") {
-                    errorFailCBplus()
-                } else if (error.message == "데이터베이스에 접속할 수 없습니다") {
-                    errorCreditPlus()
-                } else if (error.message == "CB서버의 제한시간이 초과되었습니다") {
-                    errorTimeoutPlus()
-                }
-            }
-            is UserException.CreditRatingTimeoutException -> {
-                errorTimeoutPlus()
-            }
-        }
-        errorTotalPlus()
-        println("접속 불가: $errorCredit 제한 시간: $errorTimeout 요청 실패 : $errorFailCB 총합 : $errorTotal")
         println(error.message)
         return ResponseEntity<String>(error.message, error.status)
     }
@@ -122,14 +62,6 @@ class ExceptionHandler {
             is PropertyReferenceException -> {
                 message = "정렬할 수 없는 속성 값입니다"
                 status = HttpStatus.BAD_REQUEST
-            }
-            is IOException ->{
-                if(message == "chunked transfer encoding, state: READING_LENGTH"){
-                    errorIOPlus()
-                } else{
-                    println("ANOTHER ERROR")
-                }
-                println(errorIO)
             }
         }
 
