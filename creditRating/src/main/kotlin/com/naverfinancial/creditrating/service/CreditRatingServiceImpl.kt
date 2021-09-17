@@ -17,6 +17,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.sql.Timestamp
+import java.time.Duration
 
 @Service
 class CreditRatingServiceImpl : CreditRatingService {
@@ -74,6 +75,7 @@ class CreditRatingServiceImpl : CreditRatingService {
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8888/api/cb/grade"))
                 .POST(JsonFormData.formData(values))
+                .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
