@@ -32,9 +32,8 @@ class CreditRatingServiceImpl : CreditRatingService {
     }
 
     override fun selectGrade(user: User): CreditRatingSearchResult {
-//        var creditRatingSearchResult = findCreditRatingSearchResultByNdi(user.ndi)
-//        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
-        val grade = getGrade(user)
+        val creditRatingSearchResult = findCreditRatingSearchResultByNdi(user.ndi)
+        val grade = creditRatingSearchResult?.grade ?: getGrade(user)
         val isPermit = evaluateLoanAvailability(grade)
 
         return saveGrade(user.ndi, grade, isPermit)
@@ -53,7 +52,7 @@ class CreditRatingServiceImpl : CreditRatingService {
         val resultOfCreditRatingSearchHistory = creditRatingSearchHistoryRepository.save(newCreditRatingSearchHistory)
 
         // CreditRatingSearchResult 기록하기
-        var creditRatingSearchResult =
+        val creditRatingSearchResult =
             CreditRatingSearchResult(
                 ndi = ndi,
                 grade = grade,
