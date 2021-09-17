@@ -1,6 +1,6 @@
 package com.naverfinancial.loanservice.service
 
-import com.naverfinancial.loanservice.cache.UserCreditRatingCache
+import com.naverfinancial.loanservice.cache.LoanServiceCache
 import com.naverfinancial.loanservice.datasource.user.dto.User
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.datasource.user.repository.UserCreditRatingRepository
@@ -44,7 +44,7 @@ class UserServiceImpl : UserService {
             createdDate = Timestamp(System.currentTimeMillis())
         )
 
-        UserCreditRatingCache.insertCache(ndi, userCreditRating)
+        LoanServiceCache.userCreditRatingCache.insertCache(ndi, userCreditRating)
 
         return userCreditRatingRepository.save(userCreditRating)
     }

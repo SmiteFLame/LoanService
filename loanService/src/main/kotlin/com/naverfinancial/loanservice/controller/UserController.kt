@@ -1,6 +1,6 @@
 package com.naverfinancial.loanservice.controller
 
-import com.naverfinancial.loanservice.cache.UserCreditRatingCache
+import com.naverfinancial.loanservice.cache.LoanServiceCache
 import com.naverfinancial.loanservice.datasource.user.dto.User
 import com.naverfinancial.loanservice.datasource.user.dto.UserCreditRating
 import com.naverfinancial.loanservice.datasource.user.repository.UserCreditRatingRepository
@@ -112,7 +112,7 @@ class UserController {
      */
     @GetMapping("/credit-rating/{ndi}")
     fun selectCreditRating(@PathVariable ndi: String): ResponseEntity<UserCreditRating> {
-        var userCreditRating = UserCreditRatingCache.getCache(ndi)
+        var userCreditRating = LoanServiceCache.userCreditRatingCache.getCache(ndi)
         if (userCreditRating == null) {
             userCreditRating = userCreditRatingRepository.findUserCreditRatingByNdi(ndi)
             if (userCreditRating == null) {
